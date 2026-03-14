@@ -1,11 +1,24 @@
-//lib/main.dart
+// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'l10n/AppLocalizations.dart';
-import 'screens/HomeScreen.dart';
-import 'screens/TranslateScreen.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() => runApp(const VaniApp());
+import 'l10n/AppLocalizations.dart';
+import 'models/EmergencyContact.dart';
+import 'services/EmergencyService.dart';
+import 'screens/HomeScreen.dart';
+import 'components/SOSFloatingButton.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // ── Hive: local storage for emergency contacts ──
+  await Hive.initFlutter();
+  Hive.registerAdapter(EmergencyContactAdapter());
+  await Hive.openBox<EmergencyContact>('emergency_contacts');
+
+  runApp(const VaniApp());
+}
 
 class VaniApp extends StatefulWidget {
   const VaniApp({super.key});
@@ -48,7 +61,7 @@ class _VaniAppState extends State<VaniApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
 
-      // --- LIGHT THEME ---
+      // ── Light theme (unchanged) ──
       theme: ThemeData(
         brightness: Brightness.light,
         primaryColor: accentIndigo,
@@ -63,7 +76,7 @@ class _VaniAppState extends State<VaniApp> {
         useMaterial3: true,
       ),
 
-      // --- DARK THEME ---
+      // ── Dark theme (unchanged) ──
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: accentIndigo,
@@ -80,7 +93,56 @@ class _VaniAppState extends State<VaniApp> {
         useMaterial3: true,
       ),
 
-      home: HomeScreen(toggleTheme: toggleTheme, setLocale: setLocale),
+      // ── Root is now _RootShell (wraps HomeScreen + SOS FAB) ──
+      home: _RootShell(toggleTheme: toggleTheme, setLocale: setLocale),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// _RootShell
+// Wraps HomeScreen with the persistent SOS floating button and initialises
+// EmergencyService (shake detection + context) after the first frame.
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _RootShell extends StatefulWidget {
+  final VoidCallback toggleTheme;
+  final Function(Locale) setLocale;
+
+  const _RootShell({
+    required this.toggleTheme,
+    required this.setLocale,
+  });
+
+  @override
+  State<_RootShell> createState() => _RootShellState();
+}
+
+class _RootShellState extends State<_RootShell> {
+  @override
+  void initState() {
+    super.initState();
+    // Init after first frame so context is fully available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      EmergencyService.instance.init(context);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // HomeScreen provides its own Scaffold — this outer one
+      // exists only to host the persistent SOS FAB across all routes.
+      backgroundColor: Colors.transparent,
+      body: HomeScreen(
+        toggleTheme: widget.toggleTheme,
+        setLocale: widget.setLocale,
+      ),
+      floatingActionButton: SOSFloatingButton(
+        toggleTheme: widget.toggleTheme,
+        setLocale: widget.setLocale,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

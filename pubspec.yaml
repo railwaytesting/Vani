@@ -10,20 +10,43 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.0
 
+  # ── existing ──────────────────────────────
+  http: ^1.2.0
   camera: ^0.11.0+2
   cupertino_icons: ^1.0.8
   web_socket_channel: ^3.0.1
 
-  # Localization (intl auto-managed by Flutter)
+  # Localization
   flutter_localizations:
     sdk: flutter
+
+  # ── Emergency SOS ─────────────────────────
+
+  # Local storage for emergency contacts (offline, no backend)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Shake detection — Android/iOS only, safe no-op on web
+  shake: ^2.2.0
+
+  # GPS — geolocator on mobile, dart:html on web (conditional import)
+  geolocator: ^13.0.0
+
+  # Deep links — sms:, tel:, https:, wa.me:
+  url_launcher: ^6.3.0
+
+  # Haptic vibration — mobile only, safe no-op on web
+  vibration: ^2.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+  # Hive code generation — run once after adding
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.9
 
 flutter:
   uses-material-design: true

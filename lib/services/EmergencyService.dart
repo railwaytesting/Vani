@@ -9,15 +9,10 @@ import 'package:shake/shake.dart';
 import '../models/EmergencyContact.dart';
 import '../Utils/PlatformHelper.dart';
 import 'LocationService.dart';
+import 'package:flutter/services.dart';
 
 // Predefined SOS message types
-enum SOSMessageType {
-  generalHelp,
-  medical,
-  police,
-  fire,
-  custom,
-}
+enum SOSMessageType { generalHelp, medical, police, fire, custom }
 
 extension SOSMessageTypeExt on SOSMessageType {
   String get label {
@@ -68,8 +63,7 @@ extension SOSMessageTypeExt on SOSMessageType {
 
 class EmergencyService {
   static EmergencyService? _instance;
-  static EmergencyService get instance =>
-      _instance ??= EmergencyService._();
+  static EmergencyService get instance => _instance ??= EmergencyService._();
   EmergencyService._();
 
   // Hive box name for contacts
@@ -110,11 +104,13 @@ class EmergencyService {
     if (!PlatformHelper.supportsShake) return;
 
     _shakeDetector = ShakeDetector.autoStart(
-      onPhoneShake: () => _onShakeDetected(),
-      minimumShakeCount: 2,     // Need 2 shakes to avoid accidental triggers
+      onPhoneShake: (ShakeEvent event) =>
+          _onShakeDetected(), //made change to onPhoneShake from onPhoneShaked
+      minimumShakeCount: 2, // Need 2 shakes to avoid accidental triggers
       shakeSlopTimeMS: 500,
       shakeCountResetTime: 3000,
-      shakeThresholdGravity: 2.7, // Sensitivity: higher = harder to trigger accidentally
+      shakeThresholdGravity:
+          2.7, // Sensitivity: higher = harder to trigger accidentally
     );
   }
 
@@ -122,10 +118,7 @@ class EmergencyService {
     // Only auto-trigger if at least one contact is configured
     final contacts = getContacts();
     if (contacts.isEmpty) return;
-    triggerSOS(
-      type: SOSMessageType.generalHelp,
-      triggeredByShake: true,
-    );
+    triggerSOS(type: SOSMessageType.generalHelp, triggeredByShake: true);
   }
 
   void stopShakeDetection() {
@@ -301,7 +294,10 @@ class EmergencyService {
           sent++;
         } else {
           // SMS failed — try WhatsApp as fallback
-          final waFallback = _buildWhatsAppUrl(contact.internationalPhone, message);
+          final waFallback = _buildWhatsAppUrl(
+            contact.internationalPhone,
+            message,
+          );
           final waUri = Uri.parse(waFallback);
           if (await canLaunchUrl(waUri)) {
             await launchUrl(waUri, mode: LaunchMode.externalApplication);
@@ -415,12 +411,20 @@ class EmergencyService {
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0C0C14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(children: [
-          Text('⚠️', style: TextStyle(fontSize: 20)),
-          SizedBox(width: 10),
-          Text('No contacts saved',
-              style: TextStyle(color: Color(0xFFF0EEFF), fontSize: 18, fontWeight: FontWeight.w700)),
-        ]),
+        title: const Row(
+          children: [
+            Text('⚠️', style: TextStyle(fontSize: 20)),
+            SizedBox(width: 10),
+            Text(
+              'No contacts saved',
+              style: TextStyle(
+                color: Color(0xFFF0EEFF),
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
         content: const Text(
           'You have not saved any emergency contacts yet.\n\nPlease go to Emergency Settings and add at least one contact.',
           style: TextStyle(color: Color(0xFF7A7A9A), height: 1.6),
@@ -445,20 +449,31 @@ class EmergencyService {
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0C0C14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('🆘 Emergency Message',
-            style: TextStyle(color: Color(0xFFF0EEFF), fontWeight: FontWeight.w700)),
+        title: const Text(
+          '🆘 Emergency Message',
+          style: TextStyle(
+            color: Color(0xFFF0EEFF),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Copy this message and send to:',
-                style: TextStyle(color: Color(0xFF7A7A9A))),
+            const Text(
+              'Copy this message and send to:',
+              style: TextStyle(color: Color(0xFF7A7A9A)),
+            ),
             const SizedBox(height: 8),
-            ...contacts.map((c) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text('• ${c.name}: ${c.phone}',
-                      style: const TextStyle(color: Color(0xFFA78BFA))),
-                )),
+            ...contacts.map(
+              (c) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  '• ${c.name}: ${c.phone}',
+                  style: const TextStyle(color: Color(0xFFA78BFA)),
+                ),
+              ),
+            ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
@@ -468,7 +483,11 @@ class EmergencyService {
               ),
               child: SelectableText(
                 message,
-                style: const TextStyle(color: Color(0xFFF0EEFF), fontSize: 13, height: 1.6),
+                style: const TextStyle(
+                  color: Color(0xFFF0EEFF),
+                  fontSize: 13,
+                  height: 1.6,
+                ),
               ),
             ),
           ],
@@ -476,7 +495,10 @@ class EmergencyService {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close', style: TextStyle(color: Color(0xFF7C3AED))),
+            child: const Text(
+              'Close',
+              style: TextStyle(color: Color(0xFF7C3AED)),
+            ),
           ),
         ],
       ),
@@ -564,7 +586,10 @@ class _WebSOSModalState extends State<_WebSOSModal> {
   bool _messageCopied = false;
 
   Future<void> _openWhatsApp(EmergencyContact contact) async {
-    final url = widget.buildWhatsApp(contact.internationalPhone, widget.message);
+    final url = widget.buildWhatsApp(
+      contact.internationalPhone,
+      widget.message,
+    );
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -588,8 +613,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
   }
 
   void _copyMessage() {
-    // Use Clipboard from Flutter services
-    // (import at top of file: import 'package:flutter/services.dart';)
+    Clipboard.setData(ClipboardData(text: widget.message));
     setState(() => _messageCopied = true);
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) setState(() => _messageCopied = false);
@@ -609,29 +633,42 @@ class _WebSOSModalState extends State<_WebSOSModal> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Row(children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDC2626).withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text('🆘', style: TextStyle(fontSize: 24)),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Text('Emergency SOS Activated',
-                      style: TextStyle(
-                          color: Color(0xFFF0EEFF), fontSize: 18, fontWeight: FontWeight.w800)),
-                  const SizedBox(height: 3),
-                  Text(
-                    widget.type.label,
-                    style: const TextStyle(color: Color(0xFFDC2626), fontSize: 13),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDC2626).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ]),
-              ),
-            ]),
+                  child: const Text('🆘', style: TextStyle(fontSize: 24)),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Emergency SOS Activated',
+                        style: TextStyle(
+                          color: Color(0xFFF0EEFF),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        widget.type.label,
+                        style: const TextStyle(
+                          color: Color(0xFFDC2626),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
 
             const SizedBox(height: 20),
 
@@ -644,95 +681,130 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                     : const Color(0xFFD97706).withOpacity(0.12),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(children: [
-                Text(
-                  widget.location.isAvailable ? '📍' : '⚠️',
-                  style: const TextStyle(fontSize: 14),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    widget.location.isAvailable
-                        ? 'Location attached: ${widget.location.displayString}'
-                        : 'Location unavailable — message sent without coordinates',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: widget.location.isAvailable
-                          ? const Color(0xFF059669)
-                          : const Color(0xFFD97706),
+              child: Row(
+                children: [
+                  Text(
+                    widget.location.isAvailable ? '📍' : '⚠️',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      widget.location.isAvailable
+                          ? 'Location attached: ${widget.location.displayString}'
+                          : 'Location unavailable — message sent without coordinates',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: widget.location.isAvailable
+                            ? const Color(0xFF059669)
+                            : const Color(0xFFD97706),
+                      ),
                     ),
                   ),
-                ),
-              ]),
+                ],
+              ),
             ),
 
             const SizedBox(height: 20),
 
             // Contact buttons
-            const Text('Send to your emergency contacts:',
-                style: TextStyle(
-                    color: Color(0xFF7A7A9A), fontSize: 13, fontWeight: FontWeight.w600)),
+            const Text(
+              'Send to your emergency contacts:',
+              style: TextStyle(
+                color: Color(0xFF7A7A9A),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 12),
 
-            ...widget.contacts.map((contact) => Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF121220),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFF2E2E48)),
-                  ),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Row(children: [
-                      Text(contact.name,
+            ...widget.contacts.map(
+              (contact) => Container(
+                margin: const EdgeInsets.only(bottom: 10),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF121220),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFF2E2E48)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          contact.name,
                           style: const TextStyle(
-                              color: Color(0xFFF0EEFF), fontWeight: FontWeight.w700)),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF7C3AED).withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(4),
+                            color: Color(0xFFF0EEFF),
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                        child: Text(contact.relation,
-                            style: const TextStyle(
-                                color: Color(0xFFA78BFA), fontSize: 11)),
-                      ),
-                      if (contact.isPrimary) ...[
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFDC2626).withOpacity(0.15),
+                            color: const Color(0xFF7C3AED).withOpacity(0.15),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text('Primary',
-                              style: TextStyle(color: Color(0xFFDC2626), fontSize: 10)),
+                          child: Text(
+                            contact.relation,
+                            style: const TextStyle(
+                              color: Color(0xFFA78BFA),
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                        if (contact.isPrimary) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFDC2626).withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'Primary',
+                              style: TextStyle(
+                                color: Color(0xFFDC2626),
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        // WhatsApp button
+                        Expanded(
+                          child: _WebContactButton(
+                            label: 'WhatsApp',
+                            color: const Color(0xFF25D366),
+                            onTap: () => _openWhatsApp(contact),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Call button
+                        Expanded(
+                          child: _WebContactButton(
+                            label: 'Call',
+                            color: const Color(0xFF0284C7),
+                            onTap: () => _openTel(contact),
+                          ),
                         ),
                       ],
-                    ]),
-                    const SizedBox(height: 10),
-                    Row(children: [
-                      // WhatsApp button
-                      Expanded(
-                        child: _WebContactButton(
-                          label: 'WhatsApp',
-                          color: const Color(0xFF25D366),
-                          onTap: () => _openWhatsApp(contact),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Call button
-                      Expanded(
-                        child: _WebContactButton(
-                          label: 'Call',
-                          color: const Color(0xFF0284C7),
-                          onTap: () => _openTel(contact),
-                        ),
-                      ),
-                    ]),
-                  ]),
-                )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
 
             const SizedBox(height: 8),
 
@@ -754,10 +826,14 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                   ),
                 ),
                 child: Text(
-                  _messageCopied ? '✓ Message copied!' : '📋 Copy emergency message',
+                  _messageCopied
+                      ? '✓ Message copied!'
+                      : '📋 Copy emergency message',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: _messageCopied ? const Color(0xFF059669) : const Color(0xFF7A7A9A),
+                    color: _messageCopied
+                        ? const Color(0xFF059669)
+                        : const Color(0xFF7A7A9A),
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
@@ -772,8 +848,10 @@ class _WebSOSModalState extends State<_WebSOSModal> {
               width: double.infinity,
               child: TextButton(
                 onPressed: widget.onClose,
-                child: const Text('I am safe now — Close',
-                    style: TextStyle(color: Color(0xFF7A7A9A))),
+                child: const Text(
+                  'I am safe now — Close',
+                  style: TextStyle(color: Color(0xFF7A7A9A)),
+                ),
               ),
             ),
           ],

@@ -28,8 +28,7 @@ dependencies:
   hive_flutter: ^1.1.0
 
   # Shake detection — Android/iOS only, safe no-op on web
-  shake: ^2.2.0
-
+  shake: ^3.0.0                     
   # GPS — geolocator on mobile, dart:html on web (conditional import)
   geolocator: ^13.0.0
 
@@ -38,6 +37,9 @@ dependencies:
 
   # Haptic vibration — mobile only, safe no-op on web
   vibration: ^2.0.0
+
+# Text-to-speech — EN + regional Indian languages
+  flutter_tts: ^4.0.2
 
 dev_dependencies:
   flutter_test:

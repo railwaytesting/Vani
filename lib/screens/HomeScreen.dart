@@ -781,6 +781,7 @@ class _ObjectivesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isMobile = !isDesktop && !isTablet;
     final cards = [
       (
         icon: Icons.accessibility_new_rounded,
@@ -864,6 +865,7 @@ class _ObjectivesGrid extends StatelessWidget {
               title: c.title,
               desc: c.desc,
               isDark: isDark,
+              isMobile: isMobile, //added
               accent: c.color,
               page: c.page,
             ),
@@ -877,6 +879,7 @@ class _ObjCard extends StatefulWidget {
   final IconData icon;
   final String title, desc;
   final bool isDark;
+  final bool isMobile; //added
   final Color accent;
   final Widget page;
   const _ObjCard({
@@ -884,6 +887,7 @@ class _ObjCard extends StatefulWidget {
     required this.title,
     required this.desc,
     required this.isDark,
+    required this.isMobile, //added
     required this.accent,
     required this.page,
   });

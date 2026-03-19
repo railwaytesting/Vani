@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../components/GlobalNavbar.dart';
+import '../l10n/AppLocalizations.dart';
 import '../services/EmergencyService.dart';
 import '../Utils/PlatformHelper.dart';
 import 'EmergencySetupScreen.dart';
@@ -643,6 +644,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   // ── No contacts banner ───────────────────────────────────────
 
   Widget _buildNoContactsBanner(_T t) {
+    final l = AppLocalizations.of(context);
     return GestureDetector(
       onTap: () => Navigator.push(context, PageRouteBuilder(
         pageBuilder: (_, a, __) => EmergencySetupScreen(
@@ -662,10 +664,10 @@ class _EmergencyScreenState extends State<EmergencyScreen>
           const Icon(Icons.warning_amber_rounded, color: _kAmber, size: 18),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('No emergency contacts configured',
-                style: TextStyle(color: _kAmber, fontSize: 12, fontWeight: FontWeight.w700)),
+            Text(l.t('sos_no_contacts_title'),
+              style: const TextStyle(color: _kAmber, fontSize: 12, fontWeight: FontWeight.w700)),
             const SizedBox(height: 2),
-            Text('SOS alerts cannot be sent without contacts. Tap here to add them.',
+            Text(l.t('sos_no_contacts_body'),
                 style: TextStyle(color: _kAmber.withOpacity(0.75), fontSize: 11, height: 1.4)),
           ])),
           const Icon(Icons.arrow_forward_ios_rounded, color: _kAmber, size: 12),
@@ -718,6 +720,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   // ── Info row (helplines) ─────────────────────────────────────
 
   Widget _buildInfoRow(_T t) {
+    final l = AppLocalizations.of(context);
     final items = [
       ('112', 'National\nEmergency', _kCrimson),
       ('108', 'Ambulance', _kOrange),
@@ -733,7 +736,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         border: Border.all(color: t.border),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('Quick helpline reference',
+        Text(l.t('sos_helpline_ref'),
             style: TextStyle(
               color: t.textSec, fontSize: 10,
               fontWeight: FontWeight.w700, letterSpacing: 1.0,
@@ -774,6 +777,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   // ── Shake card ───────────────────────────────────────────────
 
   Widget _buildShakeCard(_T t) {
+    final l = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -797,11 +801,10 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         ),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Shake to send "I Need Help"',
+          Text(l.t('sos_shake_title'),
               style: TextStyle(color: t.textPri, fontSize: 12, fontWeight: FontWeight.w700)),
           const SizedBox(height: 3),
-          Text(
-            'Works from any screen — shake the phone twice to instantly send a General Help alert to all contacts.',
+          Text(l.t('sos_shake_body'),
             style: TextStyle(color: t.textSec, fontSize: 11, height: 1.5),
           ),
         ])),
@@ -812,6 +815,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   // ── Contacts button ──────────────────────────────────────────
 
   Widget _buildContactsButton(_T t) {
+    final l = AppLocalizations.of(context);
     final count = _service.contactCount;
     return GestureDetector(
       onTap: () => Navigator.push(context, PageRouteBuilder(
@@ -840,8 +844,10 @@ class _EmergencyScreenState extends State<EmergencyScreen>
           const SizedBox(width: 12),
           Expanded(child: Text(
             count > 0
-                ? '$count emergency contact${count == 1 ? '' : 's'} configured'
-                : 'Set up emergency contacts',
+                ? (count == 1
+                    ? l.t('sos_contacts_configured').replaceAll('{n}', count.toString())
+                    : l.t('sos_contacts_plural').replaceAll('{n}', count.toString()))
+                : l.t('sos_setup_contacts'),
             style: TextStyle(color: t.textSec, fontSize: 13, fontWeight: FontWeight.w600),
           )),
           Icon(Icons.arrow_forward_ios_rounded, color: t.textMuted, size: 12),
@@ -893,6 +899,7 @@ class _ScenarioCardState extends State<_ScenarioCard>
 
   @override
   Widget build(BuildContext context) {
+    final l  = AppLocalizations.of(context);
     final s  = widget.scenario;
     final t  = widget.t;
     final c  = s.color;
@@ -992,7 +999,7 @@ class _ScenarioCardState extends State<_ScenarioCard>
 
                       // Title
                       Text(
-                        widget.isSending ? 'Sending alert...' : s.title,
+                        widget.isSending ? l.t('sos_sending') : _titleForScenario(l, s),
                         style: TextStyle(
                           color: widget.isSending ? sc : t.textPri,
                           fontSize: 14, fontWeight: FontWeight.w800,
@@ -1005,8 +1012,10 @@ class _ScenarioCardState extends State<_ScenarioCard>
                       // Subtitle
                       Text(
                         widget.isSending
-                            ? 'Contacting ${_service.contactCount} person${_service.contactCount == 1 ? '' : 's'}...'
-                            : s.subtitle,
+                          ? (_service.contactCount == 1
+                            ? l.t('sos_contacting').replaceAll('{n}', _service.contactCount.toString())
+                            : l.t('sos_contacting_plural').replaceAll('{n}', _service.contactCount.toString()))
+                          : _subtitleForScenario(l, s),
                         style: TextStyle(
                           color: widget.isSending
                               ? sc.withOpacity(0.7)
@@ -1053,6 +1062,26 @@ class _ScenarioCardState extends State<_ScenarioCard>
   }
 
   EmergencyService get _service => EmergencyService.instance;
+
+  String _titleForScenario(AppLocalizations l, _SOSScenario s) {
+    if (s.helplineNumber == '112') return l.t('sos_general_title');
+    if (s.helplineNumber == '108') return l.t('sos_medical_title');
+    if (s.helplineNumber == '100') return l.t('sos_police_title');
+    if (s.helplineNumber == '101') return l.t('sos_fire_title');
+    if (s.helplineNumber == '1033') return l.t('sos_accident_title');
+    if (s.helplineNumber == '1098') return l.t('sos_child_title');
+    return s.title;
+  }
+
+  String _subtitleForScenario(AppLocalizations l, _SOSScenario s) {
+    if (s.helplineNumber == '112') return l.t('sos_general_sub');
+    if (s.helplineNumber == '108') return l.t('sos_medical_sub');
+    if (s.helplineNumber == '100') return l.t('sos_police_sub');
+    if (s.helplineNumber == '101') return l.t('sos_fire_sub');
+    if (s.helplineNumber == '1033') return l.t('sos_accident_sub');
+    if (s.helplineNumber == '1098') return l.t('sos_child_sub');
+    return s.subtitle;
+  }
 }
 
 // ════════════════════════════════════════════════════════════════

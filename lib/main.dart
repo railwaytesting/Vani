@@ -49,7 +49,7 @@ class _VaniAppState extends State<VaniApp> {
     const surfaceCard = Color(0xFF0D0D1F);
 
     return MaterialApp(
-      title: 'Vani — Sign Language AI',
+      onGenerateTitle: (context) => AppLocalizations.of(context).t('app_title'),
       debugShowCheckedModeBanner: false,
       themeMode: _themeMode,
       locale: _locale,

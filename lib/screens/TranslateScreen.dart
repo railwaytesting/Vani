@@ -315,37 +315,32 @@ class _OnboardingFlowState extends State<_OnboardingFlow>
     (
       icon: Icons.center_focus_strong_rounded,
       color: Color(0xFF4F6EF7),
-      title: 'Position Yourself',
-      body:
-          'Stand or sit so your upper body and hands are clearly visible. Keep 1–2 feet away from the camera for best detection accuracy.',
+      titleKey: 'translate_onboard_title_1',
+      bodyKey: 'translate_onboard_body_1',
     ),
     (
       icon: Icons.back_hand_rounded,
       color: Color(0xFF22C55E),
-      title: 'Hold Each Gesture',
-      body:
-          'Hold each hand sign steady for at least 2 seconds. If a sign is missed, hold it for up to 5 seconds and the system will re-attempt detection.',
+      titleKey: 'translate_onboard_title_2',
+      bodyKey: 'translate_onboard_body_2',
     ),
     (
       icon: Icons.wb_sunny_rounded,
       color: Color(0xFFF59E0B),
-      title: 'Ensure Good Lighting',
-      body:
-          'Make sure your hands are well lit. Avoid strong backlighting or shadows. Natural overhead light gives the best recognition results.',
+      titleKey: 'translate_onboard_title_3',
+      bodyKey: 'translate_onboard_body_3',
     ),
     (
       icon: Icons.auto_fix_high_rounded,
       color: Color(0xFFA78BFA),
-      title: 'Sentence Builder',
-      body:
-          'Signs above 85% confidence are auto-chained into sentences. Tap "Add Sign" to add manually. Press "Save to Transcript" when done.',
+      titleKey: 'translate_onboard_title_4',
+      bodyKey: 'translate_onboard_body_4',
     ),
     (
       icon: Icons.translate_rounded,
       color: Color(0xFFEF4444),
-      title: 'Live Translation',
-      body:
-          'Every detected sign is instantly translated to your chosen regional language. You can change the language anytime during a live session.',
+      titleKey: 'translate_onboard_title_5',
+      bodyKey: 'translate_onboard_body_5',
     ),
   ];
 
@@ -515,6 +510,7 @@ class _OnboardingFlowState extends State<_OnboardingFlow>
 
   // ── Steps dialog ─────────────────────────────
   Widget _steps_dialog(bool d) {
+    final l = AppLocalizations.of(context);
     final step = _steps[_stepIndex];
     final isLast = _stepIndex == _steps.length - 1;
     return Stack(
@@ -582,7 +578,7 @@ class _OnboardingFlowState extends State<_OnboardingFlow>
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    'HOW TO USE',
+                                    l.t('translate_how_to_use'),
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w800,
@@ -630,7 +626,7 @@ class _OnboardingFlowState extends State<_OnboardingFlow>
                             AnimatedSwitcher(
                               duration: const Duration(milliseconds: 180),
                               child: Text(
-                                step.title,
+                                l.t(step.titleKey),
                                 key: ValueKey('t$_stepIndex'),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
@@ -646,7 +642,7 @@ class _OnboardingFlowState extends State<_OnboardingFlow>
                             AnimatedSwitcher(
                               duration: const Duration(milliseconds: 180),
                               child: Text(
-                                step.body,
+                                l.t(step.bodyKey),
                                 key: ValueKey('b$_stepIndex'),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
@@ -683,7 +679,7 @@ class _OnboardingFlowState extends State<_OnboardingFlow>
                                 if (_stepIndex > 0) ...[
                                   Expanded(
                                     child: _OBtn(
-                                      label: 'Back',
+                                      label: l.t('translate_back'),
                                       icon: Icons.arrow_back_rounded,
                                       isDark: d,
                                       onTap: _prev,
@@ -694,7 +690,9 @@ class _OnboardingFlowState extends State<_OnboardingFlow>
                                 Expanded(
                                   flex: 2,
                                   child: _PBtn(
-                                    label: isLast ? "Let's Begin" : 'Next',
+                                    label: isLast
+                                        ? l.t('translate_lets_begin')
+                                        : l.t('translate_next'),
                                     icon: isLast
                                         ? Icons.play_arrow_rounded
                                         : Icons.arrow_forward_rounded,
@@ -709,7 +707,7 @@ class _OnboardingFlowState extends State<_OnboardingFlow>
                               GestureDetector(
                                 onTap: widget.onComplete,
                                 child: Text(
-                                  'Skip tutorial',
+                                  l.t('translate_skip_tutorial'),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: _C.textMuted(d),
@@ -1702,6 +1700,7 @@ class _TranslateScreenState extends State<TranslateScreen>
 
   // ── Sentence builder section ──────────────────
   Widget _sentenceSection(bool d) {
+    final l = AppLocalizations.of(context);
     return _Card(
       isDark: d,
       gradientAccent: LinearGradient(
@@ -1727,7 +1726,7 @@ class _TranslateScreenState extends State<TranslateScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Sentence Builder',
+                      l.t('translate_sentence_builder'),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -1735,7 +1734,7 @@ class _TranslateScreenState extends State<TranslateScreen>
                       ),
                     ),
                     Text(
-                      'Signs auto-chain into natural language',
+                      l.t('translate_auto_chain_subtitle'),
                       style: TextStyle(fontSize: 11, color: _C.textSub(d)),
                     ),
                   ],
@@ -1758,8 +1757,8 @@ class _TranslateScreenState extends State<TranslateScreen>
                     children: [
                       const Icon(Icons.add_rounded, color: _C.accent, size: 15),
                       const SizedBox(width: 5),
-                      const Text(
-                        'Add Sign',
+                      Text(
+                        l.t('translate_add_sign'),
                         style: TextStyle(
                           color: _C.accent,
                           fontSize: 11,
@@ -1806,7 +1805,7 @@ class _TranslateScreenState extends State<TranslateScreen>
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Generated sentence',
+                  l.t('translate_generated_sentence'),
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -1900,7 +1899,7 @@ class _TranslateScreenState extends State<TranslateScreen>
               children: [
                 Expanded(
                   child: _FillBtn(
-                    label: 'Save to Transcript',
+                    label: l.t('translate_save_transcript'),
                     icon: Icons.save_alt_rounded,
                     color: _C.accent,
                     onTap: _commitToTranscript,
@@ -1910,14 +1909,14 @@ class _TranslateScreenState extends State<TranslateScreen>
                 _IconBtn(
                   icon: Icons.backspace_outlined,
                   color: _C.amber,
-                  tooltip: 'Remove last',
+                  tooltip: l.t('translate_remove_last'),
                   onTap: _removeLastToken,
                 ),
                 const SizedBox(width: 8),
                 _IconBtn(
                   icon: Icons.delete_sweep_rounded,
                   color: _C.red,
-                  tooltip: 'Clear all',
+                  tooltip: l.t('translate_clear_all'),
                   onTap: _clearBuilder,
                 ),
               ],
@@ -1977,14 +1976,14 @@ class _TranslateScreenState extends State<TranslateScreen>
               _IconBtn(
                 icon: Icons.copy_outlined,
                 color: _C.accent,
-                tooltip: 'Copy transcript',
+                tooltip: l.t('translate_copy_transcript'),
                 onTap: () => _copy(_transcriptCtrl.text),
               ),
               const SizedBox(width: 8),
               _IconBtn(
                 icon: Icons.delete_outline_rounded,
                 color: _C.red,
-                tooltip: 'Clear',
+                tooltip: l.t('bridge_clear'),
                 onTap: _transcriptCtrl.clear,
               ),
             ],

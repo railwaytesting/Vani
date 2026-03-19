@@ -255,7 +255,7 @@ class _Header extends StatelessWidget {
           Container(width: 5, height: 5, decoration: const BoxDecoration(
             shape: BoxShape.circle, color: _kVioletLight)),
           const SizedBox(width: 7),
-          Text('ISL SIGNS LIBRARY', style: TextStyle(
+          Text(l.t('signs_title_highlight').toUpperCase(), style: TextStyle(
             fontSize: 10, fontWeight: FontWeight.w800,
             color: _kVioletLight, letterSpacing: 2.4,
           )),
@@ -711,7 +711,7 @@ class _Front extends StatelessWidget {
                   Icon(Icons.touch_app_rounded, size: 10,
                       color: isDark ? _kTextMuted : Colors.grey[350]),
                   const SizedBox(width: 4),
-                  Text('tap to flip', style: TextStyle(
+                  Text(l.t('signs_tap_flip'), style: TextStyle(
                     fontSize: 9.5, fontWeight: FontWeight.w500, letterSpacing: 0.3,
                     color: isDark ? _kTextMuted : Colors.grey[380],
                   )),

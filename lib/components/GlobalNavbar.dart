@@ -512,7 +512,7 @@ class _MobileEmergencyIconState extends State<_MobileEmergencyIcon>
       ),
       child: IconButton(
         onPressed: widget.onTap,
-        tooltip: 'Emergency SOS',
+        tooltip: AppLocalizations.of(context).t('nav_emergency'),
         style: IconButton.styleFrom(
           backgroundColor:
               crimson.withOpacity(widget.isActive ? 0.18 : 0.10),

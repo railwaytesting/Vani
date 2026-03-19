@@ -5,6 +5,7 @@
 // Configures the SOS message type (general, medical, police) and opens a full-screen SOS page with more details and options.
 
 import 'package:flutter/material.dart';
+import '../l10n/AppLocalizations.dart';
 import '../services/EmergencyService.dart';
 import '../screens/EmergencyScreen.dart';
 
@@ -47,6 +48,7 @@ class _SOSFloatingButtonState extends State<SOSFloatingButton>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -54,7 +56,7 @@ class _SOSFloatingButtonState extends State<SOSFloatingButton>
         // Mini quick-action buttons when expanded
         if (_expanded) ...[
           _QuickSOSButton(
-            label: 'I need help',
+            label: l.t('sos_general_title'),
             emoji: '🆘',
             color: const Color(0xFFDC2626),
             onTap: () {
@@ -65,7 +67,7 @@ class _SOSFloatingButtonState extends State<SOSFloatingButton>
           ),
           const SizedBox(height: 8),
           _QuickSOSButton(
-            label: 'Medical',
+            label: l.t('sos_medical_title'),
             emoji: '🏥',
             color: const Color(0xFFE53E3E),
             onTap: () {
@@ -76,7 +78,7 @@ class _SOSFloatingButtonState extends State<SOSFloatingButton>
           ),
           const SizedBox(height: 8),
           _QuickSOSButton(
-            label: 'Police',
+            label: l.t('sos_police_title'),
             emoji: '👮',
             color: const Color(0xFF0284C7),
             onTap: () {
@@ -87,7 +89,7 @@ class _SOSFloatingButtonState extends State<SOSFloatingButton>
           ),
           const SizedBox(height: 8),
           _QuickSOSButton(
-            label: 'Full screen',
+            label: l.t('sos_full_screen'),
             emoji: '📋',
             color: const Color(0xFF7C3AED),
             onTap: () {

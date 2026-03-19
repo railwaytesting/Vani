@@ -7,6 +7,7 @@ import 'package:vibration/vibration.dart';
 import 'package:shake/shake.dart';
 
 import '../models/EmergencyContact.dart';
+import '../l10n/AppLocalizations.dart';
 import '../Utils/PlatformHelper.dart';
 import 'LocationService.dart';
 import 'package:flutter/services.dart';
@@ -406,18 +407,19 @@ class EmergencyService {
   // ─────────────────────────────────────────────
 
   void _showNoContactsDialog(BuildContext context) {
+    final l = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: const Color(0xFF0C0C14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Text('⚠️', style: TextStyle(fontSize: 20)),
-            SizedBox(width: 10),
+            const Text('⚠️', style: TextStyle(fontSize: 20)),
+            const SizedBox(width: 10),
             Text(
-              'No contacts saved',
-              style: TextStyle(
+              l.t('sos_no_contacts_title'),
+              style: const TextStyle(
                 color: Color(0xFFF0EEFF),
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -425,14 +427,14 @@ class EmergencyService {
             ),
           ],
         ),
-        content: const Text(
-          'You have not saved any emergency contacts yet.\n\nPlease go to Emergency Settings and add at least one contact.',
-          style: TextStyle(color: Color(0xFF7A7A9A), height: 1.6),
+        content: Text(
+          l.t('sos_no_contacts_body'),
+          style: const TextStyle(color: Color(0xFF7A7A9A), height: 1.6),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK', style: TextStyle(color: Color(0xFF7C3AED))),
+            child: Text(l.t('common_ok'), style: const TextStyle(color: Color(0xFF7C3AED))),
           ),
         ],
       ),
@@ -622,6 +624,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Dialog(
       backgroundColor: const Color(0xFF0C0C14),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -648,9 +651,9 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Emergency SOS Activated',
-                        style: TextStyle(
+                      Text(
+                        l.t('sos_activated_title'),
+                        style: const TextStyle(
                           color: Color(0xFFF0EEFF),
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -658,7 +661,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        widget.type.label,
+                        _localizedTypeLabel(l, widget.type),
                         style: const TextStyle(
                           color: Color(0xFFDC2626),
                           fontSize: 13,
@@ -691,8 +694,10 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                   Expanded(
                     child: Text(
                       widget.location.isAvailable
-                          ? 'Location attached: ${widget.location.displayString}'
-                          : 'Location unavailable — message sent without coordinates',
+                          ? l
+                              .t('sos_location_attached')
+                              .replaceAll('{location}', widget.location.displayString)
+                          : l.t('sos_location_unavailable'),
                       style: TextStyle(
                         fontSize: 12,
                         color: widget.location.isAvailable
@@ -708,9 +713,9 @@ class _WebSOSModalState extends State<_WebSOSModal> {
             const SizedBox(height: 20),
 
             // Contact buttons
-            const Text(
-              'Send to your emergency contacts:',
-              style: TextStyle(
+            Text(
+              l.t('sos_send_to_contacts'),
+              style: const TextStyle(
                 color: Color(0xFF7A7A9A),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -768,9 +773,9 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                               color: const Color(0xFFDC2626).withOpacity(0.15),
                               borderRadius: BorderRadius.circular(4),
                             ),
-                            child: const Text(
-                              'Primary',
-                              style: TextStyle(
+                            child: Text(
+                              l.t('sos_primary_badge'),
+                              style: const TextStyle(
                                 color: Color(0xFFDC2626),
                                 fontSize: 10,
                               ),
@@ -785,7 +790,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                         // WhatsApp button
                         Expanded(
                           child: _WebContactButton(
-                            label: 'WhatsApp',
+                            label: l.t('sos_whatsapp'),
                             color: const Color(0xFF25D366),
                             onTap: () => _openWhatsApp(contact),
                           ),
@@ -794,7 +799,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                         // Call button
                         Expanded(
                           child: _WebContactButton(
-                            label: 'Call',
+                            label: l.t('sos_call'),
                             color: const Color(0xFF0284C7),
                             onTap: () => _openTel(contact),
                           ),
@@ -827,8 +832,8 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                 ),
                 child: Text(
                   _messageCopied
-                      ? '✓ Message copied!'
-                      : '📋 Copy emergency message',
+                      ? l.t('sos_message_copied')
+                      : l.t('sos_copy_message'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: _messageCopied
@@ -848,9 +853,9 @@ class _WebSOSModalState extends State<_WebSOSModal> {
               width: double.infinity,
               child: TextButton(
                 onPressed: widget.onClose,
-                child: const Text(
-                  'I am safe now — Close',
-                  style: TextStyle(color: Color(0xFF7A7A9A)),
+                child: Text(
+                  l.t('sos_close_safe'),
+                  style: const TextStyle(color: Color(0xFF7A7A9A)),
                 ),
               ),
             ),
@@ -858,6 +863,21 @@ class _WebSOSModalState extends State<_WebSOSModal> {
         ),
       ),
     );
+  }
+
+  String _localizedTypeLabel(AppLocalizations l, SOSMessageType type) {
+    switch (type) {
+      case SOSMessageType.generalHelp:
+        return l.t('sos_general_title');
+      case SOSMessageType.medical:
+        return l.t('sos_medical_title');
+      case SOSMessageType.police:
+        return l.t('sos_police_title');
+      case SOSMessageType.fire:
+        return l.t('sos_fire_title');
+      case SOSMessageType.custom:
+        return l.t('sos_screen_title');
+    }
   }
 }
 

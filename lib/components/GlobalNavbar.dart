@@ -137,8 +137,7 @@ class GlobalNavbar extends StatelessWidget {
                     }
                   },
                 ),
-                // ── Two-Way Bridge link ──────────────
-                _BridgeNavLink(
+                _NavLink(
                   label: l.t('nav_bridge'),
                   isActive: activeRoute == 'bridge',
                   onTap: () {
@@ -184,7 +183,8 @@ class GlobalNavbar extends StatelessWidget {
 
               // ── Mobile: compact icon buttons ────────
               if (screenWidth <= 750) ...[
-                _MobileBridgeIcon(
+                _NavLink(
+                  label: l.t('nav_bridge'),
                   isActive: activeRoute == 'bridge',
                   onTap: () {
                     if (activeRoute != 'bridge') {
@@ -345,43 +345,6 @@ class _BridgeNavLinkState extends State<_BridgeNavLink>
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ──────────────────────────────────────────────────────────────────
-//  MOBILE BRIDGE ICON
-// ──────────────────────────────────────────────────────────────────
-class _MobileBridgeIcon extends StatelessWidget {
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _MobileBridgeIcon({
-    required this.isActive,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    const teal = Color(0xFF0891B2);
-    const tealLight = Color(0xFF22D3EE);
-
-    return Container(
-      margin: const EdgeInsets.only(right: 4),
-      child: IconButton(
-        onPressed: onTap,
-        tooltip: 'Two-Way Communication',
-        style: IconButton.styleFrom(
-          backgroundColor: teal.withOpacity(isActive ? 0.18 : 0.08),
-          side: BorderSide(
-              color: teal.withOpacity(isActive ? 0.55 : 0.2)),
-        ),
-        icon: const Icon(
-          Icons.compare_arrows_rounded,
-          color: tealLight,
-          size: 18,
         ),
       ),
     );

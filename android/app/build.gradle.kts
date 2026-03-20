@@ -17,6 +17,12 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
+        allWarningsAsErrors = false
+        freeCompilerArgs = listOf(
+            "-Xlint:-unchecked",
+            "-Xlint:-deprecation",
+            "-Xlint:-options"
+        )
     }
 
     defaultConfig {

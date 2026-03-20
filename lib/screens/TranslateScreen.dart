@@ -55,7 +55,6 @@ class _C {
   static const dTextMuted = Color(0xFF48556E);
 
   static const accent = Color(0xFF4F6EF7);
-  static const accentDeep = Color(0xFF3451D1);
   static const green = Color(0xFF22C55E);
   static const amber = Color(0xFFF59E0B);
   static const red = Color(0xFFEF4444);
@@ -1133,6 +1132,7 @@ class _TranslateScreenState extends State<TranslateScreen>
 
   Future<void> _captureAndSend() async {
     if (_isCapturing || !_wsConnected) return;
+    if (!_isCameraReady) return;
     if (_camCtrl == null || !_camCtrl!.value.isInitialized) return;
     _isCapturing = true;
     try {

@@ -19,7 +19,6 @@ const _kSurface        = Color(0xFF0C0C14);
 const _kSurfaceUp      = Color(0xFF111120);
 const _kSurfaceHigh    = Color(0xFF181830);
 const _kBorder         = Color(0xFF1E1E32);
-const _kBorderBright   = Color(0xFF2A2A44);
 const _kTextPri        = Color(0xFFF0EEFF);
 const _kTextSec        = Color(0xFF8888AA);
 const _kTextMuted      = Color(0xFF44445A);

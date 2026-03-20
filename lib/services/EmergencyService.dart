@@ -1,94 +1,136 @@
 // lib/services/EmergencyService.dart
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vibration/vibration.dart';
 import 'package:shake/shake.dart';
 
 import '../models/EmergencyContact.dart';
-import '../l10n/AppLocalizations.dart';
-import '../Utils/PlatformHelper.dart';
+import '../utils/PlatformHelper.dart';
 import 'LocationService.dart';
-import 'package:flutter/services.dart';
 
-// Predefined SOS message types
+// ─────────────────────────────────────────────
+//  SOS MESSAGE TYPES
+// ─────────────────────────────────────────────
+
 enum SOSMessageType { generalHelp, medical, police, fire, custom }
 
 extension SOSMessageTypeExt on SOSMessageType {
   String get label {
     switch (this) {
-      case SOSMessageType.generalHelp:
-        return 'I need help';
-      case SOSMessageType.medical:
-        return 'Medical emergency';
-      case SOSMessageType.police:
-        return 'Call police for me';
-      case SOSMessageType.fire:
-        return 'Fire nearby';
-      case SOSMessageType.custom:
-        return 'Custom message';
+      case SOSMessageType.generalHelp: return 'General Emergency';
+      case SOSMessageType.medical:     return 'Medical Emergency';
+      case SOSMessageType.police:      return 'Safety Emergency';
+      case SOSMessageType.fire:        return 'Fire Emergency';
+      case SOSMessageType.custom:      return 'Emergency Alert';
     }
   }
 
-  String get emoji {
-    switch (this) {
-      case SOSMessageType.generalHelp:
-        return '🆘';
-      case SOSMessageType.medical:
-        return '🏥';
-      case SOSMessageType.police:
-        return '👮';
-      case SOSMessageType.fire:
-        return '🔥';
-      case SOSMessageType.custom:
-        return '📢';
-    }
-  }
+  // Professional, plain-language messages — no emojis, fully readable as SMS
+  // Designed to be understood by someone receiving an unexpected message at 3 AM.
+  String get fullMessage => _buildBase(null);
 
-  String get fullMessage {
+  String _buildBase(String? locationBlock) {
+    final loc = locationBlock ?? 'Location data was not available at time of alert.';
     switch (this) {
       case SOSMessageType.generalHelp:
-        return 'I need immediate help! I am deaf/mute and cannot speak. Please assist me or call someone.';
+        return
+          'URGENT — EMERGENCY ALERT\n\n'
+          'This message was sent automatically by the VANI sign-language assistance app.\n\n'
+          'The person who sent this alert is DEAF or MUTE and cannot speak or call for help. '
+          'They require your immediate assistance.\n\n'
+          'Please do one or more of the following right now:\n'
+          '  1. Call them back at the number associated with this contact.\n'
+          '  2. Go to their current location.\n'
+          '  3. Contact emergency services (Dial 112) on their behalf.\n\n'
+          'They will respond via text message or sign language.\n\n'
+          'Current location:\n$loc\n\n'
+          'Time of alert: {TIME}\n\n'
+          '— Sent automatically via VANI Emergency SOS';
+
       case SOSMessageType.medical:
-        return 'MEDICAL EMERGENCY! I need an ambulance immediately. I am deaf/mute and cannot call. Please call 108 or help me get medical attention.';
+        return
+          'URGENT — MEDICAL EMERGENCY\n\n'
+          'This message was sent automatically by the VANI sign-language assistance app.\n\n'
+          'The person who sent this alert is DEAF or MUTE and is experiencing a medical emergency. '
+          'They are unable to call for help verbally.\n\n'
+          'Immediate actions required:\n'
+          '  1. Call an ambulance — Dial 108.\n'
+          '  2. Go to their location immediately.\n'
+          '  3. Contact a doctor or nearby hospital.\n\n'
+          'Current location:\n$loc\n\n'
+          'Time of alert: {TIME}\n\n'
+          '— Sent automatically via VANI Emergency SOS';
+
       case SOSMessageType.police:
-        return 'I need police assistance urgently. I am deaf/mute and cannot call 100. Please call the police or help me.';
+        return
+          'URGENT — SAFETY EMERGENCY\n\n'
+          'This message was sent automatically by the VANI sign-language assistance app.\n\n'
+          'The person who sent this alert is DEAF or MUTE and is in a dangerous situation. '
+          'They are unable to call the police verbally.\n\n'
+          'Immediate actions required:\n'
+          '  1. Call the police — Dial 100.\n'
+          '  2. Go to their location immediately.\n'
+          '  3. Alert someone nearby who can assist them.\n\n'
+          'Current location:\n$loc\n\n'
+          'Time of alert: {TIME}\n\n'
+          '— Sent automatically via VANI Emergency SOS';
+
       case SOSMessageType.fire:
-        return 'There is a fire nearby! Please call 101 (Fire) or evacuate. I am deaf/mute and cannot call for help.';
+        return
+          'URGENT — FIRE OR SMOKE EMERGENCY\n\n'
+          'This message was sent automatically by the VANI sign-language assistance app.\n\n'
+          'The person who sent this alert is DEAF or MUTE and is reporting a fire or smoke emergency. '
+          'They cannot call the fire brigade verbally.\n\n'
+          'Immediate actions required:\n'
+          '  1. Call the fire brigade — Dial 101.\n'
+          '  2. Ensure evacuation of the building.\n'
+          '  3. Alert people near this location.\n\n'
+          'Current location:\n$loc\n\n'
+          'Time of alert: {TIME}\n\n'
+          '— Sent automatically via VANI Emergency SOS';
+
       case SOSMessageType.custom:
-        return 'Emergency! I need help immediately. I am deaf/mute.';
+        return
+          'URGENT — EMERGENCY ALERT\n\n'
+          'This message was sent automatically by the VANI sign-language assistance app.\n\n'
+          'The person who sent this alert is DEAF or MUTE and requires immediate assistance. '
+          'They cannot communicate verbally.\n\n'
+          'Please contact them or go to their location immediately.\n\n'
+          'Current location:\n$loc\n\n'
+          'Time of alert: {TIME}\n\n'
+          '— Sent automatically via VANI Emergency SOS';
     }
   }
 }
+
+// ─────────────────────────────────────────────
+//  EMERGENCY SERVICE  (singleton)
+// ─────────────────────────────────────────────
 
 class EmergencyService {
   static EmergencyService? _instance;
   static EmergencyService get instance => _instance ??= EmergencyService._();
   EmergencyService._();
 
-  // Hive box name for contacts
   static const String _boxName = 'emergency_contacts';
 
   ShakeDetector? _shakeDetector;
-  bool _isTriggering = false; // Prevents double-triggers
-  BuildContext? _context; // For showing web modals
+  bool           _shakeActive   = false;
+  bool           _isTriggering  = false;
+  BuildContext?  _context;
 
-  // ─────────────────────────────────────────────
-  //  INITIALISATION
-  // ─────────────────────────────────────────────
+  // ── Initialisation ──────────────────────────
 
-  /// Call this in main.dart after Hive is initialised.
   Future<void> init(BuildContext context) async {
     _context = context;
     await _openBox();
     _startShakeDetection();
   }
 
-  /// Update the context when navigating (call from your root widget)
-  void updateContext(BuildContext context) {
-    _context = context;
-  }
+  void updateContext(BuildContext context) => _context = context;
 
   Future<void> _openBox() async {
     if (!Hive.isBoxOpen(_boxName)) {
@@ -97,70 +139,73 @@ class EmergencyService {
     }
   }
 
-  // ─────────────────────────────────────────────
-  //  SHAKE DETECTION (mobile only)
-  // ─────────────────────────────────────────────
+  // ── Shake detection ─────────────────────────
+  // Fix: shake uses ShakeDetector.autoStart; onPhoneShake callback
+  // signature matches void Function(ShakeEvent). _shakeActive prevents duplicate
+  // triggers during the 5-second GPS fetch + SMS flow.
 
   void _startShakeDetection() {
     if (!PlatformHelper.supportsShake) return;
+    if (_shakeDetector != null) return; // already running
 
-    _shakeDetector = ShakeDetector.autoStart(
-      onPhoneShake: (ShakeEvent event) =>
-          _onShakeDetected(), //made change to onPhoneShake from onPhoneShaked
-      minimumShakeCount: 2, // Need 2 shakes to avoid accidental triggers
-      shakeSlopTimeMS: 500,
-      shakeCountResetTime: 3000,
-      shakeThresholdGravity:
-          2.7, // Sensitivity: higher = harder to trigger accidentally
-    );
+    try {
+      _shakeDetector = ShakeDetector.autoStart(
+        onPhoneShake: _onShakeDetected,
+        minimumShakeCount:    2,     // two shakes required
+        shakeSlopTimeMS:      500,
+        shakeCountResetTime:  3000,
+        shakeThresholdGravity: 2.5,  // slightly more sensitive than 2.7
+      );
+    } catch (_) {
+      // shake_plus unavailable on this device — fail silently
+    }
   }
 
-  void _onShakeDetected() {
-    // Only auto-trigger if at least one contact is configured
-    final contacts = getContacts();
-    if (contacts.isEmpty) return;
-    triggerSOS(type: SOSMessageType.generalHelp, triggeredByShake: true);
+  void _onShakeDetected(ShakeEvent _) {
+    if (_shakeActive) return;    // already handling a shake
+    if (_isTriggering) return;   // SOS already in progress
+    if (getContacts().isEmpty) return; // nothing to send to
+
+    _shakeActive = true;
+    triggerSOS(type: SOSMessageType.generalHelp, triggeredByShake: true)
+        .then((_) {
+      Future.delayed(const Duration(seconds: 5), () => _shakeActive = false);
+    });
   }
 
   void stopShakeDetection() {
     _shakeDetector?.stopListening();
     _shakeDetector = null;
+    _shakeActive   = false;
   }
 
-  // ─────────────────────────────────────────────
-  //  CONTACT MANAGEMENT
-  // ─────────────────────────────────────────────
+  void restartShakeDetection() {
+    stopShakeDetection();
+    _startShakeDetection();
+  }
+
+  bool get shakeActive => _shakeDetector != null && PlatformHelper.supportsShake;
+
+  // ── Contact management ───────────────────────
 
   Box<EmergencyContact> get _box => Hive.box<EmergencyContact>(_boxName);
 
-  List<EmergencyContact> getContacts() {
-    return _box.values.toList();
-  }
+  List<EmergencyContact> getContacts() => _box.values.toList();
 
   Future<void> addContact(EmergencyContact contact) async {
-    // Max 5 contacts allowed
-    if (_box.length >= 5) {
-      throw Exception('Maximum 5 emergency contacts allowed.');
-    }
-    // Validate phone before saving
-    if (!contact.isValid) {
-      throw Exception('Invalid phone number: ${contact.phone}');
-    }
-    // If this is the first contact, make it primary automatically
-    if (_box.isEmpty) contact.isPrimary = true;
+    if (_box.length >= 5)  throw Exception('Maximum 5 emergency contacts allowed.');
+    if (!contact.isValid)  throw Exception('Invalid phone number: ${contact.phone}');
+    if (_box.isEmpty)      contact.isPrimary = true;
     await _box.add(contact);
   }
 
   Future<void> updateContact(int index, EmergencyContact updated) async {
-    if (!updated.isValid) {
-      throw Exception('Invalid phone number.');
-    }
+    if (!updated.isValid) throw Exception('Invalid phone number.');
     await _box.putAt(index, updated);
   }
 
   Future<void> deleteContact(int index) async {
     await _box.deleteAt(index);
-    // If primary was deleted and contacts remain, make first one primary
     final remaining = getContacts();
     if (remaining.isNotEmpty && !remaining.any((c) => c.isPrimary)) {
       remaining.first.isPrimary = true;
@@ -176,25 +221,20 @@ class EmergencyService {
     }
   }
 
-  bool get hasContacts => _box.isNotEmpty;
-  int get contactCount => _box.length;
+  bool get hasContacts  => _box.isNotEmpty;
+  int  get contactCount => _box.length;
 
-  // ─────────────────────────────────────────────
-  //  CORE SOS TRIGGER
-  // ─────────────────────────────────────────────
+  // ── Core SOS trigger ─────────────────────────
 
-  /// The main SOS trigger. Call this from panic buttons or shake detection.
-  /// Handles all permutations: no contacts, no GPS, mobile, web, desktop.
   Future<SOSResult> triggerSOS({
     required SOSMessageType type,
     String? customMessage,
     bool triggeredByShake = false,
   }) async {
-    // Prevent simultaneous double triggers
     if (_isTriggering) {
       return SOSResult(
         success: false,
-        reason: 'SOS already in progress',
+        reason: 'SOS already in progress.',
         platform: PlatformHelper.platformName,
       );
     }
@@ -202,70 +242,69 @@ class EmergencyService {
 
     try {
       final contacts = getContacts();
-      final message = customMessage ?? type.fullMessage;
 
-      // ── Step 1: Haptic feedback immediately (don't wait for GPS)
+      // Haptic feedback immediately — don't wait for GPS
       _triggerHaptics();
 
-      // ── Step 2: Get location (with timeout so SOS is never blocked)
-      final location = await LocationService.instance.getLocationWithFallback(
-        timeout: const Duration(seconds: 5),
-      );
+      // Get GPS (5-second timeout so SOS never blocks)
+      final location = await LocationService.instance
+          .getLocationWithFallback(timeout: const Duration(seconds: 5));
 
-      // ── Step 3: Build the full message with location
-      final fullMsg = LocationService.instance.buildEmergencyMessage(
-        baseMessage: message,
-        location: location,
-      );
+      // Build the message with time and location filled in
+      final now = DateTime.now();
+      final timeStr =
+          '${now.day.toString().padLeft(2, '0')}/'
+          '${now.month.toString().padLeft(2, '0')}/'
+          '${now.year}  '
+          '${now.hour.toString().padLeft(2, '0')}:'
+          '${now.minute.toString().padLeft(2, '0')}';
 
-      // ── Step 4: No contacts saved — show guidance modal
+      final locationBlock = location.isAvailable
+          ? '${location.mapsLink}\n(${location.displayString})'
+          : 'Could not be determined automatically.';
+
+      String fullMsg;
+      if (customMessage != null &&
+          (customMessage.contains('{LOCATION}') || customMessage.contains('{TIME}'))) {
+        fullMsg = customMessage
+            .replaceAll('{LOCATION}', locationBlock)
+            .replaceAll('{TIME}', timeStr);
+      } else if (customMessage != null) {
+        fullMsg = customMessage;
+      } else {
+        fullMsg = type._buildBase(locationBlock).replaceAll('{TIME}', timeStr);
+      }
+
       if (contacts.isEmpty) {
-        if (_context != null) {
-          _showNoContactsDialog(_context!);
-        }
+        if (_context != null) _showNoContactsDialog(_context!);
         return SOSResult(
           success: false,
-          reason: 'No emergency contacts configured',
+          reason: 'No emergency contacts configured.',
           platform: PlatformHelper.platformName,
         );
       }
 
-      // ── Step 5: Platform-specific sending
       if (PlatformHelper.isMobile) {
         return await _sendMobileSOS(
-          contacts: contacts,
-          message: fullMsg,
-          location: location,
-          type: type,
-        );
+            contacts: contacts, message: fullMsg, location: location, type: type);
       } else if (PlatformHelper.isWeb) {
         return await _sendWebSOS(
-          contacts: contacts,
-          message: fullMsg,
-          location: location,
-          type: type,
-        );
+            contacts: contacts, message: fullMsg, location: location, type: type);
       } else {
-        // Desktop — show copy-to-clipboard modal
-        if (_context != null) {
-          _showDesktopSOSDialog(_context!, fullMsg, contacts);
-        }
+        if (_context != null) _showDesktopSOSDialog(_context!, fullMsg, contacts);
         return SOSResult(
           success: true,
-          reason: 'Desktop SOS dialog shown',
+          reason: 'Desktop SOS dialog shown.',
           platform: PlatformHelper.platformName,
         );
       }
     } finally {
-      // Reset trigger lock after a delay to prevent rapid re-triggers
       await Future.delayed(const Duration(seconds: 3));
       _isTriggering = false;
     }
   }
 
-  // ─────────────────────────────────────────────
-  //  MOBILE SOS (Android / iOS)
-  // ─────────────────────────────────────────────
+  // ── Mobile SOS (SMS → WhatsApp fallback) ────
 
   Future<SOSResult> _sendMobileSOS({
     required List<EmergencyContact> contacts,
@@ -278,11 +317,10 @@ class EmergencyService {
 
     for (final contact in contacts) {
       if (!contact.isValid) {
-        errors.add('Skipped ${contact.name}: invalid number');
+        errors.add('Skipped ${contact.name}: invalid number.');
         continue;
       }
 
-      // Try SMS first
       final smsUri = Uri(
         scheme: 'sms',
         path: contact.internationalPhone,
@@ -294,26 +332,22 @@ class EmergencyService {
           await launchUrl(smsUri);
           sent++;
         } else {
-          // SMS failed — try WhatsApp as fallback
-          final waFallback = _buildWhatsAppUrl(
-            contact.internationalPhone,
-            message,
-          );
-          final waUri = Uri.parse(waFallback);
+          final waUri =
+              Uri.parse(_buildWhatsAppUrl(contact.internationalPhone, message));
           if (await canLaunchUrl(waUri)) {
             await launchUrl(waUri, mode: LaunchMode.externalApplication);
             sent++;
           } else {
-            errors.add('Could not reach ${contact.name}');
+            errors.add('Could not reach ${contact.name}.');
           }
         }
       } catch (e) {
-        errors.add('Error for ${contact.name}: $e');
+        errors.add('Error contacting ${contact.name}: $e');
       }
 
-      // Brief delay between SMS launches on mobile to avoid OS throttling
+      // Brief pause between launches to avoid OS throttling
       if (contacts.indexOf(contact) < contacts.length - 1) {
-        await Future.delayed(const Duration(milliseconds: 800));
+        await Future.delayed(const Duration(milliseconds: 700));
       }
     }
 
@@ -322,19 +356,13 @@ class EmergencyService {
       sentCount: sent,
       totalContacts: contacts.length,
       errors: errors,
-      reason: sent > 0 ? 'SMS sent to $sent contacts' : 'Failed to send SMS',
+      reason: sent > 0 ? 'Alert sent to $sent contact(s).' : 'Failed to send alert.',
       platform: PlatformHelper.platformName,
     );
   }
 
-  // ─────────────────────────────────────────────
-  //  WEB SOS (Browser)
-  // ─────────────────────────────────────────────
+  // ── Web SOS (modal + WhatsApp auto-open) ────
 
-  // Web can't auto-send SMS. Best strategy:
-  // 1. Show a modal with per-contact WhatsApp + tel links
-  // 2. Show the full message pre-written so user can copy-paste
-  // 3. Show a mailto link as final fallback
   Future<SOSResult> _sendWebSOS({
     required List<EmergencyContact> contacts,
     required String message,
@@ -344,62 +372,47 @@ class EmergencyService {
     if (_context == null) {
       return SOSResult(
         success: false,
-        reason: 'No context for web modal',
+        reason: 'No context for web modal.',
         platform: PlatformHelper.platformName,
       );
     }
 
-    // Show the web SOS modal — this is the primary mechanism on web
     _showWebSOSModal(
-      context: _context!,
-      contacts: contacts,
-      message: message,
-      location: location,
-      type: type,
-    );
+        context: _context!, contacts: contacts,
+        message: message, location: location, type: type);
 
-    // Try to auto-open WhatsApp for the primary contact
+    // Auto-open WhatsApp for primary contact
     final primary = contacts.firstWhere(
       (c) => c.isPrimary,
       orElse: () => contacts.first,
     );
-
     try {
-      final waUrl = _buildWhatsAppUrl(primary.internationalPhone, message);
-      final uri = Uri.parse(waUrl);
+      final uri = Uri.parse(_buildWhatsAppUrl(primary.internationalPhone, message));
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       }
-    } catch (_) {
-      // WhatsApp not available — modal handles it
-    }
+    } catch (_) {}
 
     return SOSResult(
       success: true,
-      reason: 'Web SOS modal shown',
+      reason: 'Web SOS panel shown.',
       platform: PlatformHelper.platformName,
     );
   }
 
-  // ─────────────────────────────────────────────
-  //  HELPERS
-  // ─────────────────────────────────────────────
+  // ── Helpers ──────────────────────────────────
 
-  String _buildWhatsAppUrl(String phone, String message) {
-    final encoded = Uri.encodeComponent(message);
-    return 'https://wa.me/$phone?text=$encoded';
-  }
+  String _buildWhatsAppUrl(String phone, String message) =>
+      'https://wa.me/$phone?text=${Uri.encodeComponent(message)}';
 
   void _triggerHaptics() {
     if (!PlatformHelper.canVibrate) return;
     try {
       Vibration.vibrate(
-        pattern: [0, 400, 200, 400, 200, 800], // SOS-like pattern
+        pattern: [0, 300, 150, 300, 150, 600],
         intensities: [0, 255, 0, 255, 0, 255],
       );
-    } catch (_) {
-      // Vibration not available — silently ignore
-    }
+    } catch (_) {}
   }
 
   // ─────────────────────────────────────────────
@@ -407,103 +420,32 @@ class EmergencyService {
   // ─────────────────────────────────────────────
 
   void _showNoContactsDialog(BuildContext context) {
-    final l = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0C0C14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            const Text('⚠️', style: TextStyle(fontSize: 20)),
-            const SizedBox(width: 10),
-            Text(
-              l.t('sos_no_contacts_title'),
-              style: const TextStyle(
-                color: Color(0xFFF0EEFF),
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          l.t('sos_no_contacts_body'),
-          style: const TextStyle(color: Color(0xFF7A7A9A), height: 1.6),
-        ),
+      builder: (ctx) => _SosDialog(
+        isDark: isDark,
+        title: 'No Emergency Contacts',
+        body:  'You have not saved any emergency contacts yet. '
+               'Go to the SOS setup screen and add at least one contact '
+               'before using this feature.',
+        accentColor: const Color(0xFFD97706),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l.t('common_ok'), style: const TextStyle(color: Color(0xFF7C3AED))),
-          ),
+          _SosDialogAction(label: 'OK', isPrimary: false,
+              onTap: () => Navigator.pop(ctx)),
         ],
       ),
     );
   }
 
   void _showDesktopSOSDialog(
-    BuildContext context,
-    String message,
-    List<EmergencyContact> contacts,
-  ) {
+      BuildContext context, String message, List<EmergencyContact> contacts) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0C0C14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          '🆘 Emergency Message',
-          style: TextStyle(
-            color: Color(0xFFF0EEFF),
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Copy this message and send to:',
-              style: TextStyle(color: Color(0xFF7A7A9A)),
-            ),
-            const SizedBox(height: 8),
-            ...contacts.map(
-              (c) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Text(
-                  '• ${c.name}: ${c.phone}',
-                  style: const TextStyle(color: Color(0xFFA78BFA)),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E1E30),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: SelectableText(
-                message,
-                style: const TextStyle(
-                  color: Color(0xFFF0EEFF),
-                  fontSize: 13,
-                  height: 1.6,
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(
-              'Close',
-              style: TextStyle(color: Color(0xFF7C3AED)),
-            ),
-          ),
-        ],
-      ),
+      builder: (ctx) => _DesktopSOSDialog(
+        isDark: isDark, message: message, contacts: contacts,
+        onClose: () => Navigator.pop(ctx)),
     );
   }
 
@@ -518,19 +460,15 @@ class EmergencyService {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => _WebSOSModal(
-        contacts: contacts,
-        message: message,
-        location: location,
-        type: type,
+        contacts: contacts, message: message,
+        location: location, type: type,
         onClose: () => Navigator.pop(ctx),
         buildWhatsApp: _buildWhatsAppUrl,
       ),
     );
   }
 
-  void dispose() {
-    stopShakeDetection();
-  }
+  void dispose() => stopShakeDetection();
 }
 
 // ─────────────────────────────────────────────
@@ -538,29 +476,316 @@ class EmergencyService {
 // ─────────────────────────────────────────────
 
 class SOSResult {
-  final bool success;
+  final bool   success;
   final String reason;
   final String platform;
-  final int sentCount;
-  final int totalContacts;
+  final int    sentCount;
+  final int    totalContacts;
   final List<String> errors;
 
   const SOSResult({
     required this.success,
     required this.reason,
     required this.platform,
-    this.sentCount = 0,
+    this.sentCount     = 0,
     this.totalContacts = 0,
-    this.errors = const [],
+    this.errors        = const [],
   });
-
-  @override
-  String toString() =>
-      'SOSResult(success: $success, sent: $sentCount/$totalContacts, reason: $reason, platform: $platform)';
 }
 
 // ─────────────────────────────────────────────
-//  WEB SOS MODAL WIDGET
+//  DESIGN TOKENS (shared by all dialogs)
+// ─────────────────────────────────────────────
+
+class _DT {
+  final bool d;
+  const _DT(this.d);
+  Color get bg       => d ? const Color(0xFF06060E) : const Color(0xFFF5F5FA);
+  Color get surface  => d ? const Color(0xFF0D0D1A) : Colors.white;
+  Color get card     => d ? const Color(0xFF13131F) : const Color(0xFFF8F8FC);
+  Color get border   => d ? const Color(0xFF1E1E30) : const Color(0xFFE2E2F0);
+  Color get border2  => d ? const Color(0xFF2A2A40) : const Color(0xFFCCCCE0);
+  Color get textPri  => d ? const Color(0xFFF0EEFF) : const Color(0xFF0A0A1F);
+  Color get textSec  => d ? const Color(0xFF6A6A8A) : const Color(0xFF5A5A80);
+  Color get textMut  => d ? const Color(0xFF2E2E48) : const Color(0xFFAAAAAA);
+  static const crimson     = Color(0xFFDC2626);
+  static const crimsonSoft = Color(0xFFEF4444);
+  static const violet      = Color(0xFF7C3AED);
+  static const violetLight = Color(0xFFA78BFA);
+  static const green       = Color(0xFF059669);
+  static const greenLight  = Color(0xFF34D399);
+  static const amber       = Color(0xFFD97706);
+}
+
+// ─────────────────────────────────────────────
+//  GENERIC SOS DIALOG  (no-contacts, confirm)
+// ─────────────────────────────────────────────
+
+class _SosDialogAction {
+  final String label;
+  final bool isPrimary;
+  final VoidCallback onTap;
+  const _SosDialogAction({required this.label, required this.isPrimary, required this.onTap});
+}
+
+class _SosDialog extends StatelessWidget {
+  final bool isDark;
+  final String title, body;
+  final Color accentColor;
+  final List<_SosDialogAction> actions;
+  const _SosDialog({
+    required this.isDark, required this.title,
+    required this.body, required this.accentColor,
+    required this.actions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = _DT(isDark);
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: t.border2),
+          boxShadow: [BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.55 : 0.12),
+            blurRadius: 40, offset: const Offset(0, 16))],
+        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          // Top accent strip
+          Container(
+            height: 3,
+            decoration: BoxDecoration(
+              color: accentColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20))),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                      color: accentColor.withOpacity(isDark ? 0.12 : 0.08),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: accentColor.withOpacity(0.22))),
+                    child: Icon(Icons.warning_rounded, color: accentColor, size: 18),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(title, style: TextStyle(
+                    color: t.textPri, fontSize: 16, fontWeight: FontWeight.w800))),
+                ]),
+                const SizedBox(height: 14),
+                Container(height: 1, color: t.border),
+                const SizedBox(height: 14),
+                Text(body, style: TextStyle(
+                  color: t.textSec, fontSize: 13, height: 1.65)),
+                const SizedBox(height: 20),
+                Row(children: actions.map((a) => Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: actions.indexOf(a) > 0 ? 8 : 0),
+                    child: GestureDetector(
+                      onTap: a.onTap,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: a.isPrimary
+                              ? accentColor
+                              : accentColor.withOpacity(isDark ? 0.08 : 0.06),
+                          borderRadius: BorderRadius.circular(11),
+                          border: Border.all(
+                            color: a.isPrimary
+                                ? accentColor
+                                : accentColor.withOpacity(0.22))),
+                        child: Center(child: Text(a.label, style: TextStyle(
+                          color: a.isPrimary ? Colors.white : accentColor,
+                          fontSize: 13, fontWeight: FontWeight.w700))),
+                      ),
+                    ),
+                  ),
+                )).toList()),
+              ],
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  DESKTOP SOS DIALOG
+// ─────────────────────────────────────────────
+
+class _DesktopSOSDialog extends StatefulWidget {
+  final bool isDark;
+  final String message;
+  final List<EmergencyContact> contacts;
+  final VoidCallback onClose;
+  const _DesktopSOSDialog({
+    required this.isDark, required this.message,
+    required this.contacts, required this.onClose});
+  @override
+  State<_DesktopSOSDialog> createState() => _DesktopSOSDialogState();
+}
+class _DesktopSOSDialogState extends State<_DesktopSOSDialog> {
+  bool _copied = false;
+
+  void _copy() {
+    Clipboard.setData(ClipboardData(text: widget.message));
+    setState(() => _copied = true);
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) setState(() => _copied = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = _DT(widget.isDark);
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 480),
+        decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: t.border2),
+          boxShadow: [BoxShadow(
+            color: Colors.black.withOpacity(widget.isDark ? 0.55 : 0.12),
+            blurRadius: 40, offset: const Offset(0, 16))],
+        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(height: 3, decoration: BoxDecoration(
+            color: _DT.crimson,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)))),
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Container(
+                    width: 38, height: 38,
+                    decoration: BoxDecoration(
+                      color: _DT.crimson.withOpacity(widget.isDark ? 0.10 : 0.07),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: _DT.crimson.withOpacity(0.2))),
+                    child: const Icon(Icons.emergency_rounded,
+                        color: _DT.crimsonSoft, size: 18),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('Emergency Alert Ready', style: TextStyle(
+                      color: t.textPri, fontSize: 15, fontWeight: FontWeight.w800)),
+                    Text('Copy and send to your contacts manually',
+                        style: TextStyle(color: t.textSec, fontSize: 11)),
+                  ])),
+                ]),
+                const SizedBox(height: 16),
+                Container(height: 1, color: t.border),
+                const SizedBox(height: 14),
+                Text('Send to:', style: TextStyle(
+                  color: t.textSec, fontSize: 11,
+                  fontWeight: FontWeight.w700, letterSpacing: 0.8)),
+                const SizedBox(height: 8),
+                ...widget.contacts.map((c) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(children: [
+                    Container(
+                      width: 6, height: 6,
+                      decoration: BoxDecoration(
+                        color: _DT.violetLight,
+                        shape: BoxShape.circle)),
+                    const SizedBox(width: 10),
+                    Text('${c.name}', style: TextStyle(
+                      color: t.textPri, fontSize: 12, fontWeight: FontWeight.w600)),
+                    const SizedBox(width: 8),
+                    Text(c.phone, style: TextStyle(
+                      color: t.textSec, fontSize: 12,
+                      fontFeatures: const [FontFeature.tabularFigures()])),
+                  ]),
+                )),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: t.card,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: t.border)),
+                  child: SelectableText(
+                    widget.message,
+                    style: TextStyle(
+                      color: t.textSec, fontSize: 11.5, height: 1.7),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: _copy,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: _copied
+                              ? _DT.green.withOpacity(widget.isDark ? 0.12 : 0.08)
+                              : _DT.violet.withOpacity(widget.isDark ? 0.10 : 0.07),
+                          borderRadius: BorderRadius.circular(11),
+                          border: Border.all(
+                            color: _copied
+                                ? _DT.green.withOpacity(0.3)
+                                : _DT.violet.withOpacity(0.25))),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          Icon(
+                            _copied ? Icons.check_rounded : Icons.copy_rounded,
+                            color: _copied ? _DT.greenLight : _DT.violetLight,
+                            size: 14),
+                          const SizedBox(width: 6),
+                          Text(
+                            _copied ? 'Copied!' : 'Copy message',
+                            style: TextStyle(
+                              color: _copied ? _DT.greenLight : _DT.violetLight,
+                              fontSize: 13, fontWeight: FontWeight.w700)),
+                        ]),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: widget.onClose,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: t.card,
+                          borderRadius: BorderRadius.circular(11),
+                          border: Border.all(color: t.border2)),
+                        child: Center(child: Text('Close',
+                          style: TextStyle(color: t.textSec,
+                              fontSize: 13, fontWeight: FontWeight.w600))),
+                      ),
+                    ),
+                  ),
+                ]),
+              ],
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  WEB SOS MODAL
 // ─────────────────────────────────────────────
 
 class _WebSOSModal extends StatefulWidget {
@@ -570,16 +795,10 @@ class _WebSOSModal extends StatefulWidget {
   final SOSMessageType type;
   final VoidCallback onClose;
   final String Function(String, String) buildWhatsApp;
-
   const _WebSOSModal({
-    required this.contacts,
-    required this.message,
-    required this.location,
-    required this.type,
-    required this.onClose,
-    required this.buildWhatsApp,
-  });
-
+    required this.contacts, required this.message,
+    required this.location, required this.type,
+    required this.onClose,  required this.buildWhatsApp});
   @override
   State<_WebSOSModal> createState() => _WebSOSModalState();
 }
@@ -587,34 +806,17 @@ class _WebSOSModal extends StatefulWidget {
 class _WebSOSModalState extends State<_WebSOSModal> {
   bool _messageCopied = false;
 
-  Future<void> _openWhatsApp(EmergencyContact contact) async {
-    final url = widget.buildWhatsApp(
-      contact.internationalPhone,
-      widget.message,
-    );
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    }
+  Future<void> _openWhatsApp(EmergencyContact c) async {
+    final uri = Uri.parse(widget.buildWhatsApp(c.internationalPhone, widget.message));
+    if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
-  Future<void> _openTel(EmergencyContact contact) async {
-    final uri = Uri(scheme: 'tel', path: contact.internationalPhone);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
+  Future<void> _openTel(EmergencyContact c) async {
+    final uri = Uri(scheme: 'tel', path: c.internationalPhone);
+    if (await canLaunchUrl(uri)) await launchUrl(uri);
   }
 
-  Future<void> _openEmail(EmergencyContact contact) async {
-    final subject = Uri.encodeComponent('EMERGENCY - Needs Help');
-    final body = Uri.encodeComponent(widget.message);
-    final uri = Uri.parse('mailto:?subject=$subject&body=$body');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    }
-  }
-
-  void _copyMessage() {
+  void _copy() {
     Clipboard.setData(ClipboardData(text: widget.message));
     setState(() => _messageCopied = true);
     Future.delayed(const Duration(seconds: 3), () {
@@ -624,295 +826,247 @@ class _WebSOSModalState extends State<_WebSOSModal> {
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final t = _DT(isDark);
+
     return Dialog(
-      backgroundColor: const Color(0xFF0C0C14),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 480),
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFDC2626).withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text('🆘', style: TextStyle(fontSize: 24)),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.t('sos_activated_title'),
-                        style: const TextStyle(
-                          color: Color(0xFFF0EEFF),
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        _localizedTypeLabel(l, widget.type),
-                        style: const TextStyle(
-                          color: Color(0xFFDC2626),
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+        constraints: const BoxConstraints(maxWidth: 480, maxHeight: 680),
+        decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: t.border2),
+          boxShadow: [BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.6 : 0.14),
+            blurRadius: 48, offset: const Offset(0, 20))],
+        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          // Red top strip
+          Container(
+            height: 4,
+            decoration: BoxDecoration(
+              color: _DT.crimson,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)))),
 
-            const SizedBox(height: 20),
-
-            // Location status
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: widget.location.isAvailable
-                    ? const Color(0xFF059669).withOpacity(0.12)
-                    : const Color(0xFFD97706).withOpacity(0.12),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    widget.location.isAvailable ? '📍' : '⚠️',
-                    style: const TextStyle(fontSize: 14),
+                  // Header
+                  Row(children: [
+                    Container(
+                      width: 44, height: 44,
+                      decoration: BoxDecoration(
+                        color: _DT.crimson.withOpacity(isDark ? 0.10 : 0.07),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: _DT.crimson.withOpacity(0.22))),
+                      child: const Icon(Icons.emergency_rounded,
+                          color: _DT.crimsonSoft, size: 22)),
+                    const SizedBox(width: 14),
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('Emergency SOS Activated', style: TextStyle(
+                        color: t.textPri, fontSize: 16, fontWeight: FontWeight.w800)),
+                      const SizedBox(height: 2),
+                      Text(widget.type.label, style: const TextStyle(
+                        color: _DT.crimsonSoft, fontSize: 12, fontWeight: FontWeight.w600)),
+                    ])),
+                  ]),
+
+                  const SizedBox(height: 16),
+
+                  // Location status bar
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: (widget.location.isAvailable ? _DT.green : _DT.amber)
+                          .withOpacity(isDark ? 0.08 : 0.06),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: (widget.location.isAvailable ? _DT.green : _DT.amber)
+                            .withOpacity(0.22))),
+                    child: Row(children: [
+                      Icon(
+                        widget.location.isAvailable
+                            ? Icons.location_on_rounded
+                            : Icons.location_off_rounded,
+                        color: widget.location.isAvailable ? _DT.greenLight : _DT.amber,
+                        size: 15),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(
+                        widget.location.isAvailable
+                            ? 'Location attached: ${widget.location.displayString}'
+                            : 'Location unavailable — message sent without coordinates.',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          color: widget.location.isAvailable ? _DT.greenLight : _DT.amber,
+                          height: 1.4))),
+                    ]),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      widget.location.isAvailable
-                          ? l
-                              .t('sos_location_attached')
-                              .replaceAll('{location}', widget.location.displayString)
-                          : l.t('sos_location_unavailable'),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: widget.location.isAvailable
-                            ? const Color(0xFF059669)
-                            : const Color(0xFFD97706),
-                      ),
+
+                  const SizedBox(height: 20),
+
+                  Text('Contact your emergency contacts:',
+                    style: TextStyle(
+                      color: t.textSec, fontSize: 11,
+                      fontWeight: FontWeight.w700, letterSpacing: 0.8)),
+                  const SizedBox(height: 10),
+
+                  // Contact cards
+                  ...widget.contacts.map((contact) => Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: t.card,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: contact.isPrimary
+                            ? _DT.crimson.withOpacity(0.28)
+                            : t.border)),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [
+                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Row(children: [
+                            Text(contact.name, style: TextStyle(
+                              color: t.textPri,
+                              fontWeight: FontWeight.w700, fontSize: 13)),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: _DT.violet.withOpacity(isDark ? 0.10 : 0.07),
+                                borderRadius: BorderRadius.circular(4)),
+                              child: Text(contact.relation, style: const TextStyle(
+                                color: _DT.violetLight, fontSize: 10,
+                                fontWeight: FontWeight.w600))),
+                            if (contact.isPrimary) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: _DT.crimson.withOpacity(isDark ? 0.10 : 0.07),
+                                  borderRadius: BorderRadius.circular(4)),
+                                child: const Text('Primary', style: TextStyle(
+                                  color: _DT.crimsonSoft, fontSize: 9,
+                                  fontWeight: FontWeight.w700))),
+                            ],
+                          ]),
+                          const SizedBox(height: 3),
+                          Text(contact.phone, style: TextStyle(
+                            color: t.textSec, fontSize: 11,
+                            fontFeatures: const [FontFeature.tabularFigures()])),
+                        ])),
+                      ]),
+                      const SizedBox(height: 10),
+                      Row(children: [
+                        Expanded(child: _ContactActionBtn(
+                          label: 'WhatsApp',
+                          icon: Icons.chat_rounded,
+                          color: const Color(0xFF25D366),
+                          onTap: () => _openWhatsApp(contact))),
+                        const SizedBox(width: 8),
+                        Expanded(child: _ContactActionBtn(
+                          label: 'Call',
+                          icon: Icons.call_rounded,
+                          color: const Color(0xFF0284C7),
+                          onTap: () => _openTel(contact))),
+                      ]),
+                    ]),
+                  )),
+
+                  const SizedBox(height: 6),
+
+                  // Copy button
+                  GestureDetector(
+                    onTap: _copy,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      decoration: BoxDecoration(
+                        color: _messageCopied
+                            ? _DT.green.withOpacity(isDark ? 0.10 : 0.07)
+                            : t.card,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _messageCopied
+                              ? _DT.green.withOpacity(0.3)
+                              : t.border2)),
+                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        Icon(
+                          _messageCopied
+                              ? Icons.check_rounded : Icons.copy_rounded,
+                          color: _messageCopied
+                              ? _DT.greenLight : t.textSec,
+                          size: 14),
+                        const SizedBox(width: 7),
+                        Text(
+                          _messageCopied
+                              ? 'Message copied to clipboard'
+                              : 'Copy emergency message',
+                          style: TextStyle(
+                            color: _messageCopied ? _DT.greenLight : t.textSec,
+                            fontWeight: FontWeight.w600, fontSize: 13)),
+                      ]),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Safe now / close
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: widget.onClose,
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12)),
+                      child: Text('I am safe — Close this panel',
+                        style: TextStyle(
+                          color: t.textSec, fontSize: 12,
+                          fontWeight: FontWeight.w500)),
                     ),
                   ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // Contact buttons
-            Text(
-              l.t('sos_send_to_contacts'),
-              style: const TextStyle(
-                color: Color(0xFF7A7A9A),
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            ...widget.contacts.map(
-              (contact) => Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF121220),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFF2E2E48)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          contact.name,
-                          style: const TextStyle(
-                            color: Color(0xFFF0EEFF),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF7C3AED).withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            contact.relation,
-                            style: const TextStyle(
-                              color: Color(0xFFA78BFA),
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
-                        if (contact.isPrimary) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFDC2626).withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              l.t('sos_primary_badge'),
-                              style: const TextStyle(
-                                color: Color(0xFFDC2626),
-                                fontSize: 10,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        // WhatsApp button
-                        Expanded(
-                          child: _WebContactButton(
-                            label: l.t('sos_whatsapp'),
-                            color: const Color(0xFF25D366),
-                            onTap: () => _openWhatsApp(contact),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // Call button
-                        Expanded(
-                          child: _WebContactButton(
-                            label: l.t('sos_call'),
-                            color: const Color(0xFF0284C7),
-                            onTap: () => _openTel(contact),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            // Copy message button
-            GestureDetector(
-              onTap: _copyMessage,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                decoration: BoxDecoration(
-                  color: _messageCopied
-                      ? const Color(0xFF059669).withOpacity(0.15)
-                      : const Color(0xFF1E1E30),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: _messageCopied
-                        ? const Color(0xFF059669).withOpacity(0.4)
-                        : const Color(0xFF2E2E48),
-                  ),
-                ),
-                child: Text(
-                  _messageCopied
-                      ? l.t('sos_message_copied')
-                      : l.t('sos_copy_message'),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: _messageCopied
-                        ? const Color(0xFF059669)
-                        : const Color(0xFF7A7A9A),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Dismiss
-            SizedBox(
-              width: double.infinity,
-              child: TextButton(
-                onPressed: widget.onClose,
-                child: Text(
-                  l.t('sos_close_safe'),
-                  style: const TextStyle(color: Color(0xFF7A7A9A)),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ]),
       ),
     );
-  }
-
-  String _localizedTypeLabel(AppLocalizations l, SOSMessageType type) {
-    switch (type) {
-      case SOSMessageType.generalHelp:
-        return l.t('sos_general_title');
-      case SOSMessageType.medical:
-        return l.t('sos_medical_title');
-      case SOSMessageType.police:
-        return l.t('sos_police_title');
-      case SOSMessageType.fire:
-        return l.t('sos_fire_title');
-      case SOSMessageType.custom:
-        return l.t('sos_screen_title');
-    }
   }
 }
 
-class _WebContactButton extends StatelessWidget {
+// ─────────────────────────────────────────────
+//  CONTACT ACTION BUTTON (web modal)
+// ─────────────────────────────────────────────
+
+class _ContactActionBtn extends StatelessWidget {
   final String label;
+  final IconData icon;
   final Color color;
   final VoidCallback onTap;
-
-  const _WebContactButton({
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
+  const _ContactActionBtn({required this.label, required this.icon,
+    required this.color, required this.onTap});
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: color.withOpacity(0.3)),
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w700,
-            fontSize: 13,
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withOpacity(0.28))),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Icon(icon, color: color, size: 14),
+        const SizedBox(width: 6),
+        Text(label, style: TextStyle(
+          color: color, fontWeight: FontWeight.w700, fontSize: 12)),
+      ]),
+    ),
+  );
 }

@@ -1,18 +1,17 @@
 // lib/components/SOSFloatingButton.dart
-// Drop this widget anywhere in your app's widget tree.
-// It shows a persistent red SOS button — even on the translate screen.
-// On mobile: also works via shake (configured in main.dart).
-// Configures the SOS message type (general, medical, police) and opens a full-screen SOS page with more details and options.
+// Persistent SOS floating action button.
+// Tap → expand quick-action menu.
+// Long-press → immediate General Help alert.
+// Always visible regardless of which screen is open.
 
 import 'package:flutter/material.dart';
-import '../l10n/AppLocalizations.dart';
+import 'package:flutter/services.dart';
 import '../services/EmergencyService.dart';
 import '../screens/EmergencyScreen.dart';
 
 class SOSFloatingButton extends StatefulWidget {
   final VoidCallback toggleTheme;
   final Function(Locale) setLocale;
-
   const SOSFloatingButton({
     super.key,
     required this.toggleTheme,
@@ -25,183 +24,279 @@ class SOSFloatingButton extends StatefulWidget {
 
 class _SOSFloatingButtonState extends State<SOSFloatingButton>
     with SingleTickerProviderStateMixin {
-  late AnimationController _pulseCtrl;
-  late Animation<double> _pulseAnim;
+  late AnimationController _ctrl;
+  late Animation<double>   _pulseAnim;
   bool _expanded = false;
+
+  // Tracks if an alert is currently being sent
+  bool _sending = false;
 
   @override
   void initState() {
     super.initState();
-    _pulseCtrl = AnimationController(
-        vsync: this, duration: const Duration(seconds: 2))
+    _ctrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1800))
       ..repeat(reverse: true);
-    _pulseAnim = Tween<double>(begin: 1.0, end: 1.08).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
+    _pulseAnim = Tween<double>(begin: 0.97, end: 1.06)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
 
   @override
   void dispose() {
-    _pulseCtrl.dispose();
+    _ctrl.dispose();
     super.dispose();
+  }
+
+  void _toggle() {
+    setState(() => _expanded = !_expanded);
+    HapticFeedback.lightImpact();
+  }
+
+  Future<void> _quickSend(SOSMessageType type) async {
+    setState(() { _expanded = false; _sending = true; });
+    HapticFeedback.heavyImpact();
+    await EmergencyService.instance.triggerSOS(type: type);
+    if (mounted) setState(() => _sending = false);
+  }
+
+  void _openFullScreen() {
+    setState(() => _expanded = false);
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => EmergencyScreen(
+          toggleTheme: widget.toggleTheme,
+          setLocale:   widget.setLocale,
+        ),
+        transitionsBuilder: (_, anim, __, child) =>
+            FadeTransition(opacity: anim, child: child),
+        transitionDuration: const Duration(milliseconds: 280),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        // Mini quick-action buttons when expanded
-        if (_expanded) ...[
-          _QuickSOSButton(
-            label: l.t('sos_general_title'),
-            emoji: '🆘',
-            color: const Color(0xFFDC2626),
-            onTap: () {
-              setState(() => _expanded = false);
-              EmergencyService.instance.triggerSOS(
-                  type: SOSMessageType.generalHelp);
-            },
-          ),
-          const SizedBox(height: 8),
-          _QuickSOSButton(
-            label: l.t('sos_medical_title'),
-            emoji: '🏥',
-            color: const Color(0xFFE53E3E),
-            onTap: () {
-              setState(() => _expanded = false);
-              EmergencyService.instance.triggerSOS(
-                  type: SOSMessageType.medical);
-            },
-          ),
-          const SizedBox(height: 8),
-          _QuickSOSButton(
-            label: l.t('sos_police_title'),
-            emoji: '👮',
-            color: const Color(0xFF0284C7),
-            onTap: () {
-              setState(() => _expanded = false);
-              EmergencyService.instance.triggerSOS(
-                  type: SOSMessageType.police);
-            },
-          ),
-          const SizedBox(height: 8),
-          _QuickSOSButton(
-            label: l.t('sos_full_screen'),
-            emoji: '📋',
-            color: const Color(0xFF7C3AED),
-            onTap: () {
-              setState(() => _expanded = false);
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (_, a, __) => EmergencyScreen(
-                    toggleTheme: widget.toggleTheme,
-                    setLocale: widget.setLocale,
-                  ),
-                  transitionsBuilder: (_, anim, __, child) =>
-                      FadeTransition(opacity: anim, child: child),
-                  transitionDuration: const Duration(milliseconds: 300),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 12),
-        ],
+    // Dismiss menu on outside tap
+    return GestureDetector(
+      onTap: _expanded ? _toggle : null,
+      behavior: HitTestBehavior.translucent,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
 
-        // Main SOS FAB
-        AnimatedBuilder(
-          animation: _pulseAnim,
-          builder: (_, child) => Transform.scale(
-            scale: _expanded ? 1.0 : _pulseAnim.value,
-            child: child,
+          // ── Quick-action menu (shown when expanded) ────────
+          AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            child: _expanded
+                ? _QuickMenu(
+                    onGeneralHelp: () => _quickSend(SOSMessageType.generalHelp),
+                    onMedical:     () => _quickSend(SOSMessageType.medical),
+                    onPolice:      () => _quickSend(SOSMessageType.police),
+                    onFullScreen:  _openFullScreen,
+                  )
+                : const SizedBox.shrink(),
           ),
-          child: GestureDetector(
-            onTap: () => setState(() => _expanded = !_expanded),
-            onLongPress: () {
-              // Long press = immediate general SOS without opening menu
-              setState(() => _expanded = false);
-              EmergencyService.instance.triggerSOS(
-                  type: SOSMessageType.generalHelp);
-            },
-            child: Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: const Color(0xFFDC2626),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFDC2626).withOpacity(0.45),
-                    blurRadius: 20,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  _expanded ? '✕' : 'SOS',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: _expanded ? 16 : 13,
-                    letterSpacing: _expanded ? 0 : 0.5,
-                  ),
+
+          if (_expanded) const SizedBox(height: 10),
+
+          // ── Main SOS button ────────────────────────────────
+          AnimatedBuilder(
+            animation: _pulseAnim,
+            builder: (_, child) => Transform.scale(
+              scale: (_expanded || _sending) ? 1.0 : _pulseAnim.value,
+              child: child,
+            ),
+            child: GestureDetector(
+              onTap:      _toggle,
+              onLongPress: () {
+                if (!_expanded) {
+                  setState(() => _expanded = false);
+                  _quickSend(SOSMessageType.generalHelp);
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 58, height: 58,
+                decoration: BoxDecoration(
+                  color: _sending ? const Color(0xFFB91C1C) : const Color(0xFFDC2626),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFDC2626)
+                          .withOpacity(_expanded ? 0.25 : 0.45),
+                      blurRadius: _expanded ? 14 : 22,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: _sending
+                      ? const SizedBox(
+                          width: 22, height: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2.5))
+                      : AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 180),
+                          child: _expanded
+                              ? const Icon(Icons.close_rounded,
+                                  key: ValueKey('close'),
+                                  color: Colors.white, size: 22)
+                              : Column(
+                                  key: const ValueKey('sos'),
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Icon(Icons.emergency_rounded,
+                                        color: Colors.white, size: 16),
+                                    SizedBox(height: 1),
+                                    Text('SOS',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 9.5,
+                                        letterSpacing: 0.8,
+                                      )),
+                                  ],
+                                ),
+                        ),
                 ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+//  QUICK MENU  (expands above the main button)
+//  No emojis — Material icons only.
+// ─────────────────────────────────────────────
+
+class _QuickMenu extends StatelessWidget {
+  final VoidCallback onGeneralHelp;
+  final VoidCallback onMedical;
+  final VoidCallback onPolice;
+  final VoidCallback onFullScreen;
+  const _QuickMenu({
+    required this.onGeneralHelp,
+    required this.onMedical,
+    required this.onPolice,
+    required this.onFullScreen,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _QuickBtn(
+          label:   'General Help',
+          icon:    Icons.emergency_rounded,
+          color:   const Color(0xFFDC2626),
+          isDark:  isDark,
+          onTap:   onGeneralHelp,
+        ),
+        const SizedBox(height: 8),
+        _QuickBtn(
+          label:   'Medical Emergency',
+          icon:    Icons.medical_services_rounded,
+          color:   const Color(0xFFEA580C),
+          isDark:  isDark,
+          onTap:   onMedical,
+        ),
+        const SizedBox(height: 8),
+        _QuickBtn(
+          label:   'Safety Emergency',
+          icon:    Icons.shield_rounded,
+          color:   const Color(0xFF0284C7),
+          isDark:  isDark,
+          onTap:   onPolice,
+        ),
+        const SizedBox(height: 8),
+        _QuickBtn(
+          label:   'All SOS Options',
+          icon:    Icons.open_in_full_rounded,
+          color:   const Color(0xFF7C3AED),
+          isDark:  isDark,
+          onTap:   onFullScreen,
         ),
       ],
     );
   }
 }
 
-class _QuickSOSButton extends StatelessWidget {
+class _QuickBtn extends StatefulWidget {
   final String label;
-  final String emoji;
+  final IconData icon;
   final Color color;
+  final bool isDark;
   final VoidCallback onTap;
-
-  const _QuickSOSButton({
-    required this.label,
-    required this.emoji,
-    required this.color,
-    required this.onTap,
+  const _QuickBtn({
+    required this.label, required this.icon, required this.color,
+    required this.isDark, required this.onTap,
   });
+  @override
+  State<_QuickBtn> createState() => _QuickBtnState();
+}
+
+class _QuickBtnState extends State<_QuickBtn> {
+  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: color.withOpacity(0.35)),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Text(emoji, style: const TextStyle(fontSize: 14)),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w700,
-              fontSize: 13,
-            ),
+      onTapDown:   (_) => setState(() => _pressed = true),
+      onTapUp:     (_) { setState(() => _pressed = false); widget.onTap(); },
+      onTapCancel: ()  => setState(() => _pressed = false),
+      child: AnimatedScale(
+        scale: _pressed ? 0.95 : 1.0,
+        duration: const Duration(milliseconds: 80),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: widget.isDark
+                ? const Color(0xFF0D0D1A).withOpacity(0.92)
+                : Colors.white.withOpacity(0.96),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: widget.color.withOpacity(widget.isDark ? 0.28 : 0.22)),
+            boxShadow: [
+              BoxShadow(
+                color: widget.color.withOpacity(widget.isDark ? 0.14 : 0.08),
+                blurRadius: 16, offset: const Offset(0, 4)),
+              BoxShadow(
+                color: Colors.black.withOpacity(widget.isDark ? 0.40 : 0.08),
+                blurRadius: 12, offset: const Offset(0, 3)),
+            ],
           ),
-        ]),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              width: 28, height: 28,
+              decoration: BoxDecoration(
+                color: widget.color.withOpacity(widget.isDark ? 0.12 : 0.08),
+                borderRadius: BorderRadius.circular(7),
+                border: Border.all(
+                  color: widget.color.withOpacity(0.22))),
+              child: Icon(widget.icon, color: widget.color, size: 14)),
+            const SizedBox(width: 10),
+            Text(
+              widget.label,
+              style: TextStyle(
+                color: widget.isDark
+                    ? const Color(0xFFE8E8FF)
+                    : const Color(0xFF0A0A20),
+                fontWeight: FontWeight.w700,
+                fontSize: 12.5,
+              ),
+            ),
+          ]),
+        ),
       ),
     );
   }

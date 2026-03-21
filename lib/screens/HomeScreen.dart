@@ -987,21 +987,62 @@ class _HeroText extends StatelessWidget {
     final fs = isDesktop ? 70.0 : 50.0;
     final ls = isDesktop ? -2.0 : -1.0;
     final color = isDark ? _kTextPri : _lTextPri;
+    final firstLineLead = l.t('hero_title_1').trim();
+    final firstLineAccent = l.t('hero_title_highlight').trim();
+    final secondLine = l.t('hero_title_2').trim();
+
+    final gradientPaint = Paint()
+      ..shader = const LinearGradient(
+        colors: [_kViolet, _kVioletLight, Color(0xFF60A5FA)],
+        stops: [0.0, 0.55, 1.0],
+      ).createShader(const Rect.fromLTWH(0, 0, 460, 0));
+
     return Column(children: [
-      Text(l.t('hero_title_1'), textAlign: TextAlign.center,
-        style: TextStyle(fontSize: fs, fontWeight: FontWeight.w900,
-            color: color, height: 1.10, letterSpacing: ls)),
-      ShaderMask(
-        shaderCallback: (b) => const LinearGradient(
-          colors: [_kViolet, _kVioletLight, Color(0xFF60A5FA)],
-          stops: [0.0, 0.55, 1.0]).createShader(b),
-        child: Text(l.t('hero_title_highlight'), textAlign: TextAlign.center,
-          style: TextStyle(fontSize: fs, fontWeight: FontWeight.w900,
-              color: Colors.white, height: 1.10, letterSpacing: ls))),
-      if (l.t('hero_title_2').isNotEmpty)
-        Text(l.t('hero_title_2'), textAlign: TextAlign.center,
-          style: TextStyle(fontSize: fs, fontWeight: FontWeight.w900,
-              color: color, height: 1.10, letterSpacing: ls)),
+      FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text.rich(
+          TextSpan(children: [
+            TextSpan(
+              text: firstLineLead.isEmpty ? '' : '$firstLineLead ',
+              style: TextStyle(
+                fontSize: fs,
+                fontWeight: FontWeight.w900,
+                color: color,
+                height: 1.10,
+                letterSpacing: ls,
+              ),
+            ),
+            TextSpan(
+              text: firstLineAccent,
+              style: TextStyle(
+                fontSize: fs,
+                fontWeight: FontWeight.w900,
+                foreground: gradientPaint,
+                height: 1.10,
+                letterSpacing: ls,
+              ),
+            ),
+          ]),
+          textAlign: TextAlign.center,
+          maxLines: 1,
+        ),
+      ),
+      if (secondLine.isNotEmpty)
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            secondLine,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: fs,
+              fontWeight: FontWeight.w900,
+              color: color,
+              height: 1.10,
+              letterSpacing: ls,
+            ),
+          ),
+        ),
     ]);
   }
 }

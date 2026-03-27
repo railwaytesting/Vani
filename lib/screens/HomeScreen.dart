@@ -179,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             isDark: isDark, l: l,
             icon: Icons.translate_rounded,
             title: l.t('nav_terminal'),
-            subtitle: 'Real-time Indian Sign Language detection & translation',
+            subtitle: l.t('home_terminal_sub'),
             accentLight: _blue,    accentDark: _blue_D,
             launchLabel: l.t('get_started'),
             onLaunch: () => _push(ctx, TranslateScreen(
@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             title: l.t('nav_signs'),
             subtitle: '64 ISL signs — browse, learn, flip cards',
             accentLight: _teal,   accentDark: _teal_D,
-            launchLabel: 'Browse Signs',
+            launchLabel: l.t('home_browse_signs'),
             onLaunch: () => _push(ctx, SignsPage(
                 toggleTheme: widget.toggleTheme, setLocale: widget.setLocale)),
             bullets: const [
@@ -211,9 +211,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             isDark: isDark, l: l,
             icon: Icons.compare_arrows_rounded,
             title: l.t('nav_bridge'),
-            subtitle: 'Two-way communication for deaf & hearing',
+            subtitle: l.t('home_bridge_sub'),
             accentLight: _green,  accentDark: _green_D,
-            launchLabel: 'Open Bridge',
+            launchLabel: l.t('home_open_bridge'),
             onLaunch: () => _push(ctx, TwoWayScreen(
                 toggleTheme: widget.toggleTheme, setLocale: widget.setLocale)),
             bullets: const [
@@ -282,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
                   // ── Objectives ────────────────────────────────
                   _WebSectionHeader(
-                      label: 'WHAT WE STAND FOR',
+                      label: l.t('obj_heading').toUpperCase(),
                       title: l.t('obj_heading'),
                       sub: l.t('obj_sub'),
                       isDark: isDark),
@@ -361,7 +361,7 @@ class _AppleTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final accent = isDark ? _blue_D : _blue;
     final items  = [
-      (Icons.house_rounded,           Icons.house_outlined,           'Home'),
+      (Icons.house_rounded,           Icons.house_outlined,           l.t('nav_home')),
       (Icons.translate_rounded,       Icons.translate_outlined,       l.t('nav_terminal')),
       (Icons.back_hand_rounded,       Icons.back_hand_outlined,       l.t('nav_signs')),
       (Icons.compare_arrows_rounded,  Icons.compare_arrows_outlined,  l.t('nav_bridge')),
@@ -468,7 +468,7 @@ class _MobileHomeFeed extends StatelessWidget {
         const SizedBox(height: 28),
 
         // ── Section: Quick Access ───────────────────
-        _SectionTitle(text: 'Quick Access', isDark: isDark,
+        _SectionTitle(text: l.t('home_quick_access'), isDark: isDark,
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 12)),
         _QuickAccessRow(isDark: isDark, l: l,
             toggleTheme: toggleTheme, setLocale: setLocale),
@@ -476,7 +476,7 @@ class _MobileHomeFeed extends StatelessWidget {
         const SizedBox(height: 28),
 
         // ── Section: Objectives ─────────────────────
-        _SectionTitle(text: 'What We Stand For', isDark: isDark,
+        _SectionTitle(text: l.t('obj_heading'), isDark: isDark,
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 14)),
         _MobileObjectivesScroll(isDark: isDark, l: l,
             toggleTheme: toggleTheme, setLocale: setLocale),
@@ -530,7 +530,7 @@ class _MobileNavBar extends StatelessWidget {
                             color: accent.withOpacity(pulse.value * 0.6),
                             blurRadius: 6, spreadRadius: 1)]))),
           ]),
-          Text('Sign Language · AI · India',
+            Text(l.t('home_tagline'),
               style: _t(11, FontWeight.w400, isDark ? _dLabel2 : _lLabel2, ls: 0.2)),
         ]),
         const Spacer(),
@@ -850,11 +850,11 @@ class _QuickAccessRow extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
     final cards = [
-      (_teal,   _teal_D,   Icons.compare_arrows_rounded, 'Bridge',    'Two-Way',
+      (_teal,   _teal_D,   Icons.compare_arrows_rounded, l.t('nav_bridge'),    l.t('home_open_bridge'),
       TwoWayScreen(toggleTheme: toggleTheme, setLocale: setLocale)),
-      (_red,    _red_D,    Icons.emergency_share_rounded, 'SOS',      'Emergency',
+      (_red,    _red_D,    Icons.emergency_share_rounded, l.t('nav_emergency'),      l.t('sos_screen_title'),
       EmergencyScreen(toggleTheme: toggleTheme, setLocale: setLocale)),
-      (_green,  _green_D,  Icons.back_hand_rounded,       'Signs',    'Library',
+      (_green,  _green_D,  Icons.back_hand_rounded,       l.t('nav_signs'),    l.t('home_browse_signs'),
       SignsPage(toggleTheme: toggleTheme, setLocale: setLocale)),
     ];
 
@@ -1100,7 +1100,7 @@ class _MobileMissionCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8)),
               child: Icon(Icons.volunteer_activism_rounded, color: accent, size: 15)),
           const SizedBox(width: 10),
-          Text('Our Mission', style: _t(11, FontWeight.w600, accent, ls: 0.4)),
+          Text(l.t('home_our_mission'), style: _t(11, FontWeight.w600, accent, ls: 0.4)),
         ]),
         const SizedBox(height: 12),
         Text(l.t('vision_title'),
@@ -1122,7 +1122,7 @@ class _MobileMissionCard extends StatelessWidget {
               Container(width: 5, height: 5,
                   decoration: const BoxDecoration(color: _red, shape: BoxShape.circle)),
               const SizedBox(width: 7),
-              Text('1 interpreter : 33,000+ people',
+                Text(l.t('obj_crisis_stat'),
                   style: _t(11.5, FontWeight.w600, _red)),
             ])),
       ]),
@@ -1841,7 +1841,7 @@ class _WebFooter extends StatelessWidget {
                 isDark ? _blue_D : _blue, ls: 4.0)),
             Container(width: 1, height: 11,
                 color: isDark ? _dSep : _lSep.withOpacity(0.5)),
-            Text('© 2026 — Empowering Silence',
+            Text('© 2026 — ${AppLocalizations.of(context).t('home_footer')}',
                 style: _t(11.5, FontWeight.w400, sub, ls: 0.1)),
           ]),
     ]);

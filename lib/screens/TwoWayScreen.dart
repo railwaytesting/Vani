@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../components/GlobalNavbar.dart';
+import '../l10n/AppLocalizations.dart';
 
 // ─────────────────────────────────────────────
 //  WEBSOCKET CONFIG  (mirrors TranslateScreen exactly)
@@ -87,18 +88,18 @@ class _Message {
 //  QUICK PHRASES
 // ─────────────────────────────────────────────
 const List<Map<String, String>> _kPhrases = [
-  {'label': 'How can I help you today?',          'icon': '👋'},
-  {'label': 'Please show me your ID.',             'icon': '🪪'},
-  {'label': 'Please wait here for a moment.',      'icon': '⏳'},
-  {'label': 'I understand. Let me assist you.',    'icon': '✅'},
-  {'label': 'Can you write it down for me?',       'icon': '✏️'},
-  {'label': 'Please follow me.',                   'icon': '🚶'},
-  {'label': 'Is this an emergency?',               'icon': '🆘'},
-  {'label': 'The doctor will see you shortly.',    'icon': '🏥'},
-  {'label': 'Your appointment is confirmed.',      'icon': '📅'},
-  {'label': 'Please take a seat.',                 'icon': '🪑'},
-  {'label': 'Do you need an interpreter?',         'icon': '🤝'},
-  {'label': 'I will call someone who can help.',   'icon': '📞'},
+  {'key': 'phrase_1',  'icon': '👋'},
+  {'key': 'phrase_2',  'icon': '🪪'},
+  {'key': 'phrase_3',  'icon': '⏳'},
+  {'key': 'phrase_4',  'icon': '✅'},
+  {'key': 'phrase_5',  'icon': '✏️'},
+  {'key': 'phrase_6',  'icon': '🚶'},
+  {'key': 'phrase_7',  'icon': '🆘'},
+  {'key': 'phrase_8',  'icon': '🏥'},
+  {'key': 'phrase_9',  'icon': '📅'},
+  {'key': 'phrase_10', 'icon': '🪑'},
+  {'key': 'phrase_11', 'icon': '🤝'},
+  {'key': 'phrase_12', 'icon': '📞'},
 ];
 
 // ══════════════════════════════════════════════
@@ -314,6 +315,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   }
 
   void _clearChat() {
+    final l = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (ctx) {
@@ -321,16 +323,16 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
         return AlertDialog(
           backgroundColor: t.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          title: Text('Clear conversation?',
+          title: Text(l.t('bridge_clear_confirm_title'),
               style: TextStyle(color: t.textPri, fontWeight: FontWeight.w700)),
-          content: Text('All messages from this session will be removed.',
+          content: Text(l.t('bridge_clear_confirm_body'),
               style: TextStyle(color: t.textSec, height: 1.5)),
           actions: [
             TextButton(onPressed: () => Navigator.pop(ctx),
-                child: Text('Cancel', style: TextStyle(color: t.textSec))),
+                child: Text(l.t('sos_cancel'), style: TextStyle(color: t.textSec))),
             TextButton(
               onPressed: () { Navigator.pop(ctx); setState(() => _messages.clear()); },
-              child: const Text('Clear', style: TextStyle(color: _kCrimson)),
+              child: Text(l.t('bridge_clear'), style: const TextStyle(color: _kCrimson)),
             ),
           ],
         );
@@ -488,6 +490,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   // ─────────────────────────────────────────
 
   Widget _buildMobileShell(BuildContext ctx, _T t, Size size, bool isDark) {
+    final l = AppLocalizations.of(ctx);
     return Stack(fit: StackFit.expand, children: [
 
       // Camera fills screen
@@ -526,7 +529,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
                                           .withOpacity(_pulse.value * 0.7),
                                       blurRadius: 5)])),
                               const SizedBox(width: 6),
-                              Text(_wsConnected ? 'ISL Live' : 'Connecting…',
+                                Text(_wsConnected ? l.t('bridge_isl_live') : l.t('common_connecting'),
                                   style: TextStyle(
                                       color: _wsConnected ? _kGreenLight : _kCrimson,
                                       fontSize: 10, fontWeight: FontWeight.w700)),
@@ -558,7 +561,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
                       child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
                           decoration: BoxDecoration(color: _kViolet, borderRadius: BorderRadius.circular(8)),
-                          child: const Text('Send', style: TextStyle(
+                            child: Text(l.t('bridge_send'), style: const TextStyle(
                               color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)))),
                   const SizedBox(width: 6),
                   GestureDetector(onTap: _clearPending,
@@ -585,7 +588,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
                           boxShadow: [BoxShadow(
                               color: _kVioletLight.withOpacity(_pulse.value * 0.8), blurRadius: 7)])),
                       const SizedBox(width: 5),
-                      const Text('Detecting', style: TextStyle(
+                        Text(l.t('bridge_detecting'), style: const TextStyle(
                           color: _kVioletLight, fontSize: 9, fontWeight: FontWeight.w700)),
                     ])))),
 
@@ -609,25 +612,29 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
     ]);
   }
 
-  Widget _mobileCamBg(_T t) => Container(
+    Widget _mobileCamBg(_T t) {
+    final l = AppLocalizations.of(context);
+    return Container(
       color: const Color(0xFF06060F),
       child: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
         Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(color: _kViolet.withOpacity(0.08),
-                shape: BoxShape.circle,
-                border: Border.all(color: _kViolet.withOpacity(0.18))),
-            child: const Icon(Icons.sign_language_rounded, color: _kVioletLight, size: 34)),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(color: _kViolet.withOpacity(0.08),
+            shape: BoxShape.circle,
+            border: Border.all(color: _kViolet.withOpacity(0.18))),
+          child: const Icon(Icons.sign_language_rounded, color: _kVioletLight, size: 34)),
         const SizedBox(height: 14),
-        const Text('Camera initialising…',
-            style: TextStyle(color: Colors.white38, fontSize: 13)),
+        Text(l.t('bridge_camera_init'),
+          style: TextStyle(color: Colors.white38, fontSize: 13)),
       ])));
+    }
 
   // ─────────────────────────────────────────
   //  DEAF PANEL HEADER
   // ─────────────────────────────────────────
 
   Widget _deafHeader(_T t) {
+    final l = AppLocalizations.of(context);
     return Row(children: [
       Container(
         padding: const EdgeInsets.all(7),
@@ -641,9 +648,9 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
       const SizedBox(width: 9),
       Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Deaf / Mute Person',
+          Text(l.t('bridge_deaf_label'),
               style: TextStyle(color: t.textPri, fontSize: 12, fontWeight: FontWeight.w700)),
-          Text('Signing via camera', style: TextStyle(color: t.textSec, fontSize: 10)),
+          Text(l.t('bridge_deaf_sublabel'), style: TextStyle(color: t.textSec, fontSize: 10)),
         ]),
       ),
 
@@ -674,8 +681,8 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
             const SizedBox(width: 5),
             Text(
               _wsConnected
-                  ? 'ISL Live'
-                  : (_reconnectAttempts < _maxReconnectAttempts ? 'Connecting…' : 'Offline'),
+                  ? l.t('bridge_isl_live')
+                  : (_reconnectAttempts < _maxReconnectAttempts ? l.t('common_connecting') : l.t('bridge_offline')),
               style: TextStyle(
                 color: _wsConnected ? _kGreenLight : _kCrimson,
                 fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 0.4,
@@ -690,7 +697,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
         icon: _camActive ? Icons.videocam_rounded : Icons.videocam_off_rounded,
         color: _camActive ? _kVioletLight : t.textMuted,
         onTap: _toggleCamera,
-        tooltip: _camActive ? 'Pause camera' : 'Resume camera',
+        tooltip: _camActive ? l.t('bridge_pause_camera') : l.t('bridge_resume_camera'),
         t: t,
       ),
       if (_cameras.length > 1) ...[
@@ -699,7 +706,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
           icon: Icons.flip_camera_ios_rounded,
           color: t.textSec,
           onTap: _flipCamera,
-          tooltip: 'Flip camera',
+          tooltip: l.t('bridge_flip_camera'),
           t: t,
         ),
       ],
@@ -711,6 +718,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   // ─────────────────────────────────────────
 
   Widget _cameraPanel(_T t) {
+    final l = AppLocalizations.of(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: Container(
@@ -760,7 +768,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
                       ),
                     ),
                     const SizedBox(width: 5),
-                    const Text('Detecting',
+                    Text(l.t('bridge_detecting'),
                         style: TextStyle(color: _kVioletLight, fontSize: 9,
                             fontWeight: FontWeight.w700, letterSpacing: 0.4)),
                   ]),
@@ -801,7 +809,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
                         color: _kViolet,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Text('Send',
+                        child: Text(l.t('bridge_send'),
                           style: TextStyle(color: Colors.white,
                               fontSize: 11, fontWeight: FontWeight.w700)),
                     ),
@@ -834,7 +842,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
                 child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Icon(Icons.videocam_off_rounded, color: t.textMuted, size: 32),
                   const SizedBox(height: 8),
-                  Text('Camera paused',
+                  Text(l.t('bridge_camera_paused'),
                       style: TextStyle(color: t.textSec, fontSize: 12)),
                 ]),
               ),
@@ -845,6 +853,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   }
 
   Widget _cameraPlaceholder(_T t) {
+    final l = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: t.surfaceHi,
@@ -861,9 +870,9 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
           child: const Icon(Icons.sign_language_rounded, color: _kVioletLight, size: 30),
         ),
         const SizedBox(height: 12),
-        Text('Camera initialising…', style: TextStyle(color: t.textSec, fontSize: 12)),
+        Text(l.t('bridge_camera_init'), style: TextStyle(color: t.textSec, fontSize: 12)),
         const SizedBox(height: 4),
-        Text('Point camera at your hands to sign',
+        Text(l.t('bridge_camera_hint'),
             style: TextStyle(color: t.textMuted, fontSize: 10)),
       ]),
     );
@@ -874,6 +883,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   // ─────────────────────────────────────────
 
   Widget _signStatus(_T t) {
+    final l = AppLocalizations.of(context);
     final hasPending = _pending.isNotEmpty;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
@@ -898,8 +908,8 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
             hasPending
                 ? _pending
                 : (_wsConnected
-                ? 'Waiting for sign…'
-                : 'Backend offline — ISL detection unavailable'),
+                ? l.t('bridge_waiting_sign')
+                : l.t('bridge_connect_backend')),
             style: TextStyle(
               color: hasPending ? _kVioletLight : t.textSec,
               fontSize: hasPending ? 13 : 11,
@@ -916,7 +926,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
                 color: _kViolet,
                 borderRadius: BorderRadius.circular(7),
               ),
-              child: const Text('Send →',
+                child: Text('${l.t('bridge_send')} ->',
                   style: TextStyle(color: Colors.white,
                       fontSize: 10, fontWeight: FontWeight.w700)),
             ),
@@ -936,6 +946,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   // ─────────────────────────────────────────
 
   Widget _threadHeader(_T t) {
+    final l = AppLocalizations.of(context);
     return Row(children: [
       Container(
         padding: const EdgeInsets.all(7),
@@ -949,9 +960,10 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
       const SizedBox(width: 9),
       Expanded(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Conversation',
+            Text(l.t('bridge_convo_title'),
               style: TextStyle(color: t.textPri, fontSize: 12, fontWeight: FontWeight.w700)),
-          Text('${_messages.length} message${_messages.length == 1 ? '' : 's'}',
+            Text((_messages.length == 1 ? l.t('bridge_messages') : l.t('bridge_messages_plural'))
+              .replaceAll('{n}', '${_messages.length}'),
               style: TextStyle(color: t.textSec, fontSize: 10)),
         ]),
       ),
@@ -960,7 +972,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
           icon: Icons.delete_sweep_rounded,
           color: t.textSec,
           onTap: _clearChat,
-          tooltip: 'Clear conversation',
+          tooltip: l.t('bridge_clear_convo'),
           t: t,
         ),
     ]);
@@ -992,6 +1004,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   }
 
   Widget _emptyThread(_T t) {
+    final l = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -1005,11 +1018,11 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
             child: Icon(Icons.forum_outlined, color: t.textMuted, size: 26),
           ),
           const SizedBox(height: 12),
-          Text('Conversation will appear here',
+          Text(l.t('bridge_empty_title'),
               style: TextStyle(color: t.textSec, fontSize: 13, fontWeight: FontWeight.w600)),
           const SizedBox(height: 6),
           Text(
-            'Deaf person signs → auto-sent here\nHearing person types below',
+            l.t('bridge_empty_sub'),
             textAlign: TextAlign.center,
             style: TextStyle(color: t.textMuted, fontSize: 11, height: 1.55),
           ),
@@ -1019,6 +1032,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   }
 
   Widget _bubble(_Message msg, _T t, int i) {
+    final l = AppLocalizations.of(context);
     final isDeaf     = msg.sender == _Sender.deaf;
     final bubbleCol  = isDeaf
         ? _kViolet.withOpacity(t.d ? 0.16 : 0.09)
@@ -1043,7 +1057,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
             Padding(
               padding: const EdgeInsets.only(bottom: 3, left: 2, right: 2),
               child: Text(
-                isDeaf ? '🤟 Deaf / Mute' : 'Hearing Person 🗣',
+                isDeaf ? l.t('bridge_deaf_label') : l.t('bridge_hearing_label'),
                 style: TextStyle(
                   color: accentCol.withOpacity(0.6),
                   fontSize: 9, fontWeight: FontWeight.w700, letterSpacing: 0.3,
@@ -1072,7 +1086,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
                       color: _kViolet.withOpacity(0.18),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Text('ISL SIGN',
+                    child: Text(l.t('bridge_isl_sign_badge'),
                         style: TextStyle(color: _kVioletLight,
                             fontSize: 7, fontWeight: FontWeight.w800, letterSpacing: 1)),
                   ),
@@ -1095,6 +1109,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   // ─────────────────────────────────────────
 
   Widget _hearingInput(_T t) {
+    final l = AppLocalizations.of(context);
     return Column(mainAxisSize: MainAxisSize.min, children: [
 
       // Role label
@@ -1109,7 +1124,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
           child: const Icon(Icons.keyboard_rounded, color: _kTealLight, size: 13),
         ),
         const SizedBox(width: 8),
-        Text('Hearing Person — type below',
+        Text(l.t('bridge_hearing_sublabel'),
             style: TextStyle(color: t.textSec, fontSize: 10, fontWeight: FontWeight.w600)),
         const Spacer(),
         // Quick phrase sheet trigger
@@ -1125,7 +1140,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               const Icon(Icons.auto_awesome_rounded, color: _kTealLight, size: 11),
               const SizedBox(width: 4),
-              Text('Phrases',
+                Text(l.t('bridge_quick_phrases'),
                   style: TextStyle(color: _kTealLight, fontSize: 10, fontWeight: FontWeight.w700)),
             ]),
           ),
@@ -1159,7 +1174,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
               textInputAction: TextInputAction.send,
               onSubmitted:    (_) => _sendHearing(),
               decoration: InputDecoration(
-                hintText:  'Type your message…',
+                hintText:  l.t('bridge_type_hint'),
                 hintStyle: TextStyle(color: t.textMuted, fontSize: 12),
                 contentPadding: const EdgeInsets.symmetric(
                     horizontal: 14, vertical: 11),
@@ -1205,13 +1220,14 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   // ─────────────────────────────────────────
 
   Widget _phrasesColumn(_T t) {
+    final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
           const Icon(Icons.auto_awesome_rounded, color: _kTealLight, size: 13),
           const SizedBox(width: 5),
-          Text('Quick phrases',
+            Text(l.t('bridge_quick_phrases'),
               style: TextStyle(color: t.textSec, fontSize: 10,
                   fontWeight: FontWeight.w700, letterSpacing: 0.5)),
         ]),
@@ -1223,7 +1239,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
             itemBuilder: (_, i) {
               final p = _kPhrases[i];
               return GestureDetector(
-                onTap: () => _addMessage(p['label']!, _Sender.hearing),
+                onTap: () => _addMessage(l.t(p['key']!), _Sender.hearing),
                 child: Container(
                   width: double.infinity,
                   margin: const EdgeInsets.only(bottom: 7),
@@ -1237,7 +1253,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
                     Text(p['icon']!, style: const TextStyle(fontSize: 12)),
                     const SizedBox(width: 7),
                     Expanded(
-                      child: Text(p['label']!,
+                        child: Text(l.t(p['key']!),
                           style: TextStyle(color: t.textSec, fontSize: 10, height: 1.4)),
                     ),
                   ]),
@@ -1255,6 +1271,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   // ─────────────────────────────────────────
 
   void _showPhraseSheet(_T t) {
+    final l = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -1286,7 +1303,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
               child: Row(children: [
                 const Icon(Icons.auto_awesome_rounded, color: _kTealLight, size: 15),
                 const SizedBox(width: 8),
-                Text('Quick phrases',
+                Text(l.t('bridge_quick_phrases'),
                     style: TextStyle(color: t.textPri, fontSize: 14,
                         fontWeight: FontWeight.w700)),
               ]),
@@ -1294,7 +1311,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
             const SizedBox(height: 4),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18),
-              child: Text('Tap to send instantly to the conversation',
+                child: Text(l.t('bridge_tap_to_send'),
                   style: TextStyle(color: t.textSec, fontSize: 11)),
             ),
             const SizedBox(height: 14),
@@ -1308,7 +1325,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
                   return GestureDetector(
                     onTap: () {
                       Navigator.pop(ctx);
-                      _addMessage(p['label']!, _Sender.hearing);
+                      _addMessage(l.t(p['key']!), _Sender.hearing);
                     },
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 9),
@@ -1323,7 +1340,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
                         Text(p['icon']!, style: const TextStyle(fontSize: 16)),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Text(p['label']!,
+                            child: Text(l.t(p['key']!),
                               style: TextStyle(color: t.textPri,
                                   fontSize: 13, height: 1.4)),
                         ),
@@ -1400,6 +1417,7 @@ class _MobileBridgePanelState extends State<_MobileBridgePanel> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final t = widget.t;
     final d = widget.isDark;
 
@@ -1429,13 +1447,13 @@ class _MobileBridgePanelState extends State<_MobileBridgePanel> {
                 padding: const EdgeInsets.fromLTRB(14, 4, 14, 10),
                 child: Row(children: [
                   _BridgePanelTab(
-                      label: 'Chat', icon: Icons.forum_rounded,
+                      label: l.t('bridge_convo_title'), icon: Icons.forum_rounded,
                       active: _tab == 0, isDark: d,
                       badge: widget.messages.length,
                       onTap: () => setState(() => _tab = 0)),
                   const SizedBox(width: 8),
                   _BridgePanelTab(
-                      label: 'Phrases', icon: Icons.auto_awesome_rounded,
+                      label: l.t('bridge_quick_phrases'), icon: Icons.auto_awesome_rounded,
                       active: _tab == 1, isDark: d,
                       onTap: () => setState(() => _tab = 1)),
                   if (_tab == 0 && widget.messages.isNotEmpty) ...[
@@ -1508,6 +1526,7 @@ class _ChatTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Column(mainAxisSize: MainAxisSize.min, children: [
       // Message thread (fixed height)
       SizedBox(
@@ -1516,7 +1535,7 @@ class _ChatTab extends StatelessWidget {
             ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.forum_outlined, color: t.textMuted, size: 22),
           const SizedBox(height: 6),
-          Text('Signs auto-appear here · Type below',
+            Text(l.t('bridge_empty_sub'),
               style: TextStyle(color: t.textSec, fontSize: 11)),
         ]))
             : ListView.builder(
@@ -1557,7 +1576,7 @@ class _ChatTab extends StatelessWidget {
                               decoration: BoxDecoration(
                                   color: _kViolet.withOpacity(0.18),
                                   borderRadius: BorderRadius.circular(3)),
-                              child: const Text('ISL', style: TextStyle(
+                                child: Text(l.t('bridge_isl_sign_badge'), style: const TextStyle(
                                   color: _kVioletLight, fontSize: 7, fontWeight: FontWeight.w800))),
                         Text(msg.text, style: TextStyle(
                             color: t.textPri, fontSize: 13,
@@ -1592,7 +1611,7 @@ class _ChatTab extends StatelessWidget {
                         textInputAction: TextInputAction.send,
                         onSubmitted: (_) => widget.onSendHearing(),
                         decoration: InputDecoration(
-                            hintText: 'Hearing person — type here…',
+                            hintText: l.t('bridge_type_hint'),
                             hintStyle: TextStyle(color: t.textMuted, fontSize: 12),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                             border: InputBorder.none)))),
@@ -1622,31 +1641,34 @@ class _PhrasesTab extends StatelessWidget {
   final _T t;
   const _PhrasesTab({required this.widget, required this.d, required this.t});
   @override
-  Widget build(BuildContext context) => SizedBox(
-      height: 280,
-      child: ListView.builder(
-          padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
-          itemCount: _kPhrases.length,
-          itemBuilder: (_, i) {
-            final p = _kPhrases[i];
-            return GestureDetector(
-                onTap: () => widget.onPhraseSelected(p['label']!),
-                child: Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-                    decoration: BoxDecoration(
-                        color: t.surfaceUp,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: t.border)),
-                    child: Row(children: [
-                      Text(p['icon']!, style: const TextStyle(fontSize: 16)),
-                      const SizedBox(width: 10),
-                      Expanded(child: Text(p['label']!,
-                          style: TextStyle(color: t.textPri, fontSize: 12.5,
-                              fontWeight: FontWeight.w600, height: 1.35))),
-                      Icon(Icons.arrow_forward_ios_rounded, color: t.textMuted, size: 10),
-                    ])));
-          }));
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return SizedBox(
+        height: 280,
+        child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+            itemCount: _kPhrases.length,
+            itemBuilder: (_, i) {
+              final p = _kPhrases[i];
+              return GestureDetector(
+                  onTap: () => widget.onPhraseSelected(l.t(p['key']!)),
+                  child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+                      decoration: BoxDecoration(
+                          color: t.surfaceUp,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: t.border)),
+                      child: Row(children: [
+                        Text(p['icon']!, style: const TextStyle(fontSize: 16)),
+                        const SizedBox(width: 10),
+                        Expanded(child: Text(l.t(p['key']!),
+                            style: TextStyle(color: t.textPri, fontSize: 12.5,
+                                fontWeight: FontWeight.w600, height: 1.35))),
+                        Icon(Icons.arrow_forward_ios_rounded, color: t.textMuted, size: 10),
+                      ])));
+            }));
+  }
 }
 
 // ─────────────────────────────────────────────

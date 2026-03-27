@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 import '../components/GlobalNavbar.dart';
 import '../services/EmergencyService.dart';
 import '../utils/PlatformHelper.dart';
+import '../l10n/AppLocalizations.dart';
 import 'EmergencySetupScreen.dart';
 
 // ─────────────────────────────────────────────────────────────
@@ -67,11 +68,11 @@ TextStyle _t(double size, FontWeight w, Color c,
 class _Scenario {
   final SOSMessageType type;
   final IconData icon;
-  final String title, subtitle, signHint, helpline, helplineName, smsTemplate;
+  final String titleKey, subtitleKey, signHint, helpline, helplineName, smsTemplate;
   final Color accentLight, accentDark;
   const _Scenario({
     required this.type, required this.icon,
-    required this.title, required this.subtitle,
+    required this.titleKey, required this.subtitleKey,
     required this.signHint, required this.helpline, required this.helplineName,
     required this.smsTemplate,
     required this.accentLight, required this.accentDark,
@@ -83,8 +84,8 @@ const List<_Scenario> _kScenarios = [
   _Scenario(
     type: SOSMessageType.generalHelp,
     icon: Icons.emergency_rounded,
-    title: 'I Need Help',
-    subtitle: 'General distress — immediate assistance',
+    titleKey: 'sos_general_title',
+    subtitleKey: 'sos_general_sub',
     signHint: 'ISL: HELP',
     helpline: '112', helplineName: 'Emergency',
     accentLight: _red, accentDark: _red_D,
@@ -97,8 +98,8 @@ const List<_Scenario> _kScenarios = [
   _Scenario(
     type: SOSMessageType.medical,
     icon: Icons.medical_services_rounded,
-    title: 'Medical Emergency',
-    subtitle: 'Injury, seizure, chest pain, illness',
+    titleKey: 'sos_medical_title',
+    subtitleKey: 'sos_medical_sub',
     signHint: 'ISL: DOCTOR',
     helpline: '108', helplineName: 'Ambulance',
     accentLight: _orange, accentDark: _orange_D,
@@ -111,8 +112,8 @@ const List<_Scenario> _kScenarios = [
   _Scenario(
     type: SOSMessageType.police,
     icon: Icons.shield_rounded,
-    title: 'I Feel Unsafe',
-    subtitle: 'Threat, harassment, or danger',
+    titleKey: 'sos_police_title',
+    subtitleKey: 'sos_police_sub',
     signHint: 'ISL: STRONG',
     helpline: '100', helplineName: 'Police',
     accentLight: _blue, accentDark: _blue_D,
@@ -125,8 +126,8 @@ const List<_Scenario> _kScenarios = [
   _Scenario(
     type: SOSMessageType.fire,
     icon: Icons.local_fire_department_rounded,
-    title: 'Fire or Smoke',
-    subtitle: 'Fire, gas leak, or smoke emergency',
+    titleKey: 'sos_fire_title',
+    subtitleKey: 'sos_fire_sub',
     signHint: 'ISL: HELP + BAD',
     helpline: '101', helplineName: 'Fire Brigade',
     accentLight: _amber, accentDark: _amber_D,
@@ -139,8 +140,8 @@ const List<_Scenario> _kScenarios = [
   _Scenario(
     type: SOSMessageType.custom,
     icon: Icons.directions_car_rounded,
-    title: 'Road Accident',
-    subtitle: 'Vehicle accident — injuries possible',
+    titleKey: 'sos_accident_title',
+    subtitleKey: 'sos_accident_sub',
     signHint: 'ISL: BAD + SORRY',
     helpline: '1033', helplineName: 'Highway',
     accentLight: _purple, accentDark: _purple_D,
@@ -153,8 +154,8 @@ const List<_Scenario> _kScenarios = [
   _Scenario(
     type: SOSMessageType.custom,
     icon: Icons.child_care_rounded,
-    title: 'Child Safety',
-    subtitle: 'Child missing, lost, or in distress',
+    titleKey: 'sos_child_title',
+    subtitleKey: 'sos_child_sub',
     signHint: 'ISL: MOTHER',
     helpline: '1098', helplineName: 'Childline',
     accentLight: _teal, accentDark: _teal_D,
@@ -238,6 +239,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   }
 
   Future<void> _triggerSOS(int idx) async {
+    final l = AppLocalizations.of(context);
     if (_isSending) return;
     HapticFeedback.heavyImpact();
     setState(() { _isSending = true; _activeSendIndex = idx; _statusMsg = null; });
@@ -254,8 +256,10 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         _statusOk        = result.success;
         _statusMsg       = result.success
             ? (PlatformHelper.isMobile
-            ? 'Alert sent to ${result.sentCount} contact${result.sentCount == 1 ? '' : 's'}.'
-            : 'Contact panel opened. Tap WhatsApp or Call to alert.')
+          ? ((result.sentCount == 1
+            ? l.t('sos_sent_mobile')
+            : l.t('sos_sent_mobile_plural')).replaceAll('{n}', '${result.sentCount}'))
+          : l.t('sos_sent_web'))
             : result.reason;
       });
       Future.delayed(const Duration(seconds: 8), () {
@@ -279,6 +283,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   //  helplines pill row, shake card at bottom.
   // ════════════════════════════════════════════
   Widget _buildMobile(BuildContext ctx, bool isDark) {
+    final l = AppLocalizations.of(ctx);
     final bg = isDark ? _dBg : _lBg;
 
     return Scaffold(
@@ -340,8 +345,8 @@ class _EmergencyScreenState extends State<EmergencyScreen>
 
                     // Section label
                     _MobileSectionLabel(
-                        label: 'SELECT EMERGENCY TYPE',
-                        sub: 'Tap — GPS alert sent immediately',
+                      label: l.t('sos_screen_title').toUpperCase(),
+                      sub: l.t('sos_screen_subtitle_mobile'),
                         isDark: isDark),
                     const SizedBox(height: 12),
 
@@ -368,8 +373,8 @@ class _EmergencyScreenState extends State<EmergencyScreen>
 
                     // Helplines section
                     _MobileSectionLabel(
-                        label: 'QUICK HELPLINES',
-                        sub: 'Tap to call', isDark: isDark),
+                      label: l.t('sos_helpline_ref').toUpperCase(),
+                      sub: l.t('sos_setup_contacts'), isDark: isDark),
                     const SizedBox(height: 10),
                     _MobileHelplinesRow(isDark: isDark),
 
@@ -522,6 +527,7 @@ class _MobileEmergencyBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final bg     = isDark ? _dSurface : _lSurface;
     final label  = isDark ? _dLabel   : _lLabel;
     final label2 = isDark ? _dLabel2  : _lLabel2;
@@ -541,7 +547,7 @@ class _MobileEmergencyBar extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.chevron_left_rounded, color: blueA, size: 28),
-            Text('Back', style: _t(15, FontWeight.w400, blueA)),
+            Text(l.t('common_back'), style: _t(15, FontWeight.w400, blueA)),
           ]),
         ),
         const Spacer(),
@@ -557,7 +563,7 @@ class _MobileEmergencyBar extends StatelessWidget {
                           color: accent.withOpacity(pulseAnim.value * 0.7),
                           blurRadius: 6, spreadRadius: 1)]))),
           const SizedBox(width: 8),
-          Text('Emergency SOS', style: _t(16, FontWeight.w600, label, ls: -0.2)),
+          Text(l.t('sos_screen_title'), style: _t(16, FontWeight.w600, label, ls: -0.2)),
         ]),
         const Spacer(),
         // Contacts icon
@@ -613,6 +619,7 @@ class _ScenarioCardState extends State<_ScenarioCard>
 
   @override
   Widget build(BuildContext context) {
+    final l      = AppLocalizations.of(context);
     final s      = widget.scenario;
     final isDark = widget.isDark;
     final accent = s.accent(isDark);
@@ -698,8 +705,8 @@ class _ScenarioCardState extends State<_ScenarioCard>
                       const Spacer(),
 
                       // Title
-                      Text(
-                          widget.isSending ? 'Sending…' : s.title,
+                        Text(
+                          widget.isSending ? l.t('sos_sending') : l.t(s.titleKey),
                           style: _t(14, FontWeight.w600,
                               widget.isSending ? accent : label, ls: -0.2)),
 
@@ -708,8 +715,8 @@ class _ScenarioCardState extends State<_ScenarioCard>
                       // Subtitle
                       Text(
                           widget.isSending
-                              ? 'Alerting contacts…'
-                              : s.subtitle,
+                            ? l.t('sos_send_to_contacts')
+                            : l.t(s.subtitleKey),
                           style: _t(10.5, FontWeight.w400,
                               widget.isSending ? accent.withOpacity(0.6) : label2,
                               h: 1.35),
@@ -751,6 +758,7 @@ class _WebHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final label  = isDark ? _dLabel   : _lLabel;
     final label2 = isDark ? _dLabel2  : _lLabel2;
     final accent = isDark ? _red_D    : _red;
@@ -762,7 +770,7 @@ class _WebHero extends StatelessWidget {
         onTap: onBack,
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.chevron_left_rounded, color: blueA, size: 20),
-          Text('Emergency', style: _t(14, FontWeight.w400, blueA)),
+          Text(l.t('sos_setup_back'), style: _t(14, FontWeight.w400, blueA)),
         ]),
       ),
       const SizedBox(height: 20),
@@ -784,19 +792,18 @@ class _WebHero extends StatelessWidget {
                             color: accent.withOpacity(pulseAnim.value * 0.7),
                             blurRadius: 6, spreadRadius: 1)])),
                 const SizedBox(width: 8),
-                Text('LIVE — TAP TO ALERT',
+                Text(l.t('sos_screen_badge_web'),
                     style: _t(10, FontWeight.w700, accent, ls: 1.0)),
               ]))),
 
       const SizedBox(height: 16),
 
-      Text('Emergency\nAlert Centre',
+        Text(l.t('sos_screen_title'),
           style: _t(36, FontWeight.w700, label, ls: -1.0, h: 1.08)),
 
       const SizedBox(height: 10),
 
-      Text('Select the emergency type. A formal alert with your GPS location '
-          'is sent instantly to all saved contacts.',
+        Text(l.t('sos_screen_subtitle_mobile'),
           style: _t(14, FontWeight.w400, label2, ls: -0.1, h: 1.65)),
     ]);
   }
@@ -839,6 +846,7 @@ class _WebHelplinesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final items = [
       ('112', 'Emergency', isDark ? _red_D    : _red),
       ('108', 'Ambulance', isDark ? _orange_D : _orange),
@@ -860,7 +868,7 @@ class _WebHelplinesCard extends StatelessWidget {
               color: Colors.black.withOpacity(isDark ? 0.25 : 0.05),
               blurRadius: 10, offset: const Offset(0, 3))]),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('HELPLINES', style: _t(10, FontWeight.w600, sub, ls: 0.8)),
+        Text(l.t('sos_helpline_ref').toUpperCase(), style: _t(10, FontWeight.w600, sub, ls: 0.8)),
         const SizedBox(height: 12),
         IntrinsicHeight(child: Row(children: [
           for (int i = 0; i < items.length; i++) ...[
@@ -895,6 +903,7 @@ class _AutoDetectBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final accent = scenario.accent(isDark);
     final label  = isDark ? _dLabel  : _lLabel;
     final bg     = isDark ? _dSurface : _lSurface;
@@ -919,10 +928,10 @@ class _AutoDetectBanner extends StatelessWidget {
               child: Icon(scenario.icon, color: accent, size: 18)),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('ISL Detected: "$signLabel"',
+            Text(l.t('sos_isl_detected').replaceAll('{sign}', signLabel),
                 style: _t(10, FontWeight.w600, accent, ls: 0.2)),
             const SizedBox(height: 2),
-            Text('Suggested: ${scenario.title} — Tap to send',
+            Text(l.t('sos_isl_suggested').replaceAll('{type}', l.t(scenario.titleKey)),
                 style: _t(13, FontWeight.w600, label, ls: -0.2)),
           ])),
           Icon(Icons.arrow_forward_ios_rounded, color: accent, size: 12),
@@ -975,6 +984,7 @@ class _NoContactsBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final amber = isDark ? _amber_D : _amber;
     final bg    = isDark ? _dSurface : _lSurface;
 
@@ -993,10 +1003,10 @@ class _NoContactsBanner extends StatelessWidget {
           Icon(Icons.warning_rounded, color: amber, size: 16),
           const SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('No emergency contacts configured',
+            Text(l.t('sos_no_contacts_title'),
                 style: _t(12, FontWeight.w600, amber)),
             const SizedBox(height: 2),
-            Text('Tap to add contacts — alerts cannot be sent without them.',
+            Text(l.t('sos_no_contacts_body'),
                 style: _t(11, FontWeight.w400, amber.withOpacity(0.70), h: 1.4)),
           ])),
           Icon(Icons.chevron_right_rounded, color: amber, size: 16),
@@ -1013,6 +1023,7 @@ class _ShakeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final bg     = isDark ? _dSurface  : _lSurface;
     final label  = isDark ? _dLabel    : _lLabel;
     final label2 = isDark ? _dLabel2   : _lLabel2;
@@ -1037,10 +1048,10 @@ class _ShakeCard extends StatelessWidget {
             child: Icon(Icons.vibration_rounded, color: accent, size: 18)),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Shake-to-SOS active',
+            Text(l.t('sos_shake_title'),
               style: _t(13.5, FontWeight.w600, label, ls: -0.2)),
           const SizedBox(height: 2),
-          Text('Shake twice from any screen to alert your contacts.',
+            Text(l.t('sos_shake_body'),
               style: _t(12, FontWeight.w400, label2, h: 1.45)),
         ])),
       ]),
@@ -1064,6 +1075,7 @@ class _ContactsButtonState extends State<_ContactsButton> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final bg    = widget.isDark ? _dSurface  : _lSurface;
     final label = widget.isDark ? _dLabel    : _lLabel;
     final sub   = widget.isDark ? _dLabel2   : _lLabel2;
@@ -1095,8 +1107,9 @@ class _ContactsButtonState extends State<_ContactsButton> {
             const SizedBox(width: 12),
             Expanded(child: Text(
                 widget.count > 0
-                    ? '${widget.count} emergency contact${widget.count == 1 ? '' : 's'}'
-                    : 'Set up emergency contacts',
+                ? ((widget.count == 1 ? l.t('sos_contacts_configured') : l.t('sos_contacts_plural'))
+                  .replaceAll('{n}', '${widget.count}'))
+                : l.t('sos_setup_contacts'),
                 style: _t(13, FontWeight.w500, widget.count > 0 ? label : sub))),
             Icon(Icons.chevron_right_rounded, color: sub, size: 16),
           ]),

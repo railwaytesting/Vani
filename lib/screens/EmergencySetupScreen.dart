@@ -10,6 +10,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../components/GlobalNavbar.dart';
+import '../l10n/AppLocalizations.dart';
 import '../models/EmergencyContact.dart';
 import '../services/EmergencyService.dart';
 import '../utils/PlatformHelper.dart';
@@ -131,6 +132,7 @@ class _EmergencySetupScreenState extends State<EmergencySetupScreen>
   //  MOBILE  (<700px)  — iOS Contacts style
   // ════════════════════════════════════════════
   Widget _buildMobile(BuildContext ctx, List<EmergencyContact> contacts, bool isDark) {
+    final l = AppLocalizations.of(ctx);
     final hasPrimary = contacts.any((c) => c.isPrimary);
     final bg     = isDark ? _dBg      : _lBg;
 
@@ -143,8 +145,8 @@ class _EmergencySetupScreenState extends State<EmergencySetupScreen>
 
             // ── iOS-style navigation bar ──────────
             _MobileNavBar(
-              isDark: isDark, title: 'Emergency Contacts',
-              subtitle: 'Up to 5 · Alerted on SOS',
+              isDark: isDark, title: l.t('sos_setup_title'),
+              subtitle: l.t('sos_setup_subtitle'),
               onBack: () => Navigator.pop(ctx),
               trailing: _ContactCountBadge(
                   count: contacts.length, hasPrimary: hasPrimary, isDark: isDark),
@@ -171,9 +173,9 @@ class _EmergencySetupScreenState extends State<EmergencySetupScreen>
 
                     // Section header — iOS grouped list header style
                     _GroupedSectionHeader(
-                      title: contacts.isEmpty ? 'No contacts added' : 'Your Contacts',
+                      title: contacts.isEmpty ? l.t('sos_no_contacts_yet') : l.t('sos_setup_title'),
                       trailing: (!hasPrimary && contacts.isNotEmpty)
-                          ? _WarningChip(label: 'No primary set', isDark: isDark)
+                          ? _WarningChip(label: l.t('sos_no_primary'), isDark: isDark)
                           : null,
                       isDark: isDark,
                     ),
@@ -287,12 +289,13 @@ class _EmergencySetupScreenState extends State<EmergencySetupScreen>
 
   // ── Actions ──────────────────────────────────────────────
   void _confirmDelete(int index) {
+    final l = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (_) => _AppleAlertDialog(
-        title: 'Remove Contact',
-        message: 'This person will no longer receive your SOS alerts.',
-        destructiveLabel: 'Remove',
+        title: l.t('sos_remove_title'),
+        message: l.t('sos_remove_body'),
+        destructiveLabel: l.t('sos_remove_btn'),
         onDestructive: () async {
           await _service.deleteContact(index);
           if (mounted) setState(() {});
@@ -349,6 +352,7 @@ class _MobileNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final bg     = isDark ? _dSurface : _lSurface;
     final label  = isDark ? _dLabel   : _lLabel;
     final sep    = isDark ? _dSep     : _lSep.withOpacity(0.5);
@@ -366,7 +370,7 @@ class _MobileNavBar extends StatelessWidget {
           behavior: HitTestBehavior.opaque,
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.chevron_left_rounded, color: accent, size: 28),
-            Text('Back', style: _t(15, FontWeight.w400, accent)),
+            Text(l.t('common_back'), style: _t(15, FontWeight.w400, accent)),
           ]),
         ),
         const Spacer(),
@@ -447,6 +451,7 @@ class _EmptyContactsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final bg = isDark ? _dSurface : _lSurface;
     return Container(
       width: double.infinity,
@@ -468,10 +473,10 @@ class _EmptyContactsCard extends StatelessWidget {
             child: Icon(Icons.person_add_rounded,
                 color: isDark ? _red_D : _red, size: 24)),
         const SizedBox(height: 14),
-        Text('Add your first contact',
+        Text(l.t('sos_add_first'),
             style: _t(16, FontWeight.w600, isDark ? _dLabel : _lLabel, ls: -0.2)),
         const SizedBox(height: 6),
-        Text("They'll receive your SOS message\nwith your GPS location.",
+        Text(l.t('sos_add_first_body'),
             textAlign: TextAlign.center,
             style: _t(13, FontWeight.w400, isDark ? _dLabel2 : _lLabel2, h: 1.55)),
       ]),
@@ -599,11 +604,11 @@ class _ContactCellState extends State<_ContactCell> {
           },
           itemBuilder: (_) => [
             if (!c.isPrimary)
-              _popupItem('primary', 'Set as Primary', Icons.star_rounded,
+              _popupItem('primary', AppLocalizations.of(context).t('sos_set_primary'), Icons.star_rounded,
                   isDark ? _blue_D : _blue, isDark),
-            _popupItem('edit', 'Edit Contact', Icons.edit_rounded,
+            _popupItem('edit', AppLocalizations.of(context).t('sos_edit_btn'), Icons.edit_rounded,
                 isDark ? _dLabel : _lLabel, isDark),
-            _popupItem('delete', 'Remove', Icons.delete_rounded,
+            _popupItem('delete', AppLocalizations.of(context).t('sos_remove_menu'), Icons.delete_rounded,
                 isDark ? _red_D : _red, isDark),
           ],
         ),
@@ -636,6 +641,7 @@ class _AddContactRowState extends State<_AddContactRow> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final bg     = widget.isDark ? _dSurface  : _lSurface;
     final accent = widget.isDark ? _blue_D    : _blue;
 
@@ -663,7 +669,7 @@ class _AddContactRowState extends State<_AddContactRow> {
                     color: accent, shape: BoxShape.circle),
                 child: const Icon(Icons.add_rounded, color: Colors.white, size: 18)),
             const SizedBox(width: 14),
-            Text('Add Emergency Contact',
+            Text(l.t('sos_add_contact'),
                 style: _t(15, FontWeight.w400, accent)),
           ]),
         ),
@@ -679,6 +685,7 @@ class _MobileCapabilitiesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final isMobile = PlatformHelper.isMobile;
     final caps     = isMobile
         ? [
@@ -714,8 +721,8 @@ class _MobileCapabilitiesCard extends StatelessWidget {
               ? Icons.smartphone_rounded : Icons.language_rounded,
               color: isDark ? _blue_D : _blue, size: 14),
           const SizedBox(width: 7),
-          Text(isMobile
-              ? 'Mobile SOS Capabilities' : 'Web SOS Capabilities',
+            Text(isMobile
+              ? l.t('sos_mobile_features') : l.t('sos_web_features'),
               style: _t(11, FontWeight.w600,
                   isDark ? _blue_D : _blue, ls: 0.3)),
         ]),
@@ -762,6 +769,7 @@ class _ShakeInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final bg     = isDark ? _dSurface  : _lSurface;
     final label  = isDark ? _dLabel    : _lLabel;
     final label2 = isDark ? _dLabel2   : _lLabel2;
@@ -786,10 +794,10 @@ class _ShakeInfoCard extends StatelessWidget {
             child: Icon(Icons.vibration_rounded, color: accent, size: 18)),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Shake-to-SOS active',
+            Text(l.t('sos_shake_active'),
               style: _t(13.5, FontWeight.w600, label, ls: -0.2)),
           const SizedBox(height: 2),
-          Text('Shake your phone twice from any screen to trigger an alert.',
+            Text(l.t('sos_shake_body_setup'),
               style: _t(12, FontWeight.w400, label2, h: 1.45)),
         ])),
       ]),
@@ -808,6 +816,7 @@ class _WebPageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final accent = isDark ? _blue_D : _blue;
     final label  = isDark ? _dLabel  : _lLabel;
     final label2 = isDark ? _dLabel2 : _lLabel2;
@@ -818,7 +827,7 @@ class _WebPageHeader extends StatelessWidget {
         onTap: onBack,
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.chevron_left_rounded, color: accent, size: 20),
-          Text('Emergency', style: _t(14, FontWeight.w400, accent)),
+          Text(l.t('sos_setup_back'), style: _t(14, FontWeight.w400, accent)),
         ]),
       ),
       const SizedBox(height: 20),
@@ -832,9 +841,9 @@ class _WebPageHeader extends StatelessWidget {
               color: isDark ? _red_D : _red, size: 22)),
         const SizedBox(width: 16),
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Emergency Contacts',
+            Text(l.t('sos_setup_title'),
               style: _t(22, FontWeight.w700, label, ls: -0.5)),
-          Text('Up to 5 people alerted during SOS',
+            Text(l.t('sos_setup_subtitle'),
               style: _t(13, FontWeight.w400, label2)),
         ]),
       ]),
@@ -964,6 +973,7 @@ class _WebAddButtonState extends State<_WebAddButton> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final accent = widget.isDark ? _blue_D : _blue;
     final sep    = widget.isDark ? _dSep : _lSep.withOpacity(0.5);
 
@@ -988,7 +998,7 @@ class _WebAddButtonState extends State<_WebAddButton> {
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(Icons.add_rounded, color: accent, size: 18),
             const SizedBox(width: 8),
-            Text('Add Emergency Contact',
+            Text(l.t('sos_add_contact'),
                 style: _t(14, FontWeight.w500, accent)),
           ]),
         ),
@@ -1034,6 +1044,7 @@ class _ContactFormSheetState extends State<_ContactFormSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final isDark = widget.isDark;
     final bg     = isDark ? _dSurface  : _lSurface;
     final label  = isDark ? _dLabel    : _lLabel;
@@ -1056,7 +1067,7 @@ class _ContactFormSheetState extends State<_ContactFormSheet> {
 
             // Header — iOS modal header with close
             Row(children: [
-              Expanded(child: Text(isEdit ? 'Edit Contact' : 'New Contact',
+                Expanded(child: Text(isEdit ? l.t('sos_edit_contact') : l.t('sos_new_contact'),
                   style: _t(17, FontWeight.w600, label, ls: -0.3))),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
@@ -1071,7 +1082,7 @@ class _ContactFormSheetState extends State<_ContactFormSheet> {
             ]),
 
             const SizedBox(height: 4),
-            Text('Will be notified during SOS alerts',
+            Text(l.t('sos_will_notify'),
                 style: _t(13, FontWeight.w400, label2)),
 
             const SizedBox(height: 20),
@@ -1079,7 +1090,7 @@ class _ContactFormSheetState extends State<_ContactFormSheet> {
             const SizedBox(height: 20),
 
             // Full name field
-            _FieldLabel(text: 'Full Name', isDark: isDark),
+            _FieldLabel(text: l.t('sos_full_name'), isDark: isDark),
             const SizedBox(height: 6),
             _AppleTextField(
                 controller: _nameCtrl, hint: 'e.g. Priya Sharma',
@@ -1090,7 +1101,7 @@ class _ContactFormSheetState extends State<_ContactFormSheet> {
             const SizedBox(height: 16),
 
             // Phone field
-            _FieldLabel(text: 'Phone Number', isDark: isDark),
+            _FieldLabel(text: l.t('sos_phone'), isDark: isDark),
             const SizedBox(height: 6),
             _AppleTextField(
                 controller: _phoneCtrl, hint: '9876543210',
@@ -1110,7 +1121,7 @@ class _ContactFormSheetState extends State<_ContactFormSheet> {
             const SizedBox(height: 16),
 
             // Relation chips
-            _FieldLabel(text: 'Relation', isDark: isDark),
+            _FieldLabel(text: l.t('sos_relation'), isDark: isDark),
             const SizedBox(height: 10),
             Wrap(spacing: 8, runSpacing: 8,
                 children: _relations.map((r) {
@@ -1149,7 +1160,7 @@ class _ContactFormSheetState extends State<_ContactFormSheet> {
                     decoration: BoxDecoration(
                         color: isDark ? _dFill : _lFill,
                         borderRadius: BorderRadius.circular(12)),
-                    child: Center(child: Text('Cancel',
+                    child: Center(child: Text(l.t('sos_cancel'),
                         style: _t(15, FontWeight.w500, label2)))),
               )),
               const SizedBox(width: 12),
@@ -1168,7 +1179,7 @@ class _ContactFormSheetState extends State<_ContactFormSheet> {
                           ? SizedBox(width: 16, height: 16,
                           child: CircularProgressIndicator(
                               strokeWidth: 2, color: Colors.white))
-                          : Text(isEdit ? 'Save Changes' : 'Add Contact',
+                          : Text(isEdit ? l.t('sos_save_changes') : l.t('sos_add_btn'),
                           style: _t(15, FontWeight.w600, Colors.white)))),
                 ),
               )),

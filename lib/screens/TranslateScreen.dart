@@ -370,6 +370,7 @@ class _OnboardingFlowState extends State<_OnboardingFlow> with TickerProviderSta
   }
 
   Widget _buildLoader(bool d) {
+    final l = AppLocalizations.of(context);
     return Center(
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         SizedBox(
@@ -382,11 +383,11 @@ class _OnboardingFlowState extends State<_OnboardingFlow> with TickerProviderSta
                 color:    _A.indigo,
                 track:    _A.sep(d))))),
         const SizedBox(height: 28),
-        Text('VANI', style: GoogleFonts.nunito(
+        Text(l.t('app_title_short'), style: GoogleFonts.nunito(
           fontSize: 28, fontWeight: FontWeight.w800,
           color: _A.label(d), letterSpacing: 8)),
         const SizedBox(height: 6),
-        Text('Sign Language Translator', style: GoogleFonts.nunito(
+        Text(l.t('translate_screen_title'), style: GoogleFonts.nunito(
           fontSize: 13, color: _A.label2(d), letterSpacing: 0.5)),
         const SizedBox(height: 44),
         SizedBox(width: 200, child: AnimatedBuilder(
@@ -399,16 +400,16 @@ class _OnboardingFlowState extends State<_OnboardingFlow> with TickerProviderSta
                 backgroundColor: _A.sep(d),
                 valueColor: const AlwaysStoppedAnimation(_A.indigo))),
             const SizedBox(height: 10),
-            Text(_loaderLabel(_loaderAnim.value), style: GoogleFonts.nunito(
+            Text(_loaderLabel(_loaderAnim.value, l), style: GoogleFonts.nunito(
               fontSize: 12, color: _A.label2(d))),
           ]))),
       ]));
   }
 
-  String _loaderLabel(double v) {
-    if (v < 0.35) return 'Loading camera modules…';
-    if (v < 0.70) return 'Initialising AI engine…';
-    return 'Calibrating gesture model…';
+  String _loaderLabel(double v, AppLocalizations l) {
+    if (v < 0.35) return l.t('translate_loader_camera');
+    if (v < 0.70) return l.t('translate_loader_ai');
+    return l.t('translate_loader_calibrate');
   }
 
   Widget _buildSteps(bool d) {
@@ -878,12 +879,13 @@ class _TranslateScreenState extends State<TranslateScreen>
 
   void _copy(String text) {
     if (text.isEmpty) return;
+    final l = AppLocalizations.of(context);
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Row(children: [
         const Icon(Icons.check_circle, color: _A.green, size: 15),
         const SizedBox(width: 8),
-        Text('Copied to clipboard', style: GoogleFonts.nunito(
+        Text(l.t('common_copied_clipboard'), style: GoogleFonts.nunito(
           fontSize: 13, color: Colors.white)),
       ]),
       behavior: SnackBarBehavior.floating,
@@ -1115,7 +1117,7 @@ class _TranslateScreenState extends State<TranslateScreen>
       const SizedBox(height: 14),
       // Confidence
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text('CONFIDENCE', style: GoogleFonts.nunito(
+        Text(l.t('obj_page_confidence'), style: GoogleFonts.nunito(
           fontSize: 10, fontWeight: FontWeight.w600,
           color: _A.label3(d), letterSpacing: 1.2)),
         Text(active ? '${(_conf * 100).toStringAsFixed(0)}%' : '—',
@@ -1126,7 +1128,7 @@ class _TranslateScreenState extends State<TranslateScreen>
       if (active && _stability > 0) ...[
         const SizedBox(height: 8),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Frames: $_frames', style: GoogleFonts.nunito(
+          Text('${l.t('translate_frames')}: $_frames', style: GoogleFonts.nunito(
             fontSize: 11, color: _A.label3(d))),
           Row(children: [
             SizedBox(width: 64, height: 3,
@@ -1136,7 +1138,7 @@ class _TranslateScreenState extends State<TranslateScreen>
                   valueColor: AlwaysStoppedAnimation(
                     _stability >= 1.0 ? _A.green : _A.orange)))),
             const SizedBox(width: 6),
-            Text(_stability >= 1.0 ? 'Adding…' : 'Hold sign…',
+            Text(_stability >= 1.0 ? l.t('translate_adding') : l.t('translate_hold_sign'),
               style: GoogleFonts.nunito(fontSize: 11, fontWeight: FontWeight.w600,
                 color: _stability >= 1.0 ? _A.green : _A.orange)),
           ]),
@@ -1155,7 +1157,7 @@ class _TranslateScreenState extends State<TranslateScreen>
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(l.t('translate_sentence_builder'), style: GoogleFonts.nunito(
             fontSize: 14, fontWeight: FontWeight.w700, color: _A.label(d))),
-          Text('Hold sign to auto-add • Tap + to add now', style: GoogleFonts.nunito(
+          Text(l.t('translate_auto_chain_subtitle'), style: GoogleFonts.nunito(
             fontSize: 11.5, color: _A.label2(d))),
         ])),
         GestureDetector(onTap: _addCurrentManually,
@@ -1181,8 +1183,7 @@ class _TranslateScreenState extends State<TranslateScreen>
         child: Row(children: [
           Icon(Icons.info_outline_rounded, size: 13, color: _A.label3(d)),
           const SizedBox(width: 8),
-          Expanded(child: Text('Hold a sign steady for ~0.8s — it auto-adds. '
-            'Use + to add immediately.',
+          Expanded(child: Text(l.t('translate_builder_info'),
             style: GoogleFonts.nunito(fontSize: 12, color: _A.label2(d), height: 1.4))),
         ])),
       const SizedBox(height: 14),
@@ -1301,7 +1302,7 @@ class _TranslateScreenState extends State<TranslateScreen>
           tooltip: l.t('translate_copy_transcript'), onTap: () => _copy(_transcriptCtrl.text)),
         const SizedBox(width: 6),
         _SmallIconBtn(icon: Icons.delete_outline_rounded, color: _A.red,
-          tooltip: 'Clear', onTap: _transcriptCtrl.clear),
+          tooltip: l.t('common_clear'), onTap: _transcriptCtrl.clear),
       ]),
     ]));
   }
@@ -1315,7 +1316,9 @@ class _MobileCamPlaceholder extends StatelessWidget {
   final bool d; final _SessionState state;
   const _MobileCamPlaceholder({required this.d, required this.state});
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Container(
     color: const Color(0xFF080810),
     child: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
       Container(width: 80, height: 80,
@@ -1323,9 +1326,10 @@ class _MobileCamPlaceholder extends StatelessWidget {
           color: Colors.white.withOpacity(0.05)),
         child: const Icon(Icons.videocam_off_rounded, color: Colors.white24, size: 36)),
       const SizedBox(height: 16),
-      Text(state == _SessionState.error ? 'Camera error' : 'Tap START to begin signing',
+      Text(state == _SessionState.error ? l.t('translate_camera_error') : l.t('translate_tap_start'),
         style: GoogleFonts.nunito(color: Colors.white38, fontSize: 14)),
     ])));
+  }
 }
 
 class _CamIconBtn extends StatelessWidget {
@@ -1346,12 +1350,13 @@ class _MobileStatusPill extends StatelessWidget {
   const _MobileStatusPill({required this.state});
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     Color c; String t;
     switch (state) {
-      case _SessionState.running:    c = _A.green;  t = 'Live'; break;
-      case _SessionState.connecting: c = _A.orange; t = 'Connecting'; break;
-      case _SessionState.error:      c = _A.red;    t = 'Error'; break;
-      default:                       c = Colors.white54; t = 'Ready';
+      case _SessionState.running:    c = _A.green;  t = l10n.t('common_live'); break;
+      case _SessionState.connecting: c = _A.orange; t = l10n.t('common_connecting'); break;
+      case _SessionState.error:      c = _A.red;    t = l10n.t('common_error'); break;
+      default:                       c = Colors.white54; t = l10n.t('common_ready');
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -1372,6 +1377,7 @@ class _LabelOverlay extends StatelessWidget {
   const _LabelOverlay({required this.label, required this.confidence, required this.stability});
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     if (label == '—' || label.isEmpty) return const SizedBox.shrink();
     final confC = confidence > 0.75 ? _A.green : _A.orange;
     return Container(
@@ -1398,7 +1404,7 @@ class _LabelOverlay extends StatelessWidget {
               backgroundColor: Colors.white.withOpacity(0.12),
               valueColor: AlwaysStoppedAnimation(stability >= 1.0 ? _A.green : Colors.white54)))),
           const SizedBox(height: 3),
-          Text(stability >= 1.0 ? 'Adding…' : 'Hold steady…',
+          Text(stability >= 1.0 ? l.t('translate_adding') : l.t('translate_hold_steady'),
             style: GoogleFonts.nunito(
               color: stability >= 1.0 ? _A.green : Colors.white54,
               fontSize: 10, fontWeight: FontWeight.w600)),
@@ -1468,6 +1474,7 @@ class _MobileBottomPanelState extends State<_MobileBottomPanel> {
 
   @override
   Widget build(BuildContext context) {
+    final l = widget.l;
     final d = widget.d;
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
@@ -1500,14 +1507,14 @@ class _MobileBottomPanelState extends State<_MobileBottomPanel> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Row(children: [
-                _PanelTab(label: 'Output', icon: Icons.translate_rounded,
+                _PanelTab(label: l.t('common_output'), icon: Icons.translate_rounded,
                   active: _tab == 0, d: d, onTap: () => setState(() => _tab = 0)),
                 const SizedBox(width: 8),
-                _PanelTab(label: 'Builder', icon: Icons.auto_awesome_outlined,
+                _PanelTab(label: l.t('common_builder'), icon: Icons.auto_awesome_outlined,
                   active: _tab == 1, d: d, onTap: () => setState(() => _tab = 1),
                   badge: widget.tokens.length),
                 const SizedBox(width: 8),
-                _PanelTab(label: 'Transcript', icon: Icons.article_outlined,
+                _PanelTab(label: l.t('common_transcript'), icon: Icons.article_outlined,
                   active: _tab == 2, d: d, onTap: () => setState(() => _tab = 2)),
               ])),
             const SizedBox(height: 12),
@@ -1541,14 +1548,15 @@ class _MobileSessionBtnState extends State<_MobileSessionBtn> {
   bool _p = false;
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final running = widget.state == _SessionState.running;
     final loading = widget.state == _SessionState.connecting
                  || widget.state == _SessionState.stopping;
     final err     = widget.state == _SessionState.error;
     final c   = running ? _A.red : err ? _A.orange : _A.indigo;
     final lbl = loading
-      ? (widget.state == _SessionState.connecting ? 'Connecting…' : 'Stopping…')
-      : running ? 'Stop' : err ? 'Retry' : 'START';
+      ? (widget.state == _SessionState.connecting ? l.t('common_connecting') : l.t('common_stopping'))
+      : running ? l.t('common_stop') : err ? l.t('common_retry') : l.t('common_start');
     final ico = loading ? Icons.hourglass_empty_rounded
       : running ? Icons.stop_rounded
       : err ? Icons.refresh_rounded : Icons.videocam_rounded;
@@ -1644,6 +1652,7 @@ class _MobileOutputTab extends StatelessWidget {
   const _MobileOutputTab({required this.widget, required this.d});
   @override
   Widget build(BuildContext context) {
+    final l = widget.l;
     final active = widget.state == _SessionState.running;
     final confC  = widget.conf > 0.75 ? _A.green : _A.orange;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
@@ -1662,7 +1671,7 @@ class _MobileOutputTab extends StatelessWidget {
       if (active) ...[
         const SizedBox(height: 10),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Confidence', style: GoogleFonts.nunito(
+          Text(l.t('obj_page_confidence'), style: GoogleFonts.nunito(
             fontSize: 10.5, color: _A.label3(d), fontWeight: FontWeight.w600)),
           Text('${(widget.conf * 100).toStringAsFixed(0)}%',
             style: GoogleFonts.nunito(fontSize: 12, color: _A.label2(d), fontWeight: FontWeight.w600)),
@@ -1717,6 +1726,7 @@ class _MobileBuilderTab extends StatelessWidget {
   const _MobileBuilderTab({required this.widget, required this.d});
   @override
   Widget build(BuildContext context) {
+    final l = widget.l;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
       if (widget.tokens.isEmpty)
         Container(width: double.infinity, padding: const EdgeInsets.symmetric(vertical: 14),
@@ -1726,7 +1736,7 @@ class _MobileBuilderTab extends StatelessWidget {
           child: Column(children: [
             Icon(Icons.gesture_rounded, color: _A.label3(d), size: 26),
             const SizedBox(height: 5),
-            Text('Hold a sign steady to add it',
+            Text(l.t('translate_hold_sign_add'),
               style: GoogleFonts.nunito(color: _A.label2(d), fontSize: 12)),
           ]))
       else
@@ -1776,7 +1786,7 @@ class _MobileBuilderTab extends StatelessWidget {
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               const Icon(Icons.add_rounded, color: _A.indigo, size: 14),
               const SizedBox(width: 5),
-              Text('Add Sign', style: GoogleFonts.nunito(
+              Text(l.t('translate_add_sign'), style: GoogleFonts.nunito(
                 color: _A.indigo, fontSize: 12, fontWeight: FontWeight.w700)),
             ])))),
         if (widget.tokens.isNotEmpty) ...[
@@ -1790,7 +1800,7 @@ class _MobileBuilderTab extends StatelessWidget {
               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 const Icon(Icons.save_alt_rounded, color: _A.green, size: 14),
                 const SizedBox(width: 5),
-                Text('Save', style: GoogleFonts.nunito(
+                Text(l.t('common_save'), style: GoogleFonts.nunito(
                   color: _A.green, fontSize: 12, fontWeight: FontWeight.w700)),
               ])))),
           const SizedBox(width: 6),
@@ -1834,7 +1844,7 @@ class _MobileTranscriptTab extends StatelessWidget {
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.copy_outlined, color: _A.indigo, size: 13),
             const SizedBox(width: 5),
-            Text('Copy', style: GoogleFonts.nunito(
+            Text(widget.l.t('common_copy'), style: GoogleFonts.nunito(
               color: _A.indigo, fontSize: 12, fontWeight: FontWeight.w700)),
           ]))),
       const SizedBox(width: 8),
@@ -1847,7 +1857,7 @@ class _MobileTranscriptTab extends StatelessWidget {
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.delete_outline_rounded, color: _A.red, size: 13),
             const SizedBox(width: 5),
-            Text('Clear', style: GoogleFonts.nunito(
+            Text(widget.l.t('common_clear'), style: GoogleFonts.nunito(
               color: _A.red, fontSize: 12, fontWeight: FontWeight.w700)),
           ]))),
     ]),
@@ -1892,12 +1902,13 @@ class _WebStatusChip extends StatelessWidget {
   const _WebStatusChip({required this.state, required this.d});
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     Color c; String l;
     switch (state) {
-      case _SessionState.running:    c = _A.green;  l = 'Live'; break;
-      case _SessionState.connecting: c = _A.orange; l = 'Connecting'; break;
-      case _SessionState.error:      c = _A.red;    l = 'Error'; break;
-      default:                       c = _A.label3(this.d); l = 'Idle';
+      case _SessionState.running:    c = _A.green;  l = l10n.t('common_live'); break;
+      case _SessionState.connecting: c = _A.orange; l = l10n.t('common_connecting'); break;
+      case _SessionState.error:      c = _A.red;    l = l10n.t('common_error'); break;
+      default:                       c = _A.label3(this.d); l = l10n.t('common_idle');
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
@@ -1983,7 +1994,9 @@ class _WebEmptyBuilder extends StatelessWidget {
   final bool d;
   const _WebEmptyBuilder({required this.d});
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Container(
     width: double.infinity, padding: const EdgeInsets.symmetric(vertical: 20),
     decoration: BoxDecoration(
       color: _A.surface2(d), borderRadius: BorderRadius.circular(12),
@@ -1991,12 +2004,13 @@ class _WebEmptyBuilder extends StatelessWidget {
     child: Column(children: [
       Icon(Icons.gesture_rounded, color: _A.label3(d), size: 28),
       const SizedBox(height: 7),
-      Text('Hold a sign steady to build a sentence',
+      Text(l.t('translate_hold_sign_build'),
         style: GoogleFonts.nunito(color: _A.label2(d), fontSize: 12.5)),
       const SizedBox(height: 3),
-      Text('Or tap + to add the current sign manually',
+      Text(l.t('translate_builder_info_short'),
         style: GoogleFonts.nunito(color: _A.label3(d), fontSize: 11.5)),
     ]));
+  }
 }
 
 class _TokenChip extends StatelessWidget {
@@ -2083,13 +2097,14 @@ class _WebSessionBtn extends StatelessWidget {
     required this.onStart, required this.onStop});
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final running = state == _SessionState.running;
     final loading = state == _SessionState.connecting || state == _SessionState.stopping;
     final err     = state == _SessionState.error;
     final c       = running ? _A.red : err ? _A.orange : _A.indigo;
     final lbl = loading
-      ? (state == _SessionState.connecting ? 'Connecting…' : 'Stopping…')
-      : running ? 'Stop Session' : err ? 'Retry' : 'Start Session';
+      ? (state == _SessionState.connecting ? l10n.t('common_connecting') : l10n.t('common_stopping'))
+      : running ? l10n.t('translate_stop_session') : err ? l10n.t('common_retry') : l10n.t('translate_start_session');
     final ico = loading ? Icons.hourglass_empty_rounded
       : running ? Icons.stop_rounded : err ? Icons.refresh_rounded : Icons.play_arrow_rounded;
     return GestureDetector(
@@ -2135,16 +2150,19 @@ class _WebCamPlaceholder extends StatelessWidget {
   final bool d;
   const _WebCamPlaceholder({required this.d});
   @override
-  Widget build(BuildContext context) => Center(
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Center(
     child: Column(mainAxisSize: MainAxisSize.min, children: [
       Container(padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           shape: BoxShape.circle, color: Colors.white.withOpacity(0.05)),
         child: Icon(Icons.videocam_off_rounded, color: Colors.white.withOpacity(0.22), size: 32)),
       const SizedBox(height: 12),
-      Text('Press Start Session to begin',
+      Text(l.t('translate_press_start'),
         style: GoogleFonts.nunito(color: Colors.white.withOpacity(0.28), fontSize: 13)),
     ]));
+  }
 }
 
 class _LiveBadge extends StatelessWidget {
@@ -2162,7 +2180,7 @@ class _LiveBadge extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         const CircleAvatar(radius: 2.5, backgroundColor: Colors.white),
         const SizedBox(width: 5),
-        Text('LIVE', style: GoogleFonts.nunito(
+        Text(AppLocalizations.of(context).t('common_live').toUpperCase(), style: GoogleFonts.nunito(
           color: Colors.white, fontWeight: FontWeight.w900, fontSize: 9, letterSpacing: 1.8)),
       ])));
 }
@@ -2177,7 +2195,7 @@ class _ConnectingOverlay extends StatelessWidget {
       const CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(_A.indigo), strokeWidth: 2),
       const SizedBox(height: 12),
-      Text('Establishing connection…',
+      Text(AppLocalizations.of(context).t('translate_establishing_connection'),
         style: GoogleFonts.nunito(color: _A.indigo, fontWeight: FontWeight.w700, fontSize: 13)),
     ])));
 }
@@ -2191,7 +2209,7 @@ class _ErrorOverlay extends StatelessWidget {
     child: Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
       const Icon(Icons.warning_amber_rounded, color: _A.red, size: 32),
       const SizedBox(height: 8),
-      Text('Connection Error', style: GoogleFonts.nunito(
+      Text(AppLocalizations.of(context).t('translate_connection_error'), style: GoogleFonts.nunito(
         color: Colors.white70, fontWeight: FontWeight.w800, fontSize: 15)),
     ])));
 }

@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:camera/camera.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../components/GlobalNavbar.dart';
-import '../l10n/AppLocalizations.dart';
 
 // ─────────────────────────────────────────────
 //  WEBSOCKET CONFIG  (mirrors TranslateScreen exactly)
@@ -154,11 +153,6 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   late Animation<double>   _entryFade;
   late Animation<Offset>   _entrySlide;
   late Animation<double>   _pulse;
-
-  // ── Layout ────────────────────────────────
-  double _splitRatio = 0.42;
-  static const double _minSplit = 0.25;
-  static const double _maxSplit = 0.62;
 
   @override
   void initState() {

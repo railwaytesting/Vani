@@ -14,10 +14,11 @@ import 'components/SOSFloatingButton.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Apple-style: transparent status bar, light icons on dark, dark icons on light
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor:            Colors.transparent,
-    statusBarIconBrightness:   Brightness.light,
-    statusBarBrightness:       Brightness.dark,
+    statusBarColor:          Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+    statusBarBrightness:     Brightness.light,
   ));
 
   await Hive.initFlutter();
@@ -27,6 +28,33 @@ void main() async {
   runApp(const VaniApp());
 }
 
+// ─────────────────────────────────────────────
+//  APPLE DESIGN TOKENS
+// ─────────────────────────────────────────────
+
+// iOS / macOS system blue — the definitive Apple accent
+const _kAppleBlue        = Color(0xFF007AFF);
+const _kAppleBlueDark    = Color(0xFF0A84FF); // dark-mode system blue
+const _kAppleIndigo      = Color(0xFF5856D6);
+const _kAppleTeal        = Color(0xFF32ADE6);
+const _kAppleRed         = Color(0xFFFF3B30);
+
+// Light mode surface hierarchy (iOS exact)
+const _lBg        = Color(0xFFF2F2F7); // systemGroupedBackground
+const _lSurface   = Color(0xFFFFFFFF); // secondarySystemGroupedBackground
+const _lSurface2  = Color(0xFFF2F2F7); // tertiarySystemGroupedBackground
+const _lSeparator = Color(0xFFC6C6C8); // separator
+const _lLabel     = Color(0xFF000000); // label
+const _lLabel2    = Color(0xFF3C3C43); // secondaryLabel (with 60% opacity applied)
+
+// Dark mode surface hierarchy (iOS exact)
+const _dBg        = Color(0xFF000000); // systemBackground
+const _dSurface   = Color(0xFF1C1C1E); // secondarySystemBackground
+const _dSurface2  = Color(0xFF2C2C2E); // tertiarySystemBackground
+const _dSeparator = Color(0xFF38383A); // separator
+const _dLabel     = Color(0xFFFFFFFF); // label
+const _dLabel2    = Color(0xFFEBEBF5); // secondaryLabel
+
 class VaniApp extends StatefulWidget {
   const VaniApp({super.key});
   @override
@@ -34,28 +62,30 @@ class VaniApp extends StatefulWidget {
 }
 
 class _VaniAppState extends State<VaniApp> {
-  ThemeMode _themeMode = ThemeMode.light;   // ← app starts in light mode
+  ThemeMode _themeMode = ThemeMode.light;
   Locale _locale = const Locale('en');
 
-  void toggleTheme() => setState(() =>
-  _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark);
+  void toggleTheme() {
+    setState(() {
+      _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    });
+    // Update system chrome to match
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor:          Colors.transparent,
+      statusBarIconBrightness: _themeMode == ThemeMode.dark ? Brightness.light : Brightness.dark,
+      statusBarBrightness:     _themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light,
+    ));
+  }
 
   void setLocale(Locale locale) => setState(() => _locale = locale);
 
   @override
   Widget build(BuildContext context) {
-    const violet      = Color(0xFF7C3AED);
-    const violetLight = Color(0xFFA78BFA);
-    const dBg         = Color(0xFF040408);
-    const dSurface    = Color(0xFF0C0C16);
-    const lBg         = Color(0xFFF5F6FE);
-    const lSurface    = Color(0xFFFFFFFF);
-
-    // Bundled Google Sans font family from assets/fonts for exact cross-platform rendering.
-    const appFontFamily = 'Google Sans';
+    // Google Sans — used as Apple SF Pro equivalent
+    const appFont = 'Google Sans';
 
     return MaterialApp(
-      onGenerateTitle:            (context) => AppLocalizations.of(context).t('app_title'),
+      onGenerateTitle:            (ctx) => AppLocalizations.of(ctx).t('app_title'),
       debugShowCheckedModeBanner: false,
       themeMode:                  _themeMode,
       locale:                     _locale,
@@ -67,53 +97,108 @@ class _VaniAppState extends State<VaniApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
 
-      // ── Dark theme ──────────────────────────
-      darkTheme: ThemeData(
-        brightness:              Brightness.dark,
+      // ── LIGHT THEME — iOS / macOS exact ──────────────────────────
+      theme: ThemeData(
+        brightness:              Brightness.light,
         useMaterial3:            true,
-        fontFamily:              appFontFamily,
-        primaryColor:            violet,
-        scaffoldBackgroundColor: dBg,
-        cardColor:               dSurface,
-        canvasColor:             dBg,
-        dividerColor:            Colors.white.withOpacity(0.05),
-        textTheme:               ThemeData.dark().textTheme,
-        colorScheme: ColorScheme.dark(
-          primary:   violet,
-          secondary: violetLight,
-          surface:   dSurface,
-          onSurface: const Color(0xFFF0EEFF),
-          outline:   Colors.white.withOpacity(0.08),
+        fontFamily:              appFont,
+        primaryColor:            _kAppleBlue,
+        scaffoldBackgroundColor: _lBg,
+        cardColor:               _lSurface,
+        canvasColor:             _lBg,
+        dividerColor:            _lSeparator.withOpacity(0.36),
+        splashFactory:           NoSplash.splashFactory,
+        highlightColor:          Colors.transparent,
+        colorScheme: const ColorScheme.light(
+          primary:          _kAppleBlue,
+          secondary:        _kAppleIndigo,
+          tertiary:         _kAppleTeal,
+          surface:          _lSurface,
+          onSurface:        _lLabel,
+          outline:          _lSeparator,
+          error:            _kAppleRed,
+          surfaceContainer: _lSurface2,
+        ),
+        textTheme: _buildTextTheme(Brightness.light, appFont),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.transparent,
+          elevation:       0,
+          scrolledUnderElevation: 0,
+          centerTitle:     true,
+          titleTextStyle:  TextStyle(
+            fontFamily:  appFont,
+            fontSize:    17,
+            fontWeight:  FontWeight.w600,
+            color:       _lLabel,
+            letterSpacing: -0.2,
+          ),
+          iconTheme: IconThemeData(color: _kAppleBlue, size: 22),
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: _lSurface.withOpacity(0.92),
+          indicatorColor:  _kAppleBlue.withOpacity(0.12),
+          labelTextStyle: WidgetStateProperty.all(const TextStyle(
+            fontFamily: appFont, fontSize: 10, fontWeight: FontWeight.w500,
+          )),
         ),
         pageTransitionsTheme: const PageTransitionsTheme(builders: {
-          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
           TargetPlatform.iOS:     CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
-          TargetPlatform.linux:   FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux:   CupertinoPageTransitionsBuilder(),
           TargetPlatform.macOS:   CupertinoPageTransitionsBuilder(),
         }),
       ),
 
-      // ── Light theme ─────────────────────────
-      theme: ThemeData(
-        brightness:              Brightness.light,
+      // ── DARK THEME — iOS / macOS dark mode exact ─────────────────
+      darkTheme: ThemeData(
+        brightness:              Brightness.dark,
         useMaterial3:            true,
-        fontFamily:              appFontFamily,
-        primaryColor:            violet,
-        scaffoldBackgroundColor: lBg,
-        cardColor:               lSurface,
-        textTheme:               ThemeData.light().textTheme,
-        colorScheme: const ColorScheme.light(
-          primary:   violet,
-          secondary: violetLight,
-          surface:   lSurface,
-          onSurface: Color(0xFF0A0A20),
+        fontFamily:              appFont,
+        primaryColor:            _kAppleBlueDark,
+        scaffoldBackgroundColor: _dBg,
+        cardColor:               _dSurface,
+        canvasColor:             _dBg,
+        dividerColor:            _dSeparator,
+        splashFactory:           NoSplash.splashFactory,
+        highlightColor:          Colors.transparent,
+        colorScheme: const ColorScheme.dark(
+          primary:          _kAppleBlueDark,
+          secondary:        _kAppleIndigo,
+          tertiary:         _kAppleTeal,
+          surface:          _dSurface,
+          onSurface:        _dLabel,
+          outline:          _dSeparator,
+          error:            _kAppleRed,
+          surfaceContainer: _dSurface2,
+        ),
+        textTheme: _buildTextTheme(Brightness.dark, appFont),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.transparent,
+          elevation:       0,
+          scrolledUnderElevation: 0,
+          centerTitle:     true,
+          titleTextStyle:  TextStyle(
+            fontFamily:  appFont,
+            fontSize:    17,
+            fontWeight:  FontWeight.w600,
+            color:       _dLabel,
+            letterSpacing: -0.2,
+          ),
+          iconTheme: IconThemeData(color: _kAppleBlueDark, size: 22),
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: _dSurface.withOpacity(0.92),
+          indicatorColor:  _kAppleBlueDark.withOpacity(0.18),
+          labelTextStyle: WidgetStateProperty.all(const TextStyle(
+            fontFamily: appFont, fontSize: 10, fontWeight: FontWeight.w500,
+          )),
         ),
         pageTransitionsTheme: const PageTransitionsTheme(builders: {
-          TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
           TargetPlatform.iOS:     CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
-          TargetPlatform.linux:   FadeUpwardsPageTransitionsBuilder(),
+          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux:   CupertinoPageTransitionsBuilder(),
           TargetPlatform.macOS:   CupertinoPageTransitionsBuilder(),
         }),
       ),
@@ -121,20 +206,52 @@ class _VaniAppState extends State<VaniApp> {
       home: SplashScreen(toggleTheme: toggleTheme, setLocale: setLocale),
     );
   }
+
+  /// Builds a Google Sans text theme mirroring Apple SF Pro scales
+  TextTheme _buildTextTheme(Brightness b, String font) {
+    final base  = b == Brightness.dark ? _dLabel : _lLabel;
+    final muted = b == Brightness.dark
+        ? _dLabel2.withOpacity(0.60)
+        : _lLabel2.withOpacity(0.60);
+    return TextTheme(
+      // Large Title — 34pt, regular
+      displayLarge:  TextStyle(fontFamily: font, fontSize: 34, fontWeight: FontWeight.w400, color: base, letterSpacing: 0.37),
+      // Title 1 — 28pt
+      displayMedium: TextStyle(fontFamily: font, fontSize: 28, fontWeight: FontWeight.w400, color: base, letterSpacing: 0.36),
+      // Title 2 — 22pt
+      displaySmall:  TextStyle(fontFamily: font, fontSize: 22, fontWeight: FontWeight.w400, color: base, letterSpacing: 0.35),
+      // Title 3 — 20pt
+      headlineLarge: TextStyle(fontFamily: font, fontSize: 20, fontWeight: FontWeight.w400, color: base, letterSpacing: 0.38),
+      // Headline — 17pt semibold
+      headlineMedium: TextStyle(fontFamily: font, fontSize: 17, fontWeight: FontWeight.w600, color: base, letterSpacing: -0.41),
+      // Body — 17pt regular
+      bodyLarge:     TextStyle(fontFamily: font, fontSize: 17, fontWeight: FontWeight.w400, color: base, letterSpacing: -0.41),
+      // Callout — 16pt regular
+      bodyMedium:    TextStyle(fontFamily: font, fontSize: 16, fontWeight: FontWeight.w400, color: base, letterSpacing: -0.32),
+      // Subheadline — 15pt regular
+      bodySmall:     TextStyle(fontFamily: font, fontSize: 15, fontWeight: FontWeight.w400, color: muted, letterSpacing: -0.23),
+      // Footnote — 13pt regular
+      labelLarge:    TextStyle(fontFamily: font, fontSize: 13, fontWeight: FontWeight.w400, color: muted, letterSpacing: -0.08),
+      // Caption 1 — 12pt regular
+      labelMedium:   TextStyle(fontFamily: font, fontSize: 12, fontWeight: FontWeight.w400, color: muted, letterSpacing: 0.0),
+      // Caption 2 — 11pt regular
+      labelSmall:    TextStyle(fontFamily: font, fontSize: 11, fontWeight: FontWeight.w400, color: muted, letterSpacing: 0.07),
+    );
+  }
 }
 
 // ─────────────────────────────────────────────
 //  ROOT SHELL
 // ─────────────────────────────────────────────
-class _RootShell extends StatefulWidget {
+class RootShell extends StatefulWidget {
   final VoidCallback toggleTheme;
   final Function(Locale) setLocale;
-  const _RootShell({required this.toggleTheme, required this.setLocale});
+  const RootShell({super.key, required this.toggleTheme, required this.setLocale});
   @override
-  State<_RootShell> createState() => _RootShellState();
+  State<RootShell> createState() => _RootShellState();
 }
 
-class _RootShellState extends State<_RootShell> {
+class _RootShellState extends State<RootShell> {
   @override
   void initState() {
     super.initState();

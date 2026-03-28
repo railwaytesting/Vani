@@ -1,20 +1,22 @@
 // lib/screens/SplashScreen.dart
-// ─────────────────────────────────────────────────────────────
-//  VANI  —  Minimal Production Splash Screen  (light)
 //
-//  PHILOSOPHY
-//  White canvas. Three precise beats. No particles.
-//  Logo → name → tagline → fade out.
-//  Every transition is crisp, purposeful, silent.
-//
-//  TIMELINE  (total ≈ 2600 ms)
-//  180 ms   Beat 1 — Logo circle scales in (spring), arc draws.
-//                     Hand fades inside ring.
-//  780 ms   Beat 2 — "VANI" slides up + fades in.
-//  1050 ms  Beat 3 — Tagline fades in.
-//  2100 ms  Beat 4 — Whole screen fades to white.
-//  2580 ms  Navigate to HomeScreen (zero transition).
-// ─────────────────────────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════╗
+// ║  VANI — Splash Screen  · Apple-Inspired Premium UI     ║
+// ║  Font: Google Sans (SF Pro equivalent)                 ║
+// ║                                                        ║
+// ║  PHILOSOPHY                                            ║
+// ║  Pure white canvas. Surgical timing. No noise.        ║
+// ║  Exactly how Apple does it — logo, wordmark, done.    ║
+// ║                                                        ║
+// ║  TIMELINE                                             ║
+// ║  0 ms      White canvas                               ║
+// ║  120 ms    App icon scales in (spring, iOS feel)      ║
+// ║  680 ms    "VANI" fades + slides up                   ║
+// ║  980 ms    Tagline fades in                           ║
+// ║  2000 ms   Everything fades out                       ║
+// ║  2480 ms   Navigate — zero transition                 ║
+// ╚══════════════════════════════════════════════════════════╝
+
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,27 +25,29 @@ import '../components/SOSFloatingButton.dart';
 import '../services/EmergencyService.dart';
 
 // ─────────────────────────────────────────────
-//  PALETTE  — light only
+//  APPLE PALETTE  (splash is always light)
 // ─────────────────────────────────────────────
-const _kBg          = Color(0xFFFFFFFF);
-const _kViolet      = Color(0xFF7C3AED);
-const _kVioletLight = Color(0xFFA78BFA);
-const _kVioletDeep  = Color(0xFF5B21B6);
-const _kTextSub     = Color(0xFFAAAAAA);
+const _white  = Color(0xFFFFFFFF);
+const _blue   = Color(0xFF007AFF);   // iOS system blue
+const _blue2  = Color(0xFF0055FF);   // deeper shade for gradient
+const _label  = Color(0xFF000000);   // iOS label
+const _label2 = Color(0x993C3C43);   // iOS secondary label
 
-// ═════════════════════════════════════════════
+TextStyle _t(double size, FontWeight w, Color c,
+    {double ls = 0, double? h}) =>
+    TextStyle(fontFamily: 'Google Sans',
+        fontSize: size, fontWeight: w, color: c,
+        letterSpacing: ls, height: h);
+
+// ══════════════════════════════════════════════════════════
 //  SPLASH SCREEN
-// ═════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 class SplashScreen extends StatefulWidget {
   final VoidCallback     toggleTheme;
   final Function(Locale) setLocale;
-
   const SplashScreen({
-    super.key,
-    required this.toggleTheme,
-    required this.setLocale,
+    super.key, required this.toggleTheme, required this.setLocale,
   });
-
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -51,96 +55,98 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
 
-  // Controllers
-  late final AnimationController _logoCtrl;
-  late final AnimationController _textCtrl;
-  late final AnimationController _exitCtrl;
+  // ── Controllers ────────────────────────────
+  late final AnimationController _iconCtrl;   // app icon entrance
+  late final AnimationController _textCtrl;   // wordmark + tagline
+  late final AnimationController _exitCtrl;   // full-screen fade-out
 
-  // Logo
-  late final Animation<double> _ringScale;
-  late final Animation<double> _ringFade;
+  // ── Icon animations ─────────────────────────
+  late final Animation<double> _iconScale;
+  late final Animation<double> _iconFade;
   late final Animation<double> _arcProgress;
   late final Animation<double> _handFade;
   late final Animation<double> _handScale;
 
-  // Text
+  // ── Text animations ──────────────────────────
   late final Animation<double> _nameFade;
   late final Animation<Offset>  _nameSlide;
-  late final Animation<double> _taglineFade;
-  late final Animation<Offset>  _taglineSlide;
+  late final Animation<double> _tagFade;
 
-  // Exit
-  late final Animation<double> _exitOpacity;
+  // ── Exit ─────────────────────────────────────
+  late final Animation<double> _exitFade;
 
   @override
   void initState() {
     super.initState();
 
-    _logoCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 820));
-    _textCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 920));
-    _exitCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 480));
+    // Force light status bar throughout splash
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor:          Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness:     Brightness.light,
+    ));
 
-    // Logo ring
-    _ringScale = Tween<double>(begin: 0.55, end: 1.0).animate(
-        CurvedAnimation(parent: _logoCtrl,
-            curve: const Interval(0.0, 0.68, curve: Curves.easeOutBack)));
+    _iconCtrl = AnimationController(vsync: this,
+        duration: const Duration(milliseconds: 700));
+    _textCtrl = AnimationController(vsync: this,
+        duration: const Duration(milliseconds: 800));
+    _exitCtrl = AnimationController(vsync: this,
+        duration: const Duration(milliseconds: 480));
 
-    _ringFade = CurvedAnimation(parent: _logoCtrl,
-        curve: const Interval(0.0, 0.50, curve: Curves.easeOut));
+    // Icon: spring scale + fade
+    _iconScale = Tween<double>(begin: 0.60, end: 1.0).animate(
+        CurvedAnimation(parent: _iconCtrl,
+            curve: const Interval(0.0, 0.70, curve: Curves.easeOutBack)));
+    _iconFade  = CurvedAnimation(parent: _iconCtrl,
+        curve: const Interval(0.0, 0.45, curve: Curves.easeOut));
 
+    // Arc draws after icon appears
     _arcProgress = Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(parent: _logoCtrl,
-            curve: const Interval(0.08, 0.88, curve: Curves.easeOutCubic)));
+        CurvedAnimation(parent: _iconCtrl,
+            curve: const Interval(0.05, 0.90, curve: Curves.easeOutCubic)));
 
-    // Hand
-    _handFade = CurvedAnimation(parent: _logoCtrl,
-        curve: const Interval(0.32, 0.82, curve: Curves.easeOut));
-    _handScale = Tween<double>(begin: 0.40, end: 1.0).animate(
-        CurvedAnimation(parent: _logoCtrl,
-            curve: const Interval(0.32, 0.88, curve: Curves.easeOutBack)));
+    // Hand inside arc
+    _handFade  = CurvedAnimation(parent: _iconCtrl,
+        curve: const Interval(0.30, 0.85, curve: Curves.easeOut));
+    _handScale = Tween<double>(begin: 0.30, end: 1.0).animate(
+        CurvedAnimation(parent: _iconCtrl,
+            curve: const Interval(0.30, 0.90, curve: Curves.easeOutBack)));
 
-    // Wordmark
-    _nameFade = CurvedAnimation(parent: _textCtrl,
-        curve: const Interval(0.0, 0.52, curve: Curves.easeOut));
+    // Wordmark — iOS "slides up like SMS app name"
+    _nameFade  = CurvedAnimation(parent: _textCtrl,
+        curve: const Interval(0.0, 0.55, curve: Curves.easeOut));
     _nameSlide = Tween<Offset>(
-        begin: const Offset(0, 0.28), end: Offset.zero).animate(
+        begin: const Offset(0, 0.30), end: Offset.zero).animate(
         CurvedAnimation(parent: _textCtrl,
-            curve: const Interval(0.0, 0.58, curve: Curves.easeOutCubic)));
+            curve: const Interval(0.0, 0.60, curve: Curves.easeOutCubic)));
 
-    // Tagline
-    _taglineFade = CurvedAnimation(parent: _textCtrl,
-        curve: const Interval(0.42, 0.88, curve: Curves.easeOut));
-    _taglineSlide = Tween<Offset>(
-        begin: const Offset(0, 0.22), end: Offset.zero).animate(
-        CurvedAnimation(parent: _textCtrl,
-            curve: const Interval(0.42, 0.88, curve: Curves.easeOutCubic)));
+    // Tagline slightly delayed
+    _tagFade = CurvedAnimation(parent: _textCtrl,
+        curve: const Interval(0.38, 0.90, curve: Curves.easeOut));
 
-    // Exit
-    _exitOpacity = Tween<double>(begin: 1.0, end: 0.0).animate(
+    // Exit fades entire screen to white
+    _exitFade = Tween<double>(begin: 1.0, end: 0.0).animate(
         CurvedAnimation(parent: _exitCtrl, curve: Curves.easeInOut));
 
     _schedule();
   }
 
   void _schedule() {
-    // Beat 1 — logo
-    Future.delayed(const Duration(milliseconds: 180), () {
+    // Beat 1 — icon
+    Future.delayed(const Duration(milliseconds: 120), () {
       if (!mounted) return;
-      _logoCtrl.forward();
+      _iconCtrl.forward();
       HapticFeedback.lightImpact();
     });
 
-    // Beat 2 — text
-    Future.delayed(const Duration(milliseconds: 780), () {
+    // Beat 2 — wordmark
+    Future.delayed(const Duration(milliseconds: 680), () {
       if (!mounted) return;
       _textCtrl.forward();
     });
 
-    // Beat 3 — exit fade
-    Future.delayed(const Duration(milliseconds: 2100), () {
+    // Beat 3 — fade out + navigate
+    Future.delayed(const Duration(milliseconds: 2000), () {
       if (!mounted) return;
       _exitCtrl.forward().then((_) {
         if (mounted) _navigate();
@@ -152,15 +158,13 @@ class _SplashScreenState extends State<SplashScreen>
     Navigator.of(context).pushReplacement(PageRouteBuilder(
       transitionDuration: Duration.zero,
       pageBuilder: (_, __, ___) => _AppShell(
-        toggleTheme: widget.toggleTheme,
-        setLocale:   widget.setLocale,
-      ),
+          toggleTheme: widget.toggleTheme, setLocale: widget.setLocale),
     ));
   }
 
   @override
   void dispose() {
-    _logoCtrl.dispose();
+    _iconCtrl.dispose();
     _textCtrl.dispose();
     _exitCtrl.dispose();
     super.dispose();
@@ -168,88 +172,61 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor:          Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      statusBarBrightness:     Brightness.light,
-    ));
-
     return Scaffold(
-      backgroundColor: _kBg,
+      backgroundColor: _white,
       body: AnimatedBuilder(
-        animation: Listenable.merge([_logoCtrl, _textCtrl, _exitCtrl]),
+        animation: Listenable.merge([_iconCtrl, _textCtrl, _exitCtrl]),
         builder: (_, __) => FadeTransition(
-          opacity: _exitOpacity,
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+          opacity: _exitFade,
+          child: SafeArea(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
 
-                // ─── Logo ────────────────────────────
-                ScaleTransition(
-                  scale: _ringScale,
-                  child: FadeTransition(
-                    opacity: _ringFade,
-                    child: SizedBox(
-                      width: 96, height: 96,
-                      child: CustomPaint(
-                        painter: _LogoPainter(
-                          arcProgress: _arcProgress.value,
-                          handOpacity: _handFade.value,
-                          handScale:   _handScale.value,
+                  // ── App Icon ─────────────────────────
+                  // Mirrors the Apple app icon: square with
+                  // rounded corners, solid white bg, blue elements.
+                  ScaleTransition(
+                    scale: _iconScale,
+                    child: FadeTransition(
+                      opacity: _iconFade,
+                      child: SizedBox(
+                        width: 100, height: 100,
+                        child: CustomPaint(
+                          painter: _AppIconPainter(
+                            arcProgress: _arcProgress.value,
+                            handOpacity: _handFade.value,
+                            handScale:   _handScale.value,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 30),
+                  const SizedBox(height: 28),
 
-                // ─── Wordmark ─────────────────────────
-                SlideTransition(
-                  position: _nameSlide,
-                  child: FadeTransition(
-                    opacity: _nameFade,
-                    child: ShaderMask(
-                      blendMode: BlendMode.srcIn,
-                      shaderCallback: (b) => const LinearGradient(
-                        colors: [_kVioletDeep, _kViolet, _kVioletLight],
-                        stops:  [0.0, 0.5, 1.0],
-                      ).createShader(b),
-                      child: const Text(
-                        'VANI',
-                        style: TextStyle(
-                          fontSize:      48,
-                          fontWeight:    FontWeight.w900,
-                          letterSpacing: 11,
-                          color:         Colors.white, // masked
-                          height:        1.0,
-                        ),
-                      ),
+                  // ── App name ─────────────────────────
+                  // Apple style: black, heavy weight, tight spacing
+                  SlideTransition(
+                    position: _nameSlide,
+                    child: FadeTransition(
+                      opacity: _nameFade,
+                      child: Text('VANI',
+                          style: _t(44, FontWeight.w700, _label, ls: 8.0)),
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 8),
 
-                // ─── Tagline ──────────────────────────
-                SlideTransition(
-                  position: _taglineSlide,
-                  child: FadeTransition(
-                    opacity: _taglineFade,
-                    child: const Text(
-                      'Indian Sign Language · AI',
-                      style: TextStyle(
-                        color:         _kTextSub,
-                        fontSize:      12.5,
-                        fontWeight:    FontWeight.w500,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
+                  // ── Tagline ───────────────────────────
+                  FadeTransition(
+                    opacity: _tagFade,
+                    child: Text('Indian Sign Language · AI',
+                        style: _t(13, FontWeight.w400, _label2, ls: 0.5)),
                   ),
-                ),
-
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -258,16 +235,16 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// ═════════════════════════════════════════════
-//  LOGO PAINTER
-//  96×96 white circle · violet arc · hand inside
-// ═════════════════════════════════════════════
-class _LogoPainter extends CustomPainter {
+// ══════════════════════════════════════════════════════════
+//  APP ICON PAINTER
+//  iOS-style rounded-square icon with system-blue elements.
+//  White background, blue arc ring, hand silhouette.
+// ══════════════════════════════════════════════════════════
+class _AppIconPainter extends CustomPainter {
   final double arcProgress;
   final double handOpacity;
   final double handScale;
-
-  const _LogoPainter({
+  const _AppIconPainter({
     required this.arcProgress,
     required this.handOpacity,
     required this.handScale,
@@ -275,113 +252,103 @@ class _LogoPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final cx = size.width  / 2;
-    final cy = size.height / 2;
-    final r  = size.width  / 2 - 1;
+    final w  = size.width;
+    final h  = size.height;
+    final cx = w / 2;
+    final cy = h / 2;
 
-    // ── Soft drop shadow ────────────────────
-    canvas.drawCircle(
-      Offset(cx, cy + 2),
-      r - 1,
+    // ── Rounded-square background (iOS icon shape) ──
+    final iconRadius = w * 0.225;  // iOS standard corner radius ratio
+    final iconRect   = Rect.fromLTWH(0, 0, w, h);
+    final iconRRect  = RRect.fromRectAndRadius(
+        iconRect, Radius.circular(iconRadius));
+
+    // Drop shadow
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+          Rect.fromLTWH(0, 3, w, h),
+          Radius.circular(iconRadius)),
       Paint()
-        ..color = _kViolet.withOpacity(0.12)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12),
+        ..color = Colors.black.withOpacity(0.08)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16),
     );
 
-    // ── Circle fill — very light violet tint ─
-    canvas.drawCircle(
-      Offset(cx, cy),
-      r,
-      Paint()..color = const Color(0xFFF4F0FF),
-    );
+    // White fill
+    canvas.drawRRect(iconRRect,
+        Paint()..color = const Color(0xFFF8F8F8));
 
-    // ── Hairline border ───────────────────────
-    canvas.drawCircle(
-      Offset(cx, cy),
-      r,
-      Paint()
-        ..color = _kViolet.withOpacity(0.10)
-        ..strokeWidth = 1.0
-        ..style = PaintingStyle.stroke,
-    );
-
-    // ── Arc ring ──────────────────────────────
-    if (arcProgress > 0) {
-      final arcR   = r - 6;
-      final sweep  = 2 * math.pi * arcProgress;
-
-      // Glow behind arc
-      canvas.drawArc(
-        Rect.fromCircle(center: Offset(cx, cy), radius: arcR),
-        -math.pi / 2,
-        sweep,
-        false,
+    // Subtle border
+    canvas.drawRRect(iconRRect,
         Paint()
-          ..color = _kViolet.withOpacity(0.16)
-          ..strokeWidth = 7
+          ..color = Colors.black.withOpacity(0.06)
           ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
-      );
+          ..strokeWidth = 0.5);
 
-      // Gradient arc
+    // ── Blue arc ring ─────────────────────────
+    if (arcProgress > 0) {
+      final arcR  = w * 0.36;
+      final sweep = 2 * math.pi * arcProgress;
+
+      // Track (ghost ring)
+      canvas.drawCircle(Offset(cx, cy), arcR,
+          Paint()
+            ..color = _blue.withOpacity(0.07)
+            ..strokeWidth = 3.0
+            ..style = PaintingStyle.stroke);
+
+      // Active arc with system-blue gradient
       canvas.drawArc(
         Rect.fromCircle(center: Offset(cx, cy), radius: arcR),
-        -math.pi / 2,
-        sweep,
-        false,
+        -math.pi / 2, sweep, false,
         Paint()
           ..shader = SweepGradient(
             startAngle: -math.pi / 2,
             endAngle:   -math.pi / 2 + sweep,
-            colors:     [_kVioletDeep, _kViolet, _kVioletLight],
-            stops: const [0.0, 0.50, 1.0],
+            colors:     [_blue2, _blue, const Color(0xFF5AC8F5)],
+            stops: const [0.0, 0.55, 1.0],
           ).createShader(Rect.fromCircle(center: Offset(cx, cy), radius: arcR))
-          ..strokeWidth = 2.8
+          ..strokeWidth = 3.0
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round,
       );
 
-      // Bright leading dot
+      // Leading dot — the "progress indicator" tip
       if (arcProgress > 0.03) {
         final tipA = -math.pi / 2 + sweep;
         final tx   = cx + arcR * math.cos(tipA);
         final ty   = cy + arcR * math.sin(tipA);
-
         canvas.drawCircle(Offset(tx, ty), 3.5,
-            Paint()
-              ..color = _kVioletLight
-              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
+            Paint()..color = const Color(0xFF5AC8F5)
+              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3));
         canvas.drawCircle(Offset(tx, ty), 2.0,
-            Paint()..color = _kViolet);
+            Paint()..color = _blue);
       }
     }
 
-    // ── Hand silhouette ──────────────────────
+    // ── Hand silhouette ───────────────────────
     if (handOpacity > 0) {
       canvas.save();
-
-      // Scale around centre
       canvas.translate(cx, cy);
-      canvas.scale(handScale * 0.55);
+      canvas.scale(handScale * 0.52);
       canvas.translate(-cx, -cy);
+
+      final handColor = _blue.withOpacity(handOpacity * 0.90);
 
       // Palm
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-            Rect.fromCenter(center: Offset(cx, cy + 6), width: 26, height: 16),
+            Rect.fromCenter(
+                center: Offset(cx, cy + 7), width: 28, height: 17),
             const Radius.circular(5)),
-        Paint()
-          ..color = _kViolet.withOpacity(handOpacity * 0.92)
-          ..style = PaintingStyle.fill,
+        Paint()..color = handColor,
       );
 
-      // Fingers — staggered by opacity threshold
+      // Fingers — stagger appearance
       final fingers = [
-        (-10.5, 21.0, 0.0),
-        ( -3.5, 24.5, 0.18),
-        (  3.5, 24.5, 0.34),
-        ( 10.5, 19.0, 0.50),
+        (-11.0, 22.0, 0.00),
+        (-3.7,  26.0, 0.18),
+        ( 3.7,  26.0, 0.34),
+        ( 11.0, 20.0, 0.50),
       ];
       for (final f in fingers) {
         final fp = ((handOpacity - f.$3) / 0.36).clamp(0.0, 1.0);
@@ -389,24 +356,20 @@ class _LogoPainter extends CustomPainter {
         final fH = f.$2 * fp;
         canvas.drawRRect(
           RRect.fromRectAndRadius(
-              Rect.fromLTWH(cx + f.$1 - 3.2, cy - fH - 1, 6.4, fH + 1),
-              const Radius.circular(3)),
-          Paint()
-            ..color = _kViolet.withOpacity(handOpacity * fp * 0.92)
-            ..style = PaintingStyle.fill,
+              Rect.fromLTWH(cx + f.$1 - 3.5, cy - fH - 1, 7, fH + 1),
+              const Radius.circular(3.5)),
+          Paint()..color = _blue.withOpacity(handOpacity * fp * 0.90),
         );
       }
 
       // Thumb
-      final tp = ((handOpacity - 0.58) / 0.42).clamp(0.0, 1.0);
+      final tp = ((handOpacity - 0.55) / 0.45).clamp(0.0, 1.0);
       if (tp > 0) {
         canvas.drawRRect(
           RRect.fromRectAndRadius(
-              Rect.fromLTWH(cx - 18, cy - 1, 7, 13 * tp),
-              const Radius.circular(3.5)),
-          Paint()
-            ..color = _kViolet.withOpacity(handOpacity * 0.92)
-            ..style = PaintingStyle.fill,
+              Rect.fromLTWH(cx - 20, cy - 2, 8, 14 * tp),
+              const Radius.circular(4)),
+          Paint()..color = handColor,
         );
       }
 
@@ -415,17 +378,17 @@ class _LogoPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_LogoPainter old) =>
+  bool shouldRepaint(_AppIconPainter old) =>
       old.arcProgress != arcProgress ||
-          old.handOpacity != handOpacity  ||
+          old.handOpacity != handOpacity ||
           old.handScale   != handScale;
 }
 
-// ═════════════════════════════════════════════
-//  APP SHELL  (post-splash)
-// ═════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+//  APP SHELL  (post-splash host)
+// ══════════════════════════════════════════════════════════
 class _AppShell extends StatefulWidget {
-  final VoidCallback     toggleTheme;
+  final VoidCallback toggleTheme;
   final Function(Locale) setLocale;
   const _AppShell({required this.toggleTheme, required this.setLocale});
   @override

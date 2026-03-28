@@ -40,7 +40,7 @@ class PrivacyPage extends StatelessWidget {
           ]),
         ),
         ObjSection(
-          title: l.t('priv_s2_title'), isDark: isDark,
+          title: l.t('priv_s3_title'), isDark: isDark,
           child: ObjBarChart(isDark: isDark, data: [
             (l.t('priv_bar1'), 0.78, kCrimson),
             (l.t('priv_bar2'), 0.65, kCrimson),
@@ -50,11 +50,11 @@ class PrivacyPage extends StatelessWidget {
           ]),
         ),
         ObjSection(
-          title: l.t('priv_s3_title'), isDark: isDark,
+          title: l.t('priv_s2_title'), isDark: isDark,
           child: Column(children: [
-            ObjInfoCard(title: l.t('priv_s3_c1_title'), body: l.t('priv_s3_c1_body'), icon: Icons.memory_rounded,          accent: accent, isDark: isDark),
+            ObjInfoCard(title: l.t('priv_s2_c1_title'), body: l.t('priv_s2_c1_body'), icon: Icons.memory_rounded,          accent: accent, isDark: isDark),
             const SizedBox(height: 12),
-            ObjInfoCard(title: l.t('priv_s3_c2_title'), body: l.t('priv_s3_c2_body'), icon: Icons.verified_user_rounded,   accent: accent, isDark: isDark),
+            ObjInfoCard(title: l.t('priv_s2_c2_title'), body: l.t('priv_s2_c2_body'), icon: Icons.verified_user_rounded,   accent: accent, isDark: isDark),
             const SizedBox(height: 12),
             ObjQuoteBlock(quote: l.t('priv_quote'), source: l.t('priv_quote_src'), accent: accent, isDark: isDark),
           ]),

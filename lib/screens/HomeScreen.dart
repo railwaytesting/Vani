@@ -15,7 +15,7 @@ import '../l10n/AppLocalizations.dart';
 import 'TranslateScreen.dart';
 import 'TwoWayScreen.dart';
 import 'EmergencyScreen.dart';
-import 'SignsPage.dart';
+import 'Signspage.dart';
 import 'objectives/AccessibilityPage.dart';
 import 'objectives/BridgingGapsPage.dart';
 import 'objectives/InclusivityPage.dart';

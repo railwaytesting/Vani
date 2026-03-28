@@ -11,6 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  supabase_flutter: ^2.5.6
+  
+
   # ── existing ──────────────────────────────
   flutter_dotenv: ^5.2.1
   http: ^1.2.0

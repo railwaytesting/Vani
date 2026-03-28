@@ -1,8 +1,15 @@
 // lib/main.dart
+//
+// Fix: Supabase.initialize() was called TWICE (once in main() and again
+// inside AppInitializer). Calling it twice throws a StateError at runtime.
+// Solution: initialize only in main(), remove AppInitializer entirely,
+// and go straight to VaniApp.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'l10n/AppLocalizations.dart';
 import 'models/EmergencyContact.dart';
@@ -14,21 +21,40 @@ import 'components/SOSFloatingButton.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+<<<<<<< Updated upstream
   // Apple-style: transparent status bar, light icons on dark, dark icons on light
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor:          Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness:     Brightness.light,
   ));
+=======
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+    ),
+  );
+>>>>>>> Stashed changes
 
+  // ── Hive ──────────────────────────────────────────────────────────────────
   await Hive.initFlutter();
   Hive.registerAdapter(EmergencyContactAdapter());
   await Hive.openBox<EmergencyContact>('emergency_contacts');
+
+  // ── Supabase (single call — do NOT call again anywhere else) ─────────────
+  await Supabase.initialize(
+    url: 'https://ypjywtotzlqmqdsmsiad.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwanl3dG90emxxbXFkc21zaWFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MDI1NDQsImV4cCI6MjA5MDA3ODU0NH0.6O9E-XNFfvudQn6spCsqQ6woj-t6CMlq2WVREcAsKiM',
+  );
 
   runApp(const VaniApp());
 }
 
 // ─────────────────────────────────────────────
+<<<<<<< Updated upstream
 //  APPLE DESIGN TOKENS
 // ─────────────────────────────────────────────
 
@@ -55,6 +81,11 @@ const _dSeparator = Color(0xFF38383A); // separator
 const _dLabel     = Color(0xFFFFFFFF); // label
 const _dLabel2    = Color(0xFFEBEBF5); // secondaryLabel
 
+=======
+//  APP
+// ─────────────────────────────────────────────
+
+>>>>>>> Stashed changes
 class VaniApp extends StatefulWidget {
   const VaniApp({super.key});
   @override
@@ -65,6 +96,7 @@ class _VaniAppState extends State<VaniApp> {
   ThemeMode _themeMode = ThemeMode.light;
   Locale _locale = const Locale('en');
 
+<<<<<<< Updated upstream
   void toggleTheme() {
     setState(() {
       _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
@@ -76,20 +108,40 @@ class _VaniAppState extends State<VaniApp> {
       statusBarBrightness:     _themeMode == ThemeMode.dark ? Brightness.dark : Brightness.light,
     ));
   }
+=======
+  void toggleTheme() => setState(
+    () => _themeMode = _themeMode == ThemeMode.dark
+        ? ThemeMode.light
+        : ThemeMode.dark,
+  );
+>>>>>>> Stashed changes
 
   void setLocale(Locale locale) => setState(() => _locale = locale);
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< Updated upstream
     // Google Sans — used as Apple SF Pro equivalent
     const appFont = 'Google Sans';
 
     return MaterialApp(
       onGenerateTitle:            (ctx) => AppLocalizations.of(ctx).t('app_title'),
+=======
+    const violet = Color(0xFF7C3AED);
+    const violetLight = Color(0xFFA78BFA);
+    const dBg = Color(0xFF040408);
+    const dSurface = Color(0xFF0C0C16);
+    const lBg = Color(0xFFF5F6FE);
+    const lSurface = Color(0xFFFFFFFF);
+    const appFontFamily = 'Google Sans';
+
+    return MaterialApp(
+      onGenerateTitle: (context) => AppLocalizations.of(context).t('app_title'),
+>>>>>>> Stashed changes
       debugShowCheckedModeBanner: false,
-      themeMode:                  _themeMode,
-      locale:                     _locale,
-      supportedLocales:           AppLocalizations.supportedLocales,
+      themeMode: _themeMode,
+      locale: _locale,
+      supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -97,6 +149,7 @@ class _VaniAppState extends State<VaniApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
 
+<<<<<<< Updated upstream
       // ── LIGHT THEME — iOS / macOS exact ──────────────────────────
       theme: ThemeData(
         brightness:              Brightness.light,
@@ -201,6 +254,61 @@ class _VaniAppState extends State<VaniApp> {
           TargetPlatform.linux:   CupertinoPageTransitionsBuilder(),
           TargetPlatform.macOS:   CupertinoPageTransitionsBuilder(),
         }),
+=======
+      // ── Dark theme ──────────────────────────────────────────────────────
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        useMaterial3: true,
+        fontFamily: appFontFamily,
+        primaryColor: violet,
+        scaffoldBackgroundColor: dBg,
+        cardColor: dSurface,
+        canvasColor: dBg,
+        dividerColor: Colors.white.withOpacity(0.05),
+        textTheme: ThemeData.dark().textTheme,
+        colorScheme: ColorScheme.dark(
+          primary: violet,
+          secondary: violetLight,
+          surface: dSurface,
+          onSurface: const Color(0xFFF0EEFF),
+          outline: Colors.white.withOpacity(0.08),
+        ),
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          },
+        ),
+      ),
+
+      // ── Light theme ─────────────────────────────────────────────────────
+      theme: ThemeData(
+        brightness: Brightness.light,
+        useMaterial3: true,
+        fontFamily: appFontFamily,
+        primaryColor: violet,
+        scaffoldBackgroundColor: lBg,
+        cardColor: lSurface,
+        textTheme: ThemeData.light().textTheme,
+        colorScheme: const ColorScheme.light(
+          primary: violet,
+          secondary: violetLight,
+          surface: lSurface,
+          onSurface: Color(0xFF0A0A20),
+        ),
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.linux: FadeUpwardsPageTransitionsBuilder(),
+            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          },
+        ),
+>>>>>>> Stashed changes
       ),
 
       home: SplashScreen(toggleTheme: toggleTheme, setLocale: setLocale),
@@ -241,12 +349,24 @@ class _VaniAppState extends State<VaniApp> {
 }
 
 // ─────────────────────────────────────────────
-//  ROOT SHELL
+//  ROOT SHELL (used by SplashScreen after init)
 // ─────────────────────────────────────────────
+<<<<<<< Updated upstream
 class RootShell extends StatefulWidget {
   final VoidCallback toggleTheme;
   final Function(Locale) setLocale;
   const RootShell({super.key, required this.toggleTheme, required this.setLocale});
+=======
+
+class RootShell extends StatefulWidget {
+  final VoidCallback toggleTheme;
+  final Function(Locale) setLocale;
+  const RootShell({
+    super.key,
+    required this.toggleTheme,
+    required this.setLocale,
+  });
+>>>>>>> Stashed changes
   @override
   State<RootShell> createState() => _RootShellState();
 }
@@ -266,11 +386,11 @@ class _RootShellState extends State<RootShell> {
       backgroundColor: Colors.transparent,
       body: HomeScreen(
         toggleTheme: widget.toggleTheme,
-        setLocale:   widget.setLocale,
+        setLocale: widget.setLocale,
       ),
       floatingActionButton: SOSFloatingButton(
         toggleTheme: widget.toggleTheme,
-        setLocale:   widget.setLocale,
+        setLocale: widget.setLocale,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

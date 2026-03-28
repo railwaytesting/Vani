@@ -1,4 +1,9 @@
 // lib/models/EmergencyContact.dart
+//
+// Added: `supabaseId` field (HiveField 4) — stores the UUID row id from
+// the `emergency_contacts` Supabase table so we can update/delete remotely.
+// The Hive typeId and all existing fields are unchanged.
+
 import 'package:hive/hive.dart';
 
 part 'EmergencyContact.g.dart';
@@ -17,26 +22,28 @@ class EmergencyContact extends HiveObject {
   @HiveField(3)
   bool isPrimary;
 
+  /// Supabase row UUID — null if contact only exists locally (not yet synced).
+  @HiveField(4)
+  String? supabaseId;
+
   EmergencyContact({
     required this.name,
     required this.phone,
     required this.relation,
     this.isPrimary = false,
+    this.supabaseId,
   });
 
-  // Validates phone: strips spaces/dashes, checks it's numeric + correct length
+  // ── Validation ─────────────────────────────
+
   bool get isValid {
     final cleaned = cleanedPhone;
     return cleaned.isNotEmpty && cleaned.length >= 10 && cleaned.length <= 15;
   }
 
-  // Returns phone stripped of spaces, dashes, parentheses
-  String get cleanedPhone {
-    return phone.replaceAll(RegExp(r'[\s\-\(\)\+]'), '');
-  }
+  String get cleanedPhone => phone.replaceAll(RegExp(r'[\s\-\(\)\+]'), '');
 
-  // Returns phone with country code for WhatsApp/SMS deep links
-  // Defaults to +91 (India) if no country code present
+  /// Returns phone with +91 country code for WhatsApp/SMS deep-links.
   String get internationalPhone {
     final cleaned = cleanedPhone;
     if (cleaned.startsWith('91') && cleaned.length == 12) return '+$cleaned';
@@ -44,12 +51,15 @@ class EmergencyContact extends HiveObject {
     return '+$cleaned';
   }
 
+  // ── Serialisation ──────────────────────────
+
   Map<String, dynamic> toMap() => {
-        'name': name,
-        'phone': phone,
-        'relation': relation,
-        'isPrimary': isPrimary,
-      };
+    'name': name,
+    'phone': phone,
+    'relation': relation,
+    'isPrimary': isPrimary,
+    'supabaseId': supabaseId,
+  };
 
   factory EmergencyContact.fromMap(Map<String, dynamic> map) =>
       EmergencyContact(
@@ -57,8 +67,11 @@ class EmergencyContact extends HiveObject {
         phone: map['phone'] ?? '',
         relation: map['relation'] ?? '',
         isPrimary: map['isPrimary'] ?? false,
+        supabaseId: map['supabaseId'] as String?,
       );
 
   @override
-  String toString() => 'EmergencyContact(name: $name, phone: $phone, relation: $relation)';
+  String toString() =>
+      'EmergencyContact(name: $name, phone: $phone, '
+      'relation: $relation, supabaseId: $supabaseId)';
 }

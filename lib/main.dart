@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'l10n/AppLocalizations.dart';
@@ -13,6 +14,8 @@ import 'components/SOSFloatingButton.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: '.env.local');
 
   // Apple-style: transparent status bar, light icons on dark, dark icons on light
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(

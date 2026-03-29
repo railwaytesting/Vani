@@ -3,34 +3,29 @@
 // ╔══════════════════════════════════════════════════════════════╗
 // ║  VANI — Global Navbar · Apple-Inspired                     ║
 // ║                                                            ║
-// ║  CHANGES (Fix 3):                                          ║
-// ║  • VANI wordmark: bold black (light) / white (dark)        ║
-// ║    No gradient shimmer — clean, confident, like SF logos   ║
-// ║  • Bridge & SOS: removed bordered pill style.             ║
-// ║    Now plain nav links with colour, same as HOME/TERMINAL  ║
-// ║  • Only the ACTIVE link gets the underline indicator       ║
-// ║  • SOS keeps its pulse dot for urgency — no border box     ║
-// ║  • Mobile: completely unchanged as requested               ║
+// ║  CHANGES vs original:                                      ║
+// ║  • Desktop: ISL Assistant nav link added (purple accent)   ║
+// ║    Sits after SOS, before API link                         ║
+// ║  • Mobile: completely unchanged                            ║
 // ╚══════════════════════════════════════════════════════════════╝
 
 import 'package:flutter/material.dart';
 import '../screens/TranslateScreen.dart';
-import '../screens/SignsPage.dart';
+import '../screens/Signspage.dart';
 import '../screens/EmergencyScreen.dart';
 import '../screens/TwoWayScreen.dart';
+import '../screens/ISLAssistantScreen.dart';
 import '../l10n/AppLocalizations.dart';
 
 const double _kDesktopBreak = 750;
 
-// ─────────────────────────────────────────────────────────────
-//  APPLE TOKENS (web navbar only)
-// ─────────────────────────────────────────────────────────────
-const _navRed  = Color(0xFFFF3B30);
-const _navRedD = Color(0xFFFF453A);
-const _navTeal = Color(0xFF32ADE6);
+const _navRed    = Color(0xFFFF3B30);
+const _navRedD   = Color(0xFFFF453A);
+const _navTeal   = Color(0xFF32ADE6);
+const _navPurple = Color(0xFFAF52DE);   // ISL Assistant accent
+const _navPurD   = Color(0xFFBF5AF2);
 
-TextStyle _nt(double size, FontWeight w, Color c,
-    {double ls = 0}) =>
+TextStyle _nt(double size, FontWeight w, Color c, {double ls = 0}) =>
     TextStyle(fontFamily: 'Google Sans',
         fontSize: size, fontWeight: w, color: c, letterSpacing: ls);
 
@@ -48,12 +43,12 @@ class GlobalNavbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark       = Theme.of(context).brightness == Brightness.dark;
-    final primary      = Theme.of(context).primaryColor;
-    final l            = AppLocalizations.of(context);
-    final w            = MediaQuery.of(context).size.width;
-    final locale       = Localizations.localeOf(context);
-    final isMobile     = w <= _kDesktopBreak;
+    final isDark   = Theme.of(context).brightness == Brightness.dark;
+    final primary  = Theme.of(context).primaryColor;
+    final l        = AppLocalizations.of(context);
+    final w        = MediaQuery.of(context).size.width;
+    final locale   = Localizations.localeOf(context);
+    final isMobile = w <= _kDesktopBreak;
 
     final hMargin  = isMobile ? 12.0 : (w > 900 ? 48.0 : 16.0);
     final hPadding = isMobile ? 12.0 : 22.0;
@@ -105,7 +100,7 @@ class GlobalNavbar extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  BRAND  — clean Apple-style wordmark, no gradient
+//  BRAND
 // ══════════════════════════════════════════════════════════════
 class _Brand extends StatelessWidget {
   final bool isDark;
@@ -116,18 +111,15 @@ class _Brand extends StatelessWidget {
   Widget build(BuildContext ctx) {
     final label  = isDark ? Colors.white : Colors.black;
     final accent = isDark ? const Color(0xFF0A84FF) : const Color(0xFF007AFF);
-
     return GestureDetector(
       onTap: () => Navigator.of(ctx).popUntil((r) => r.isFirst),
       child: Row(mainAxisSize: MainAxisSize.min, children: [
-        // Thin left accent bar — Apple "I" cursor style
         Container(
           width: 3, height: 20,
           decoration: BoxDecoration(
               color: accent, borderRadius: BorderRadius.circular(2)),
         ),
         const SizedBox(width: 10),
-        // Wordmark: bold, no gradient, no gimmick
         Text('VANI', style: _nt(19, FontWeight.w800, label, ls: 3.0)),
       ]),
     );
@@ -135,7 +127,7 @@ class _Brand extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  DESKTOP ACTIONS  — clean nav links, no bordered pills
+//  DESKTOP ACTIONS  — ISL Assistant link added
 // ══════════════════════════════════════════════════════════════
 class _DesktopActions extends StatelessWidget {
   final String activeRoute;
@@ -163,45 +155,52 @@ class _DesktopActions extends StatelessWidget {
   @override
   Widget build(BuildContext ctx) {
     final accent = isDark ? const Color(0xFF0A84FF) : const Color(0xFF007AFF);
-    final teal   = isDark ? _navTeal : const Color(0xFF0891B2);
-    final red    = isDark ? _navRedD : _navRed;
+    final teal   = isDark ? _navTeal  : const Color(0xFF0891B2);
+    final red    = isDark ? _navRedD  : _navRed;
+    final purple = isDark ? _navPurD  : _navPurple;
 
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      // ── Standard nav links ─────────────────────────────────
+      // Standard nav links
       _NavLink(
-        label: l.t('nav_home'), isDark: isDark, accent: accent,
-        isActive: activeRoute == 'home',
-        onTap: () => Navigator.of(ctx).popUntil((r) => r.isFirst)),
+          label: l.t('nav_home'), isDark: isDark, accent: accent,
+          isActive: activeRoute == 'home',
+          onTap: () => Navigator.of(ctx).popUntil((r) => r.isFirst)),
       _NavLink(
-        label: l.t('nav_terminal'), isDark: isDark, accent: accent,
-        isActive: activeRoute == 'translate',
-        onTap: () { if (activeRoute != 'translate')
-          _push(ctx, TranslateScreen(toggleTheme: toggleTheme, setLocale: setLocale)); }),
+          label: l.t('nav_terminal'), isDark: isDark, accent: accent,
+          isActive: activeRoute == 'translate',
+          onTap: () { if (activeRoute != 'translate')
+            _push(ctx, TranslateScreen(toggleTheme: toggleTheme, setLocale: setLocale)); }),
       _NavLink(
-        label: l.t('nav_signs'), isDark: isDark, accent: accent,
-        isActive: activeRoute == 'signs',
-        onTap: () { if (activeRoute != 'signs')
-          _push(ctx, SignsPage(toggleTheme: toggleTheme, setLocale: setLocale)); }),
+          label: l.t('nav_signs'), isDark: isDark, accent: accent,
+          isActive: activeRoute == 'signs',
+          onTap: () { if (activeRoute != 'signs')
+            _push(ctx, SignsPage(toggleTheme: toggleTheme, setLocale: setLocale)); }),
 
-      // ── Bridge — clean link, teal colour, no border ────────
+      // Bridge — teal
       _NavLink(
-        label: l.t('nav_bridge'), isDark: isDark, accent: teal,
-        isActive: activeRoute == 'bridge',
-        onTap: () { if (activeRoute != 'bridge')
-          _push(ctx, TwoWayScreen(toggleTheme: toggleTheme, setLocale: setLocale)); }),
+          label: l.t('nav_bridge'), isDark: isDark, accent: teal,
+          isActive: activeRoute == 'bridge',
+          onTap: () { if (activeRoute != 'bridge')
+            _push(ctx, TwoWayScreen(toggleTheme: toggleTheme, setLocale: setLocale)); }),
 
-      // ── SOS — clean link with pulse dot, no border box ─────
+      // SOS — pulse dot, red
       _SOSNavLink(
-        label: l.t('nav_emergency'), isDark: isDark,
-        isActive: activeRoute == 'emergency',
-        onTap: () { if (activeRoute != 'emergency')
-          _push(ctx, EmergencyScreen(toggleTheme: toggleTheme, setLocale: setLocale)); }),
+          label: l.t('nav_emergency'), isDark: isDark,
+          isActive: activeRoute == 'emergency',
+          onTap: () { if (activeRoute != 'emergency')
+            _push(ctx, EmergencyScreen(toggleTheme: toggleTheme, setLocale: setLocale)); }),
+
+      // ── NEW: ISL Assistant — purple ───────────────────────
+      _AssistantNavLink(
+          isDark: isDark, accent: purple,
+          isActive: activeRoute == 'assistant',
+          onTap: () { if (activeRoute != 'assistant')
+            _push(ctx, ISLAssistantScreen(toggleTheme: toggleTheme, setLocale: setLocale)); }),
 
       _NavLink(label: l.t('nav_api'), isDark: isDark, accent: accent),
 
       const SizedBox(width: 8),
 
-      // ── Language picker ────────────────────────────────────
       _LangDropdown(
           currentLocale: currentLocale, setLocale: setLocale,
           l: l, isDark: isDark, primary: primary),
@@ -210,13 +209,12 @@ class _DesktopActions extends StatelessWidget {
       _VerticalDivider(isDark: isDark),
       const SizedBox(width: 6),
 
-      // ── Theme toggle ───────────────────────────────────────
       _ThemeToggle(isDark: isDark, onTap: toggleTheme),
     ]);
   }
 }
 
-// ── Plain nav link — hover underline, active underline ────────
+// ── Plain nav link ────────────────────────────────────────────
 class _NavLink extends StatefulWidget {
   final String label;
   final bool isDark, isActive;
@@ -230,14 +228,11 @@ class _NavLink extends StatefulWidget {
 
 class _NavLinkState extends State<_NavLink> {
   bool _hovered = false;
-
   @override
   Widget build(BuildContext context) {
-    final baseColor = widget.isDark
-        ? Colors.white.withOpacity(0.55)
-        : Colors.black.withOpacity(0.45);
+    final baseColor  = widget.isDark
+        ? Colors.white.withOpacity(0.55) : Colors.black.withOpacity(0.45);
     final activeColor = widget.isActive ? widget.accent : baseColor;
-    final hoverColor  = widget.accent;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -250,23 +245,17 @@ class _NavLinkState extends State<_NavLink> {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 150),
-              style: _nt(
-                  12,
-                  widget.isActive || _hovered
-                      ? FontWeight.w700 : FontWeight.w500,
-                  _hovered ? hoverColor : activeColor,
-                  ls: 0.2),
+              style: _nt(12,
+                  widget.isActive || _hovered ? FontWeight.w700 : FontWeight.w500,
+                  _hovered ? widget.accent : activeColor, ls: 0.2),
               child: Text(widget.label),
             ),
             const SizedBox(height: 3),
-            // Active indicator line
             AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              height: 2,
-              width: widget.isActive ? 18 : 0,
+              height: 2, width: widget.isActive ? 18 : 0,
               decoration: BoxDecoration(
-                  color: widget.accent,
-                  borderRadius: BorderRadius.circular(1)),
+                  color: widget.accent, borderRadius: BorderRadius.circular(1)),
             ),
           ]),
         ),
@@ -275,7 +264,83 @@ class _NavLinkState extends State<_NavLink> {
   }
 }
 
-// ── SOS link — pulse dot, no border box ──────────────────────
+// ── ISL Assistant nav link — hand wave icon + purple ─────────
+class _AssistantNavLink extends StatefulWidget {
+  final bool isDark, isActive;
+  final Color accent;
+  final VoidCallback onTap;
+  const _AssistantNavLink({required this.isDark, required this.accent,
+    required this.isActive, required this.onTap});
+  @override
+  State<_AssistantNavLink> createState() => _AssistantNavLinkState();
+}
+
+class _AssistantNavLinkState extends State<_AssistantNavLink>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _shimmer;
+  late Animation<double>   _shimmerAnim;
+  bool _hovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _shimmer     = AnimationController(vsync: this, duration: const Duration(seconds: 3))..repeat(reverse: true);
+    _shimmerAnim = Tween<double>(begin: 0.4, end: 1.0)
+        .animate(CurvedAnimation(parent: _shimmer, curve: Curves.easeInOut));
+  }
+
+  @override void dispose() { _shimmer.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    final baseColor  = widget.isDark
+        ? Colors.white.withOpacity(0.55) : Colors.black.withOpacity(0.45);
+    final activeColor = widget.isActive ? widget.accent : baseColor;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit:  (_) => setState(() => _hovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              // Subtle animated sign-language icon
+              AnimatedBuilder(
+                animation: _shimmerAnim,
+                builder: (_, __) => Icon(Icons.sign_language_rounded,
+                    size: 12,
+                    color: (_hovered || widget.isActive)
+                        ? widget.accent
+                        : widget.accent.withOpacity(_shimmerAnim.value * 0.7)),
+              ),
+              const SizedBox(width: 4),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 150),
+                style: _nt(12,
+                    widget.isActive || _hovered ? FontWeight.w700 : FontWeight.w500,
+                    _hovered || widget.isActive ? widget.accent : activeColor,
+                    ls: 0.2),
+                child: const Text('Assistant'),
+              ),
+            ]),
+            const SizedBox(height: 3),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              height: 2, width: widget.isActive ? 18 : 0,
+              decoration: BoxDecoration(
+                  color: widget.accent, borderRadius: BorderRadius.circular(1)),
+            ),
+          ]),
+        ),
+      ),
+    );
+  }
+}
+
+// ── SOS link ──────────────────────────────────────────────────
 class _SOSNavLink extends StatefulWidget {
   final String label;
   final bool isDark, isActive;
@@ -295,18 +360,15 @@ class _SOSNavLinkState extends State<_SOSNavLink>
   @override
   void initState() {
     super.initState();
-    _pulse = AnimationController(vsync: this,
-        duration: const Duration(seconds: 2))..repeat(reverse: true);
+    _pulse = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
     _pulseAnim = Tween<double>(begin: 0.3, end: 1.0)
         .animate(CurvedAnimation(parent: _pulse, curve: Curves.easeInOut));
   }
-
   @override void dispose() { _pulse.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
     final red = widget.isDark ? _navRedD : _navRed;
-
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit:  (_) => setState(() => _hovered = false),
@@ -317,13 +379,11 @@ class _SOSNavLinkState extends State<_SOSNavLink>
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Row(mainAxisSize: MainAxisSize.min, children: [
-              // Pulse dot — the only visual indicator of urgency
               AnimatedBuilder(
                 animation: _pulseAnim,
                 builder: (_, __) => Container(
                     width: 5, height: 5,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle, color: red,
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: red,
                         boxShadow: [BoxShadow(
                             color: red.withOpacity(_pulseAnim.value * 0.7),
                             blurRadius: 5, spreadRadius: 1)])),
@@ -331,14 +391,10 @@ class _SOSNavLinkState extends State<_SOSNavLink>
               const SizedBox(width: 5),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 150),
-                style: _nt(
-                    12,
-                    widget.isActive || _hovered
-                        ? FontWeight.w700 : FontWeight.w500,
+                style: _nt(12,
+                    widget.isActive || _hovered ? FontWeight.w700 : FontWeight.w500,
                     _hovered || widget.isActive ? red
-                        : (widget.isDark
-                        ? Colors.white.withOpacity(0.55)
-                        : Colors.black.withOpacity(0.45)),
+                        : (widget.isDark ? Colors.white.withOpacity(0.55) : Colors.black.withOpacity(0.45)),
                     ls: 0.2),
                 child: Text(widget.label),
               ),
@@ -422,9 +478,7 @@ class _VerticalDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
       width: 1, height: 16,
-      color: isDark
-          ? Colors.white.withOpacity(0.08)
-          : Colors.black.withOpacity(0.08));
+      color: isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.08));
 }
 
 class _ThemeToggle extends StatelessWidget {
@@ -437,17 +491,13 @@ class _ThemeToggle extends StatelessWidget {
     child: Container(
       width: 34, height: 34,
       decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withOpacity(0.05)
-            : Colors.black.withOpacity(0.04),
+        color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.04),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Center(child: Icon(
           isDark ? Icons.wb_sunny_rounded : Icons.nightlight_round,
           size: 16,
-          color: isDark
-              ? Colors.white.withOpacity(0.50)
-              : Colors.black.withOpacity(0.40))),
+          color: isDark ? Colors.white.withOpacity(0.50) : Colors.black.withOpacity(0.40))),
     ),
   );
 }
@@ -480,17 +530,18 @@ class _MobileSOSBtn extends StatefulWidget {
   final bool isActive;
   final VoidCallback onTap;
   const _MobileSOSBtn({required this.isActive, required this.onTap});
-  @override State<_MobileSOSBtn> createState() => _MobileSOSBtnState();
+  @override
+  State<_MobileSOSBtn> createState() => _MobileSOSBtnState();
 }
+
 class _MobileSOSBtnState extends State<_MobileSOSBtn>
     with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
-  late Animation<double> _anim;
+  late Animation<double>   _anim;
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this,
-        duration: const Duration(seconds: 2))..repeat(reverse: true);
+    _ctrl = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat(reverse: true);
     _anim = Tween<double>(begin: 0.25, end: 0.75)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
   }
@@ -509,13 +560,10 @@ class _MobileSOSBtnState extends State<_MobileSOSBtn>
               color: c.withOpacity(widget.isActive ? 0.18 : 0.10),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: c.withOpacity(widget.isActive ? 0.6 : 0.3)),
-              boxShadow: [BoxShadow(
-                  color: c.withOpacity(_anim.value * 0.30),
-                  blurRadius: 8)]),
+              boxShadow: [BoxShadow(color: c.withOpacity(_anim.value * 0.30), blurRadius: 8)]),
           child: Center(child: Text('SOS',
-              style: TextStyle(color: c, fontSize: 9,
-                  fontWeight: FontWeight.w900, letterSpacing: 0.8,
-                  fontFamily: 'Google Sans'))),
+              style: TextStyle(color: c, fontSize: 9, fontWeight: FontWeight.w900,
+                  letterSpacing: 0.8, fontFamily: 'Google Sans'))),
         ),
       ),
     );
@@ -538,8 +586,7 @@ class _MobileLangBtn extends StatelessWidget {
       {'code': 'mr', 'flag': '🇮🇳'},
     ];
     final current = langs.firstWhere(
-            (l) => l['code'] == currentLocale.languageCode,
-        orElse: () => langs[0]);
+            (l) => l['code'] == currentLocale.languageCode, orElse: () => langs[0]);
 
     return PopupMenuButton<String>(
       offset: const Offset(0, 42),
@@ -554,11 +601,9 @@ class _MobileLangBtn extends StatelessWidget {
             const SizedBox(width: 10),
             Text(lang['code']!.toUpperCase(),
                 style: TextStyle(
-                    fontWeight: FontWeight.w700, fontSize: 13,
-                    fontFamily: 'Google Sans',
+                    fontWeight: FontWeight.w700, fontSize: 13, fontFamily: 'Google Sans',
                     color: lang['code'] == currentLocale.languageCode
-                        ? primary
-                        : (isDark ? Colors.white70 : Colors.black87))),
+                        ? primary : (isDark ? Colors.white70 : Colors.black87))),
             if (lang['code'] == currentLocale.languageCode) ...[
               const Spacer(),
               Icon(Icons.check_rounded, color: primary, size: 14)],
@@ -592,10 +637,8 @@ class _LangDropdown extends StatelessWidget {
       {'code': 'mr', 'label': l.t('lang_mr'), 'flag': '🇮🇳'},
     ];
     final current = langs.firstWhere(
-            (lang) => lang['code'] == currentLocale.languageCode,
-        orElse: () => langs[0]);
-    final accent = isDark
-        ? const Color(0xFF0A84FF) : const Color(0xFF007AFF);
+            (lang) => lang['code'] == currentLocale.languageCode, orElse: () => langs[0]);
+    final accent = isDark ? const Color(0xFF0A84FF) : const Color(0xFF007AFF);
 
     return PopupMenuButton<String>(
       tooltip: l.t('nav_language'),
@@ -614,18 +657,15 @@ class _LangDropdown extends StatelessWidget {
             Text(lang['label']!, style: TextStyle(
                 fontWeight: sel ? FontWeight.w700 : FontWeight.w500,
                 fontSize: 13, fontFamily: 'Google Sans',
-                color: sel ? accent
-                    : (isDark ? Colors.white70 : Colors.black87))),
-            if (sel) ...[const Spacer(),
-              Icon(Icons.check_rounded, color: accent, size: 14)],
+                color: sel ? accent : (isDark ? Colors.white70 : Colors.black87))),
+            if (sel) ...[const Spacer(), Icon(Icons.check_rounded, color: accent, size: 14)],
           ]),
         );
       }).toList(),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         decoration: BoxDecoration(
-            color: accent.withOpacity(0.06),
-            borderRadius: BorderRadius.circular(10),
+            color: accent.withOpacity(0.06), borderRadius: BorderRadius.circular(10),
             border: Border.all(color: accent.withOpacity(0.12), width: 0.5)),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Text(current['flag']!, style: const TextStyle(fontSize: 13)),

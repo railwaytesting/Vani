@@ -17,7 +17,6 @@ import '../screens/TwoWayScreen.dart';
 import '../screens/ISLAssistantScreen.dart';
 import '../l10n/AppLocalizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; //added
-import '../components/AuthDialog.dart'; //added
 import 'dart:async';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/EmergencyContact.dart';
@@ -325,19 +324,14 @@ class _DesktopActionsState extends State<_DesktopActions> {
             );
           },
         ),
-        _NavLink(
-          label: widget.l.t('nav_api'),
-          isDark: widget.isDark,
-          accent: accent,
-        ),
 
-        // ── Login / Logout toggle ──────────────────────────────
-        _NavLink(
-          label: _isLoggedIn ? 'LOGOUT' : 'LOGIN',
-          isDark: widget.isDark,
-          accent: accent,
-          onTap: () => _isLoggedIn ? _logout(ctx) : showAuthDialog(ctx),
-        ),
+        if (_isLoggedIn)
+          _NavLink(
+            label: 'LOGOUT',
+            isDark: widget.isDark,
+            accent: accent,
+            onTap: () => _logout(ctx),
+          ),
 
         const SizedBox(width: 8),
         _LangDropdown(

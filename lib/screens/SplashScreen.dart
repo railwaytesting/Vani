@@ -17,12 +17,15 @@
 // ║  2480 ms   Navigate — zero transition                 ║
 // ╚══════════════════════════════════════════════════════════╝
 
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'HomeScreen.dart';
 import '../l10n/AppLocalizations.dart';
 import '../components/SOSFloatingButton.dart';
+import '../components/AuthDialog.dart';
 import '../services/EmergencyService.dart';
 
 // ─────────────────────────────────────────────
@@ -158,7 +161,7 @@ class _SplashScreenState extends State<SplashScreen>
   void _navigate() {
     Navigator.of(context).pushReplacement(PageRouteBuilder(
       transitionDuration: Duration.zero,
-      pageBuilder: (_, __, ___) => _AppShell(
+      pageBuilder: (_, __, ___) => _PostSplashGate(
           toggleTheme: widget.toggleTheme, setLocale: widget.setLocale),
     ));
   }
@@ -417,4 +420,51 @@ class _AppShellState extends State<_AppShell> {
         setLocale:   widget.setLocale),
     floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
   );
+}
+
+class _PostSplashGate extends StatefulWidget {
+  final VoidCallback toggleTheme;
+  final Function(Locale) setLocale;
+  const _PostSplashGate({required this.toggleTheme, required this.setLocale});
+
+  @override
+  State<_PostSplashGate> createState() => _PostSplashGateState();
+}
+
+class _PostSplashGateState extends State<_PostSplashGate> {
+  late bool _isLoggedIn;
+  late final StreamSubscription<AuthState> _authSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _isLoggedIn = Supabase.instance.client.auth.currentSession != null;
+    _authSub = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      if (!mounted) return;
+      setState(() => _isLoggedIn = data.session != null);
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSub.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoggedIn) {
+      return _AppShell(
+        toggleTheme: widget.toggleTheme,
+        setLocale: widget.setLocale,
+      );
+    }
+
+    return AuthScreen(
+      onAuthenticated: () {
+        if (!mounted) return;
+        setState(() => _isLoggedIn = true);
+      },
+    );
+  }
 }

@@ -19,17 +19,54 @@ void showAuthDialog(BuildContext context) {
   showDialog(
     context: context,
     barrierColor: Colors.black.withOpacity(0.60),
-    builder: (_) => const _VaniAuthDialog(),
+    builder: (_) => const VaniAuthCard(),
   );
 }
 
-class _VaniAuthDialog extends StatefulWidget {
-  const _VaniAuthDialog();
+class AuthScreen extends StatelessWidget {
+  final VoidCallback? onAuthenticated;
+  const AuthScreen({super.key, this.onAuthenticated});
+
   @override
-  State<_VaniAuthDialog> createState() => _VaniAuthDialogState();
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: VaniAuthCard(
+                embedded: true,
+                canClose: false,
+                onAuthenticated: onAuthenticated,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _VaniAuthDialogState extends State<_VaniAuthDialog>
+class VaniAuthCard extends StatefulWidget {
+  final bool embedded;
+  final bool canClose;
+  final VoidCallback? onAuthenticated;
+
+  const VaniAuthCard({
+    super.key,
+    this.embedded = false,
+    this.canClose = true,
+    this.onAuthenticated,
+  });
+
+  @override
+  State<VaniAuthCard> createState() => _VaniAuthDialogState();
+}
+
+class _VaniAuthDialogState extends State<VaniAuthCard>
     with SingleTickerProviderStateMixin {
   final _passwordCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
@@ -117,7 +154,10 @@ class _VaniAuthDialogState extends State<_VaniAuthDialog>
       }
 
       if (mounted) {
-        Navigator.pop(context);
+        if (!widget.embedded) {
+          Navigator.pop(context);
+        }
+        widget.onAuthenticated?.call();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(_isLogin ? 'Welcome back!' : 'Account created!'),
@@ -163,35 +203,32 @@ class _VaniAuthDialogState extends State<_VaniAuthDialog>
     final textPrimary = cs.onSurface; // _lLabel / _dLabel
     final textMuted = cs.onSurface.withOpacity(0.55);
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: FadeTransition(
-        opacity: _fade,
-        child: SlideTransition(
-          position: _slide,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 380),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: card,
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: border),
-                boxShadow: [
-                  BoxShadow(
-                    color: accentLight.withOpacity(0.14),
-                    blurRadius: 48,
-                    spreadRadius: -4,
-                  ),
-                ],
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+    final cardBody = FadeTransition(
+      opacity: _fade,
+      child: SlideTransition(
+        position: _slide,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 380),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: card,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: border),
+              boxShadow: [
+                BoxShadow(
+                  color: accentLight.withOpacity(0.14),
+                  blurRadius: 48,
+                  spreadRadius: -4,
+                ),
+              ],
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                     // ── Header ────────────────────────────────────────────
                     Row(
                       children: [
@@ -220,22 +257,23 @@ class _VaniAuthDialogState extends State<_VaniAuthDialog>
                           ],
                         ),
                         const Spacer(),
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: border.withOpacity(0.28),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 16,
-                              color: textMuted,
+                        if (widget.canClose)
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: border.withOpacity(0.28),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 16,
+                                color: textMuted,
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     ),
 
@@ -436,13 +474,20 @@ class _VaniAuthDialogState extends State<_VaniAuthDialog>
                         ),
                       ),
                     ),
-                  ],
-                ),
+                ],
               ),
             ),
           ),
         ),
       ),
+    );
+
+    if (widget.embedded) return cardBody;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      child: cardBody,
     );
   }
 }

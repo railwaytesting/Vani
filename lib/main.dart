@@ -18,15 +18,25 @@ import 'screens/HomeScreen.dart';
 import 'screens/SplashScreen.dart';
 import 'components/SOSFloatingButton.dart';
 
+const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+const _supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.edgeToEdge,
+  );
 
   // Apple-style: transparent status bar, light icons on dark, dark icons on light
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.dark,
       statusBarBrightness: Brightness.light,
+      systemNavigationBarDividerColor: Colors.transparent,
     ),
   );
 
@@ -36,10 +46,16 @@ void main() async {
   await Hive.openBox<EmergencyContact>('emergency_contacts');
 
   // ── Supabase (single call — do NOT call again anywhere else) ─────────────
+  if (_supabaseUrl.isEmpty || _supabaseAnonKey.isEmpty) {
+    throw StateError(
+      'Missing Supabase config. Run with --dart-define=SUPABASE_URL=... '
+      'and --dart-define=SUPABASE_ANON_KEY=...',
+    );
+  }
+
   await Supabase.initialize(
-    url: 'https://ypjywtotzlqmqdsmsiad.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwanl3dG90emxxbXFkc21zaWFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1MDI1NDQsImV4cCI6MjA5MDA3ODU0NH0.6O9E-XNFfvudQn6spCsqQ6woj-t6CMlq2WVREcAsKiM',
+    url: _supabaseUrl,
+    anonKey: _supabaseAnonKey,
   );
 
   runApp(const VaniApp());
@@ -92,12 +108,17 @@ class _VaniAppState extends State<VaniApp> {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
         statusBarIconBrightness: _themeMode == ThemeMode.dark
+            ? Brightness.light
+            : Brightness.dark,
+        systemNavigationBarIconBrightness: _themeMode == ThemeMode.dark
             ? Brightness.light
             : Brightness.dark,
         statusBarBrightness: _themeMode == ThemeMode.dark
             ? Brightness.dark
             : Brightness.light,
+        systemNavigationBarDividerColor: Colors.transparent,
       ),
     );
   }

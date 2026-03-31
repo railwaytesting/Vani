@@ -1,0 +1,48 @@
+flowchart LR
+  subgraph Client[Flutter Client]
+    UI[UI Screens]
+    CAM[Camera]
+    WS[WebSocket Client]
+    SOS[Emergency Service]
+    L10N[Localization]
+    TTS[TTS]
+    DB[(Hive)]
+    SB[Supabase SDK]
+  end
+
+  subgraph Backend[ML Backend]
+    API[FastAPI]
+    WSE[WS Endpoint]
+    PRE[Decode and Preprocess]
+    INF[YOLO Inference]
+    SMO[Prediction Smoothing]
+    RES[Prediction Response]
+    HLT[Health Endpoint]
+  end
+
+  subgraph Cloud[Cloud Services]
+    RAILWAY[Railway]
+    SUPABASE[(Supabase)]
+    GDRIVE[(Google Drive Model)]
+  end
+
+  UI --> CAM
+  CAM --> WS
+  WS --> WSE
+  WSE --> PRE
+  PRE --> INF
+  INF --> SMO
+  SMO --> RES
+  RES --> WS
+  WS --> UI
+
+  API --> WSE
+  API --> HLT
+  API --> RAILWAY
+  API -. model download .-> GDRIVE
+
+  SOS --> DB
+  SOS --> SB
+  SB --> SUPABASE
+  UI --> L10N
+  UI --> TTS

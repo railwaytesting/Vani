@@ -1,0 +1,21 @@
+sequenceDiagram
+  participant U as User
+  participant T as Translate/TwoWay Screen
+  participant C as CameraController
+  participant W as WebSocket Client
+  participant B as Backend WS
+
+  U->>T: Start session
+  T->>C: Initialize camera
+  T->>W: Connect wss://host/ws
+  loop Every frame interval
+    C->>T: Capture frame bytes
+    T->>W: Send base64 frame
+    W->>B: Send frame payload
+    B-->>W: prediction JSON
+    W-->>T: label + confidence + frame index
+    T-->>U: Update overlay, tokens, sentence
+  end
+  U->>T: Stop session
+  T->>W: Send stop / close
+  T->>C: Dispose camera

@@ -11,6 +11,52 @@ It is intentionally separate from the main project README and focuses on:
 - project structure explanation
 - reliability, performance, security, and deployment notes
 
+## Downloadable Diagram Images
+
+All diagrams in this document are also exported as image files for direct download and report usage.
+
+1. System Overview
+- SVG: [docs/architecture/diagrams/svg/01-system-overview.svg](docs/architecture/diagrams/svg/01-system-overview.svg)
+- PNG: [docs/architecture/diagrams/png/01-system-overview.png](docs/architecture/diagrams/png/01-system-overview.png)
+
+![System Overview](docs/architecture/diagrams/svg/01-system-overview.svg)
+
+2. Frontend Layered View
+- SVG: [docs/architecture/diagrams/svg/02-frontend-layered-view.svg](docs/architecture/diagrams/svg/02-frontend-layered-view.svg)
+- PNG: [docs/architecture/diagrams/png/02-frontend-layered-view.png](docs/architecture/diagrams/png/02-frontend-layered-view.png)
+
+![Frontend Layered View](docs/architecture/diagrams/svg/02-frontend-layered-view.svg)
+
+3. Frontend Runtime Sequence
+- SVG: [docs/architecture/diagrams/svg/03-frontend-runtime-sequence.svg](docs/architecture/diagrams/svg/03-frontend-runtime-sequence.svg)
+- PNG: [docs/architecture/diagrams/png/03-frontend-runtime-sequence.png](docs/architecture/diagrams/png/03-frontend-runtime-sequence.png)
+
+![Frontend Runtime Sequence](docs/architecture/diagrams/svg/03-frontend-runtime-sequence.svg)
+
+4. Backend Startup Pipeline
+- SVG: [docs/architecture/diagrams/svg/04-backend-startup-pipeline.svg](docs/architecture/diagrams/svg/04-backend-startup-pipeline.svg)
+- PNG: [docs/architecture/diagrams/png/04-backend-startup-pipeline.png](docs/architecture/diagrams/png/04-backend-startup-pipeline.png)
+
+![Backend Startup Pipeline](docs/architecture/diagrams/svg/04-backend-startup-pipeline.svg)
+
+5. Backend Request Processing
+- SVG: [docs/architecture/diagrams/svg/05-backend-request-processing.svg](docs/architecture/diagrams/svg/05-backend-request-processing.svg)
+- PNG: [docs/architecture/diagrams/png/05-backend-request-processing.png](docs/architecture/diagrams/png/05-backend-request-processing.png)
+
+![Backend Request Processing](docs/architecture/diagrams/svg/05-backend-request-processing.svg)
+
+6. ML Pipeline (Horizontal)
+- SVG: [docs/architecture/diagrams/svg/06-ml-end-to-end-horizontal.svg](docs/architecture/diagrams/svg/06-ml-end-to-end-horizontal.svg)
+- PNG: [docs/architecture/diagrams/png/06-ml-end-to-end-horizontal.png](docs/architecture/diagrams/png/06-ml-end-to-end-horizontal.png)
+
+![ML Pipeline Horizontal](docs/architecture/diagrams/svg/06-ml-end-to-end-horizontal.svg)
+
+7. ML Pipeline (Vertical Report Format)
+- SVG: [docs/architecture/diagrams/svg/07-ml-pipeline-vertical-report.svg](docs/architecture/diagrams/svg/07-ml-pipeline-vertical-report.svg)
+- PNG: [docs/architecture/diagrams/png/07-ml-pipeline-vertical-report.png](docs/architecture/diagrams/png/07-ml-pipeline-vertical-report.png)
+
+![ML Pipeline Vertical](docs/architecture/diagrams/svg/07-ml-pipeline-vertical-report.svg)
+
 ## 1. System At A Glance
 
 VANI is a cross-platform accessibility system for Indian Sign Language (ISL) support.

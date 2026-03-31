@@ -1,0 +1,7 @@
+flowchart TD
+  S[Process Start] --> M{Model file exists and valid?}
+  M -- No --> D[Download model via gdown]
+  M -- Yes --> L[Load model]
+  D --> L
+  L --> F[Fuse model ops]
+  F --> R[Ready to accept traffic]

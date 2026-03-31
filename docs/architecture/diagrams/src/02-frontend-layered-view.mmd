@@ -1,0 +1,18 @@
+flowchart TB
+  APP[App Root]
+  UI[Screen Widgets]
+  COMP[Components]
+  SVC[Services]
+  DATA[Data Sources]
+
+  APP --> UI
+  UI --> COMP
+  UI --> SVC
+  COMP --> SVC
+  SVC --> DATA
+
+  DATA --> WS[(WebSocket Backend)]
+  DATA --> HIVE[(Hive)]
+  DATA --> SUPA[(Supabase)]
+  DATA --> GEO[(Geolocator)]
+  DATA --> FTTS[(Flutter TTS)]

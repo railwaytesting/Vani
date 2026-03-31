@@ -1,0 +1,11 @@
+flowchart TD
+  A[Receive payload] --> B{Is command?}
+  B -- PING --> P[Send pong]
+  B -- STOP --> Q[Reset smoother]
+  B -- FRAME --> C[Throttle check]
+  C --> D[Base64 decode]
+  D --> E[Image decode]
+  E --> F[YOLO inference]
+  F --> G[Select top detection]
+  G --> H[Smoothing window]
+  H --> I[Send prediction JSON]

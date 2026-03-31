@@ -1,0 +1,28 @@
+flowchart LR
+  subgraph Device[Client Device]
+    CAM[Camera Capture]
+    ENC[Frame Encoding]
+    SEND[WebSocket Send]
+  end
+
+  subgraph Server[Inference Server]
+    RX[WebSocket Receive]
+    DEC[Base64 Decode]
+    IMG[Image Decode]
+    THR[Frame Throttle]
+    INF[YOLO Inference CPU]
+    TOP[Top Detection Selection]
+    SM[Temporal Smoothing]
+    RESP[Prediction JSON]
+  end
+
+  subgraph UX[Client Post Processing]
+    PARSE[Parse prediction]
+    STAB[Stability Rules]
+    TOKEN[Token Builder]
+    SPK[Speech Synthesis]
+    UIR[UI and Transcript]
+  end
+
+  CAM --> ENC --> SEND --> RX --> DEC --> IMG --> THR --> INF --> TOP --> SM --> RESP
+  RESP --> PARSE --> STAB --> TOKEN --> SPK --> UIR

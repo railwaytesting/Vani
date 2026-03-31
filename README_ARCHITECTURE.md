@@ -367,6 +367,44 @@ flowchart LR
   RESP --> PARSE --> STAB --> TOKEN --> SPK --> UIR
 ```
 
+### 4.1.1 Vertical ML Pipeline (Report Format)
+
+```mermaid
+flowchart TD
+  A[Start Session on Client]
+  B[Initialize Camera]
+  C[Capture Frame]
+  D[Encode Frame to Base64]
+  E[Send Frame via WebSocket]
+  F[Backend Receive Frame]
+  G[Throttle Check]
+  H[Decode Base64 to Bytes]
+  I[Decode Bytes to Image]
+  J[Run YOLO Inference on CPU]
+  K[Select Top Detection]
+  L[Apply Temporal Smoothing]
+  M[Create Prediction JSON]
+  N[Send Prediction to Client]
+  O[Parse Prediction on Client]
+  P[Apply Stability and Confidence Rules]
+  Q[Update Token and Sentence Builder]
+  R[Optional Speech Synthesis]
+  S[Render UI Overlay and Transcript]
+  T[Continue Next Frame or Stop Session]
+
+  A --> B --> C --> D --> E --> F --> G --> H --> I --> J --> K --> L --> M --> N --> O --> P --> Q --> R --> S --> T
+
+  U1[Client Layer]
+  U2[Transport Layer]
+  U3[Backend Inference Layer]
+  U4[Client Post Processing Layer]
+
+  U1 --- A
+  U2 --- E
+  U3 --- F
+  U4 --- O
+```
+
 ## 4.2 Pipeline Stage Breakdown
 
 ### Stage 1: Capture

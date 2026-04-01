@@ -522,11 +522,8 @@ class EmergencyService {
       context: context,
       builder: (ctx) => _SosDialog(
         isDark: isDark,
-        title: 'No Emergency Contacts',
-        body:
-            'You have not saved any emergency contacts yet. '
-            'Go to the SOS setup screen and add at least one contact '
-            'before using this feature.',
+        title: l.t('sos_no_contacts_title'),
+        body: l.t('sos_no_contacts_body'),
         accentColor: const Color(0xFFD97706),
         actions: [
           _SosDialogAction(
@@ -823,6 +820,7 @@ class _DesktopSOSDialogState extends State<_DesktopSOSDialog> {
   @override
   Widget build(BuildContext context) {
     final t = _DT(widget.isDark);
+    final l = AppLocalizations.of(context);
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
@@ -883,7 +881,7 @@ class _DesktopSOSDialogState extends State<_DesktopSOSDialog> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Emergency Alert Ready',
+                              l.t('sos_alert_ready_title'),
                               style: TextStyle(
                                 color: t.textPri,
                                 fontSize: 15,
@@ -891,7 +889,7 @@ class _DesktopSOSDialogState extends State<_DesktopSOSDialog> {
                               ),
                             ),
                             Text(
-                              'Copy and send to your contacts manually',
+                              l.t('sos_alert_ready_body'),
                               style: TextStyle(color: t.textSec, fontSize: 11),
                             ),
                           ],
@@ -903,7 +901,7 @@ class _DesktopSOSDialogState extends State<_DesktopSOSDialog> {
                   Container(height: 1, color: t.border),
                   const SizedBox(height: 14),
                   Text(
-                    'Send to:',
+                    l.t('sos_send_to'),
                     style: TextStyle(
                       color: t.textSec,
                       fontSize: 11,
@@ -1004,7 +1002,7 @@ class _DesktopSOSDialogState extends State<_DesktopSOSDialog> {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  _copied ? 'Copied!' : 'Copy message',
+                                  _copied ? l.t('sos_copied') : l.t('sos_copy_message'),
                                   style: TextStyle(
                                     color: _copied
                                         ? _DT.greenLight
@@ -1031,7 +1029,7 @@ class _DesktopSOSDialogState extends State<_DesktopSOSDialog> {
                             ),
                             child: Center(
                               child: Text(
-                                'Close',
+                                l.t('common_close'),
                                 style: TextStyle(
                                   color: t.textSec,
                                   fontSize: 13,
@@ -1105,6 +1103,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final t = _DT(isDark);
+    final l = AppLocalizations.of(context);
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -1168,7 +1167,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Emergency SOS Activated',
+                                l.t('sos_activated_title'),
                                 style: TextStyle(
                                   color: t.textPri,
                                   fontSize: 16,
@@ -1225,8 +1224,9 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                           Expanded(
                             child: Text(
                               widget.location.isAvailable
-                                  ? 'Location attached: ${widget.location.displayString}'
-                                  : 'Location unavailable — message sent without coordinates.',
+                                    ? l.t('sos_location_attached').replaceAll(
+                                      '{location}', widget.location.displayString)
+                                    : l.t('sos_location_unavailable'),
                               style: TextStyle(
                                 fontSize: 11.5,
                                 color: widget.location.isAvailable
@@ -1241,7 +1241,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'Contact your emergency contacts:',
+                      l.t('sos_send_to_contacts'),
                       style: TextStyle(
                         color: t.textSec,
                         fontSize: 11,
@@ -1320,8 +1320,8 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                                                 borderRadius:
                                                     BorderRadius.circular(4),
                                               ),
-                                              child: const Text(
-                                                'Primary',
+                                              child: Text(
+                                                l.t('sos_primary_badge'),
                                                 style: TextStyle(
                                                   color: _DT.crimsonSoft,
                                                   fontSize: 9,
@@ -1407,8 +1407,8 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                             const SizedBox(width: 7),
                             Text(
                               _messageCopied
-                                  ? 'Message copied to clipboard'
-                                  : 'Copy emergency message',
+                                  ? l.t('sos_copied')
+                                  : l.t('sos_copy_message'),
                               style: TextStyle(
                                 color: _messageCopied
                                     ? _DT.greenLight
@@ -1430,7 +1430,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         child: Text(
-                          'I am safe — Close this panel',
+                          l.t('sos_close_safe'),
                           style: TextStyle(
                             color: t.textSec,
                             fontSize: 12,

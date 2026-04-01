@@ -647,7 +647,9 @@ class _MobileTopBar extends StatelessWidget {
           const SizedBox(width: _sp8),
           // Theme toggle — accessible icon button
           Tooltip(
-            message: isDark ? 'Switch to light mode' : 'Switch to dark mode',
+            message: l.t(isDark
+                ? 'common_switch_to_light_mode'
+                : 'common_switch_to_dark_mode'),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
@@ -704,7 +706,7 @@ class _LangButton extends StatelessWidget {
         orElse: () => langs[0]);
 
     return Tooltip(
-      message: 'Change language',
+      message: l.t('common_select_language'),
       child: PopupMenuButton<String>(
           offset: const Offset(0, 44),
           shape: RoundedRectangleBorder(

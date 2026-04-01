@@ -941,7 +941,9 @@ class _InputBarState extends State<_InputBar> {
         // Mic button
         if (widget.speechOk)
           Semantics(
-            label: widget.isListening ? 'Stop recording' : 'Start voice input',
+            label: AppLocalizations.of(context).t(widget.isListening
+              ? 'bridge_stop_voice_input'
+              : 'bridge_start_voice_input'),
             button: true,
             child: InkWell(
               borderRadius: BorderRadius.circular(22),

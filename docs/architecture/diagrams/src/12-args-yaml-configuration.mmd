@@ -1,0 +1,64 @@
+flowchart TD
+  A["args.yaml Training Configuration"]
+  A --> B["Task: detect"]
+  A --> C["Mode: train"]
+  A --> D["Model: YOLO checkpoint\nlast (23).pt"]
+  A --> E["Dataset: ISLFINALDATASET-4/data.yaml"]
+  A --> F["Epochs: 100"]
+  A --> G["Batch Size: 16"]
+  A --> H["Image Size: 640"]
+  A --> I["Optimizer: auto"]
+  A --> J["Resume Training: enabled"]
+  A --> K["Validation: true"]
+  A --> L["Caching: true"]
+  A --> M["Device: GPU 0"]
+  A --> N["Saving: enabled"]
+  A --> O["Output Project: isl_training"]
+  A --> P["Run Name: yolov11m_isl_final"]
+  A --> Q["Augmentation: mosaic, mixup, flip, scale"]
+  A --> R["Learning Rate Schedule: lr0=0.01, lrf=0.01"]
+  A --> S["Loss Weights: box=7.5, cls=0.5, dfl=1.5"]
+  A --> T["Inference Settings: conf=auto, iou=0.7, max_det=300"]
+  A --> U["Deployment Ready Model Export"]
+
+  B --> U
+  C --> U
+  D --> U
+  E --> U
+  F --> U
+  G --> U
+  H --> U
+  I --> U
+  J --> U
+  K --> U
+  L --> U
+  M --> U
+  N --> U
+  O --> U
+  P --> U
+  Q --> U
+  R --> U
+  S --> U
+  T --> U
+
+  style A fill:#1565C0,color:#fff,stroke:#0D47A1,stroke-width:3px
+  style U fill:#2E7D32,color:#fff,stroke:#1B5E20,stroke-width:3px
+  style B fill:#E3F2FD,color:#000
+  style C fill:#E3F2FD,color:#000
+  style D fill:#E3F2FD,color:#000
+  style E fill:#E3F2FD,color:#000
+  style F fill:#FFF3E0,color:#000
+  style G fill:#FFF3E0,color:#000
+  style H fill:#FFF3E0,color:#000
+  style I fill:#FFF3E0,color:#000
+  style J fill:#F3E5F5,color:#000
+  style K fill:#F3E5F5,color:#000
+  style L fill:#F3E5F5,color:#000
+  style M fill:#FCE4EC,color:#000
+  style N fill:#FCE4EC,color:#000
+  style O fill:#E0F2F1,color:#000
+  style P fill:#E0F2F1,color:#000
+  style Q fill:#F3E5F5,color:#000
+  style R fill:#FFF8E1,color:#000
+  style S fill:#FFF8E1,color:#000
+  style T fill:#FFEBEE,color:#000

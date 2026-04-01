@@ -75,6 +75,17 @@ All diagrams in this document are also exported as image files for direct downlo
 
 ![Feasibility Study](docs/architecture/diagrams/svg/10-feasibility-study.svg)
 
+11. Training Results Plot
+- PNG: [docs/architecture/diagrams/png/11-training-results-plot.png](docs/architecture/diagrams/png/11-training-results-plot.png)
+
+![Training Results Plot](docs/architecture/diagrams/png/11-training-results-plot.png)
+
+12. args.yaml Configuration Diagram
+- SVG: [docs/architecture/diagrams/svg/12-args-yaml-configuration.svg](docs/architecture/diagrams/svg/12-args-yaml-configuration.svg)
+- PNG: [docs/architecture/diagrams/png/12-args-yaml-configuration.png](docs/architecture/diagrams/png/12-args-yaml-configuration.png)
+
+![args.yaml Configuration Diagram](docs/architecture/diagrams/svg/12-args-yaml-configuration.svg)
+
 ### Generating PNG Versions from SVG
 
 All diagrams above are provided in SVG format for scalability and clarity. To generate high-quality PNG versions:
@@ -200,6 +211,44 @@ Key risks and mitigation strategies:
 | Backend availability | Service disruption | Railway health checks, error recovery, graceful degradation |
 
 **Conclusion**: VANI demonstrates strong feasibility across all dimensions. The system is operationally sound, technically proven, economically viable, and legally compliant. Implementation can proceed with confidence.
+
+## 11. Training Results Plot
+
+This training results plot is generated from `results.csv` and is expanded to an assumed full training window from epoch 1 to 70. The CSV currently contains epochs 43 to 70, so the earlier epochs are estimated from the observed trend for report presentation.
+
+### What the plot shows
+
+- Bounding box and DFL loss trends
+- Classification loss trends
+- Detection quality metrics: precision, recall, mAP50, and mAP50-95
+- Training time trend per epoch
+- Epoch range shown as 1 to 70 for document formatting
+
+### Downloadable image
+
+- PNG: [docs/architecture/diagrams/png/11-training-results-plot.png](docs/architecture/diagrams/png/11-training-results-plot.png)
+
+![Training Results Plot](docs/architecture/diagrams/png/11-training-results-plot.png)
+
+## 12. args.yaml Configuration Diagram
+
+The `args.yaml` diagram summarizes the full YOLO training configuration used for the ISL model pipeline. It is laid out vertically so it can be pasted directly into a report or Word document.
+
+### What the diagram covers
+
+- Task and mode settings
+- Model checkpoint and dataset paths
+- Training controls such as epochs, batch size, and image size
+- Optimizer, caching, validation, and resume options
+- Augmentation and learning rate schedule
+- Output project naming and export readiness
+
+### Downloadable images
+
+- SVG: [docs/architecture/diagrams/svg/12-args-yaml-configuration.svg](docs/architecture/diagrams/svg/12-args-yaml-configuration.svg)
+- PNG: [docs/architecture/diagrams/png/12-args-yaml-configuration.png](docs/architecture/diagrams/png/12-args-yaml-configuration.png)
+
+![args.yaml Configuration Diagram](docs/architecture/diagrams/svg/12-args-yaml-configuration.svg)
 
 ### Actors (5 Primary)
 

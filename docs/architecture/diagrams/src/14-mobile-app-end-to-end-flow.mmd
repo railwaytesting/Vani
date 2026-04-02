@@ -1,0 +1,60 @@
+flowchart TD
+  A[User Launches VANI Mobile App] --> B[Flutter App Bootstrap]
+  B --> C[Init Hive, Adapters, Localization, Theme]
+  C --> D[Check Supabase Auth Session]
+
+  D -->|Logged In| E[Open Mobile Home]
+  D -->|Not Logged In| F[Show Mobile Auth Screen]
+  F --> G[Login or Signup]
+  G --> E
+
+  E --> H[User Navigates Feature Tabs]
+
+  H --> I[Translate Camera Terminal]
+  I --> I1[Initialize Device Camera]
+  I1 --> I2[Connect WSS to Railway Backend]
+  I2 --> I3[Capture Frame Every Interval]
+  I3 --> I4[Send Base64 Frame]
+  I4 --> I5[YOLO Prediction Response]
+  I5 --> I6[Stability Engine and Sentence Builder]
+  I6 --> I7[TTS and Regional Translation Output]
+
+  H --> J[Two-Way Mobile Bridge]
+  J --> J1[Start Camera and WS Session]
+  J1 --> J2[ISL to Text Pipeline]
+  J2 --> J3[Confirm and Send Messages]
+  J3 --> J4[Conversation Interface Update]
+
+  H --> K[Emergency SOS Mobile]
+  K --> K1[Load Contacts from Hive]
+  K1 --> K2[Optional Cloud Sync with Supabase]
+  K2 --> K3[Get GPS Coordinates]
+  K3 --> K4[Trigger SOS by Tap or Shake]
+  K4 --> K5[Send SMS via url_launcher]
+  K5 --> K6[Show Delivery and Safety Status]
+
+  H --> L[ISL Learning and Assistant]
+  L --> L1[Dictionary Browse and Search]
+  L1 --> L2[Voice Input to AI Assistant]
+  L2 --> L3[Receive Learning Suggestions]
+
+  I7 --> M[Accessible Communication Outcome]
+  J4 --> M
+  K6 --> M
+  L3 --> M
+  M --> N[Continue Session or Exit App]
+
+  style A fill:#0D47A1,color:#fff,stroke:#082B63,stroke-width:2px
+  style B fill:#E3F2FD,color:#000
+  style C fill:#E3F2FD,color:#000
+  style D fill:#E3F2FD,color:#000
+  style E fill:#E8F5E9,color:#000
+  style F fill:#FFF3E0,color:#000
+  style G fill:#FFF3E0,color:#000
+  style H fill:#6A1B9A,color:#fff,stroke:#4A148C,stroke-width:2px
+  style I fill:#E1F5FE,color:#000
+  style J fill:#E1F5FE,color:#000
+  style K fill:#FFEBEE,color:#000
+  style L fill:#F3E5F5,color:#000
+  style M fill:#2E7D32,color:#fff,stroke:#1B5E20,stroke-width:2px
+  style N fill:#263238,color:#fff,stroke:#000,stroke-width:2px

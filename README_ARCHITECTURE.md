@@ -104,6 +104,24 @@ python -c "import cairosvg; cairosvg.svg2png(url='docs/architecture/diagrams/svg
 - ImageMagick: `convert input.svg output.png`
 - Inkscape: `inkscape input.svg --export-filename output.png`
 
+## Web App End-to-End Working Architecture Flow
+
+This diagram shows the complete web application execution flow from bootstrap and authentication through real-time inference, two-way communication, emergency actions, and user outcome rendering.
+
+- SVG: [docs/architecture/diagrams/svg/13-web-app-end-to-end-flow.svg](docs/architecture/diagrams/svg/13-web-app-end-to-end-flow.svg)
+- PNG: [docs/architecture/diagrams/png/13-web-app-end-to-end-flow.png](docs/architecture/diagrams/png/13-web-app-end-to-end-flow.png)
+
+![Web App End-to-End Working Architecture Flow](docs/architecture/diagrams/svg/13-web-app-end-to-end-flow.svg)
+
+## Mobile App End-to-End Working Architecture Flow
+
+This diagram shows the complete mobile execution flow including app bootstrap, camera lifecycle, websocket inference path, SOS shake/tap flow, GPS and SMS integration, and final accessibility output.
+
+- SVG: [docs/architecture/diagrams/svg/14-mobile-app-end-to-end-flow.svg](docs/architecture/diagrams/svg/14-mobile-app-end-to-end-flow.svg)
+- PNG: [docs/architecture/diagrams/png/14-mobile-app-end-to-end-flow.png](docs/architecture/diagrams/png/14-mobile-app-end-to-end-flow.png)
+
+![Mobile App End-to-End Working Architecture Flow](docs/architecture/diagrams/svg/14-mobile-app-end-to-end-flow.svg)
+
 ## 9. Complete Use Case Diagram Explained
 
 The VANI system's complete use case diagram (Diagram 9) illustrates all major functional capabilities and actor interactions across the platform. This section provides a detailed breakdown of all use cases, relationships, and their implementations.

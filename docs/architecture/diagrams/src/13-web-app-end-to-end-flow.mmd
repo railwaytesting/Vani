@@ -1,0 +1,58 @@
+flowchart TD
+  A[User Opens VANI Web App] --> B[Flutter Web App Loads]
+  B --> C[Initialize Localization and Theme]
+  C --> D[Check Auth Session with Supabase]
+
+  D -->|Logged In| E[Open Home Dashboard]
+  D -->|Not Logged In| F[Show Auth Dialog]
+  F --> G[Sign In or Sign Up]
+  G --> E
+
+  E --> H[User Selects Feature]
+
+  H --> I[Translate Terminal Flow]
+  I --> I1[Connect to Railway WebSocket]
+  I1 --> I2[Capture Webcam Frame]
+  I2 --> I3[Base64 Encode and Send Frame]
+  I3 --> I4[FastAPI Receives Frame]
+  I4 --> I5[YOLO Inference and Smoothing]
+  I5 --> I6[Return Label and Confidence JSON]
+  I6 --> I7[Render Prediction, Sentence Builder, Transcript]
+
+  H --> J[Two-Way Bridge Flow]
+  J --> J1[Start WebSocket Session]
+  J1 --> J2[Sign-to-Text Stream]
+  J2 --> J3[Text-to-ISL Assisted Exchange]
+  J3 --> J4[Real-time Conversation UI]
+
+  H --> K[ISL Dictionary and Assistant]
+  K --> K1[Browse Signs by Category]
+  K1 --> K2[Search and Flip Cards]
+  K2 --> K3[Ask AI Assistant for Suggestions]
+
+  H --> L[Emergency Web Flow]
+  L --> L1[Load Emergency Contacts from Hive and Supabase]
+  L1 --> L2[Get Browser Location if Permitted]
+  L2 --> L3[Generate SOS Message Template]
+  L3 --> L4[Open WhatsApp and Call Links]
+
+  I7 --> M[User Gets Accessible Output]
+  J4 --> M
+  K3 --> M
+  L4 --> M
+  M --> N[Session Ends or Continue Interaction]
+
+  style A fill:#1565C0,color:#fff,stroke:#0D47A1,stroke-width:2px
+  style B fill:#E3F2FD,color:#000
+  style C fill:#E3F2FD,color:#000
+  style D fill:#E3F2FD,color:#000
+  style E fill:#E8F5E9,color:#000
+  style F fill:#FFF3E0,color:#000
+  style G fill:#FFF3E0,color:#000
+  style H fill:#5E35B1,color:#fff,stroke:#311B92,stroke-width:2px
+  style I fill:#E1F5FE,color:#000
+  style J fill:#E1F5FE,color:#000
+  style K fill:#E1F5FE,color:#000
+  style L fill:#FFEBEE,color:#000
+  style M fill:#2E7D32,color:#fff,stroke:#1B5E20,stroke-width:2px
+  style N fill:#263238,color:#fff,stroke:#000,stroke-width:2px

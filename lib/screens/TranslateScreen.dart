@@ -110,11 +110,12 @@ TextStyle _txtLabel(double size, Color c, {FontWeight w = FontWeight.w500}) =>
 // ─────────────────────────────────────────────────────────────────────
 //  WEBSOCKET CONFIG (Railway Production)
 // ─────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────
 const String _kRailwayHost  = 'isl-production-57d4.up.railway.app';
 const String _kWsPath       = '/ws';
 const int    _kFrameIntervalMs = 100;
-const bool _railwayWsEnabled = false; // Set to false to disable WebSocket connection (for testing without backend)
-//const bool _railwayWsEnabled = true; // Set to false to disable WebSocket connection (for testing without backend)
+//const bool _railwayWsEnabled = false; // Set to false to disable WebSocket connection (for testing without backend)
+const bool _railwayWsEnabled = true; // Set to false to disable WebSocket connection (for testing without backend)
 
 
 String _getWebSocketUrl() => 'wss://$_kRailwayHost$_kWsPath';
@@ -953,7 +954,7 @@ class _TranslateScreenState extends State<TranslateScreen>
         await _tts.setLanguage('en-US');
       }
     } catch (_) { await _tts.setLanguage('en-US'); }
-    await _tts.setSpeechRate(0.45);
+    await _tts.setSpeechRate(0.90);
     await _tts.setPitch(1.0);
     setState(() { _ttsSpeaking = true; _ttsTag = tag; });
     await _tts.speak(text);

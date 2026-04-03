@@ -48,7 +48,7 @@ import '../l10n/AppLocalizations.dart';
 const String _kRailwayHost   = 'isl-production-57d4.up.railway.app';
 const String _kWsPath        = '/ws';
 const int    _kFrameIntervalMs = 100;
-const bool   _railwayWsEnabled = false; // set to false to disable WebSocket connection (for testing without backend)
+const bool   _railwayWsEnabled = true; // set to false to disable WebSocket connection (for testing without backend)
 
 String _getWebSocketUrl() => 'wss://$_kRailwayHost$_kWsPath';
 
@@ -302,7 +302,7 @@ class _TwoWayScreenState extends State<TwoWayScreen> with TickerProviderStateMix
   // ── TTS ──────────────────────────────────────────────────────────
   Future<void> _initTts() async {
     await _tts.setLanguage(_lang.ttsLocale);
-    await _tts.setSpeechRate(0.45);
+    await _tts.setSpeechRate(0.90);
     await _tts.setPitch(1.0);
     await _tts.setVolume(1.0);
     _tts.setCompletionHandler(() {

@@ -129,28 +129,28 @@ class GlobalNavbar extends StatelessWidget {
                   end: Alignment.bottomRight,
                   colors: isDark
                       ? [
-                          const Color(0xFF0A1024).withOpacity(0.94),
-                          const Color(0xFF111827).withOpacity(0.90),
-                          const Color(0xFF0B0F24).withOpacity(0.95),
+                          const Color(0xFF0A1024).withValues(alpha: 0.94),
+                          const Color(0xFF111827).withValues(alpha: 0.90),
+                          const Color(0xFF0B0F24).withValues(alpha: 0.95),
                         ]
                       : [
-                          const Color(0xFFFFFFFF).withOpacity(0.98),
-                          const Color(0xFFF5F8FF).withOpacity(0.96),
-                          const Color(0xFFEFF4FF).withOpacity(0.94),
+                          const Color(0xFFFFFFFF).withValues(alpha: 0.98),
+                          const Color(0xFFF5F8FF).withValues(alpha: 0.96),
+                          const Color(0xFFEFF4FF).withValues(alpha: 0.94),
                         ],
                 ),
                 borderRadius: BorderRadius.circular(mobile ? 14 : 18),
                 border: Border.all(
                   color: isDark
-                      ? const Color(0xFF1C2845).withOpacity(0.82)
-                      : const Color(0xFFDAE0F0).withOpacity(0.95),
+                      ? const Color(0xFF1C2845).withValues(alpha: 0.82)
+                      : const Color(0xFFDAE0F0).withValues(alpha: 0.95),
                   width: 1.0,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: isDark
-                        ? const Color(0xFF5463FF).withOpacity(0.10)
-                        : Colors.black.withOpacity(0.08),
+                        ? const Color(0xFF5463FF).withValues(alpha: 0.10)
+                        : Colors.black.withValues(alpha: 0.08),
                     blurRadius: 38,
                     offset: const Offset(0, 10),
                   ),
@@ -189,10 +189,10 @@ class GlobalNavbar extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          _navIndigo.withOpacity(0.0),
-                          _navIndigo.withOpacity(isDark ? 0.22 : 0.14),
-                          _navSecondary.withOpacity(isDark ? 0.18 : 0.10),
-                          _navIndigo.withOpacity(0.0),
+                          _navIndigo.withValues(alpha: 0.0),
+                          _navIndigo.withValues(alpha: isDark ? 0.22 : 0.14),
+                          _navSecondary.withValues(alpha: isDark ? 0.18 : 0.10),
+                          _navIndigo.withValues(alpha: 0.0),
                         ],
                       ),
                     ),
@@ -231,11 +231,11 @@ class _Brand extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [accent, accent.withOpacity(0.3)],
+                colors: [accent, accent.withValues(alpha: 0.3)],
               ),
               borderRadius: BorderRadius.circular(999),
               boxShadow: [BoxShadow(
-                color: accent.withOpacity(0.55),
+                color: accent.withValues(alpha: 0.55),
                 blurRadius: 12,
                 offset: const Offset(0, 2),
               )],
@@ -353,7 +353,7 @@ class _DesktopActionsState extends State<_DesktopActions> {
           l: widget.l, isDark: widget.isDark, primary: widget.primary),
       const SizedBox(width: _sp8),
       Container(width: 1, height: 18,
-          color: widget.isDark ? _dBorder.withOpacity(0.6) : _lBorder),
+          color: widget.isDark ? _dBorder.withValues(alpha: 0.6) : _lBorder),
       const SizedBox(width: _sp8),
       _ThemeToggle(isDark: widget.isDark, onTap: widget.toggleTheme),
     ]);
@@ -408,7 +408,7 @@ class _NavLinkState extends State<_NavLink> {
                   color: widget.accent,
                   borderRadius: BorderRadius.circular(1),
                   boxShadow: _hovered || widget.isActive
-                      ? [BoxShadow(color: widget.accent.withOpacity(0.5), blurRadius: 6)]
+                      ? [BoxShadow(color: widget.accent.withValues(alpha: 0.5), blurRadius: 6)]
                       : [],
                 ),
               ),
@@ -473,7 +473,7 @@ class _SOSNavLinkState extends State<_SOSNavLink>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle, color: red,
                       boxShadow: [BoxShadow(
-                        color: red.withOpacity(_pulseAnim.value * 0.7),
+                        color: red.withValues(alpha: _pulseAnim.value * 0.7),
                         blurRadius: 6, spreadRadius: 1)],
                     ),
                   ),
@@ -495,7 +495,7 @@ class _SOSNavLinkState extends State<_SOSNavLink>
                 decoration: BoxDecoration(
                   color: red,
                   borderRadius: BorderRadius.circular(1),
-                  boxShadow: [BoxShadow(color: red.withOpacity(0.4), blurRadius: 6)],
+                  boxShadow: [BoxShadow(color: red.withValues(alpha: 0.4), blurRadius: 6)],
                 ),
               ),
             ]),
@@ -538,8 +538,8 @@ class _MobileActions extends StatelessWidget {
       Semantics(label: l.t('bridge_screen_title'), button: true,
           child: _MobileNavIconBtn(
             icon: Icons.compare_arrows_rounded, color: teal,
-            bgColor: teal.withOpacity(activeRoute == 'bridge' ? 0.15 : 0.08),
-            borderColor: teal.withOpacity(activeRoute == 'bridge' ? 0.40 : 0.15),
+            bgColor: teal.withValues(alpha: activeRoute == 'bridge' ? 0.15 : 0.08),
+            borderColor: teal.withValues(alpha: activeRoute == 'bridge' ? 0.40 : 0.15),
             onTap: () { if (activeRoute != 'bridge')
               _push(ctx, TwoWayScreen(toggleTheme: toggleTheme, setLocale: setLocale)); },
           )),
@@ -651,12 +651,12 @@ class _MobileSOSBtnState extends State<_MobileSOSBtn>
         child: Container(
           width: 34, height: 34,
           decoration: BoxDecoration(
-            color: c.withOpacity(widget.isActive ? 0.18 : 0.09),
+            color: c.withValues(alpha: widget.isActive ? 0.18 : 0.09),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-                color: c.withOpacity(widget.isActive ? 0.55 : 0.28), width: 1),
+                color: c.withValues(alpha: widget.isActive ? 0.55 : 0.28), width: 1),
             boxShadow: [BoxShadow(
-                color: c.withOpacity(_anim.value * 0.30), blurRadius: 10)],
+                color: c.withValues(alpha: _anim.value * 0.30), blurRadius: 10)],
           ),
           child: Center(child: Text(AppLocalizations.of(context).t('nav_emergency'),
               style: _label(9, c, w: FontWeight.w900)
@@ -798,3 +798,4 @@ class _LangDropdown extends StatelessWidget {
     );
   }
 }
+

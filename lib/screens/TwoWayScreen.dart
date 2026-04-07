@@ -597,13 +597,18 @@ class _TwoWayScreenState extends State<TwoWayScreen>
       if (!_detecting && mounted) setState(() => _detecting = true);
       return;
     }
-    if (now.difference(_candidateSince).inMilliseconds < _kStableDetectionMs)
+    if (now.difference(_candidateSince).inMilliseconds < _kStableDetectionMs) {
       return;
-    if (now.difference(_lastAcceptedAt).inMilliseconds < _kDetectionCooldownMs)
+    }
+    if (now.difference(_lastAcceptedAt).inMilliseconds <
+        _kDetectionCooldownMs) {
       return;
+    }
     if (sign == _lastAccepted &&
-        now.difference(_lastAcceptedAt).inMilliseconds < _kSameLabelCooldownMs)
+        now.difference(_lastAcceptedAt).inMilliseconds <
+            _kSameLabelCooldownMs) {
       return;
+    }
     if (sign == _pending) return;
     _lastAccepted = sign;
     _lastAcceptedAt = now;
@@ -883,7 +888,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
         Positioned.fill(
           child: CustomPaint(
             painter: _CornerPainter(
-              color: _violet.withOpacity(_camActive && _camReady ? 0.6 : 0.22),
+              color: _violet.withValues(alpha: _camActive && _camReady ? 0.6 : 0.22),
             ),
           ),
         ),
@@ -894,7 +899,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
           left: 0,
           right: 0,
           child: Container(
-            color: Colors.black.withOpacity(0.55),
+            color: Colors.black.withValues(alpha: 0.55),
             padding: const EdgeInsets.fromLTRB(_sp12, _sp12, _sp12, _sp12),
             child: Row(
               children: [
@@ -909,7 +914,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -924,7 +929,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
                 // Connection status
                 AnimatedBuilder(
                   animation: _pulse,
-                  builder: (_, __) => _ConnectionChip(
+                  builder: (_, _) => _ConnectionChip(
                     connected: _wsConnected,
                     pulse: _pulse,
                     label: _wsConnected
@@ -987,7 +992,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
             left: _sp12,
             child: AnimatedBuilder(
               animation: _pulse,
-              builder: (_, __) => _DetectingBadge(pulse: _pulse),
+              builder: (_, _) => _DetectingBadge(pulse: _pulse),
             ),
           ),
 
@@ -1037,9 +1042,9 @@ class _TwoWayScreenState extends State<TwoWayScreen>
           width: 72,
           height: 72,
           decoration: BoxDecoration(
-            color: _violet.withOpacity(0.10),
+            color: _violet.withValues(alpha: 0.10),
             shape: BoxShape.circle,
-            border: Border.all(color: _violet.withOpacity(0.20), width: 1),
+            border: Border.all(color: _violet.withValues(alpha: 0.20), width: 1),
           ),
           child: const Icon(
             Icons.sign_language_rounded,
@@ -1072,9 +1077,9 @@ class _TwoWayScreenState extends State<TwoWayScreen>
         Container(
           padding: const EdgeInsets.all(_sp8),
           decoration: BoxDecoration(
-            color: accent.withOpacity(0.10),
+            color: accent.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: accent.withOpacity(0.22), width: 1),
+            border: Border.all(color: accent.withValues(alpha: 0.22), width: 1),
           ),
           child: Icon(Icons.sign_language_rounded, color: accent, size: 16),
         ),
@@ -1094,7 +1099,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
         // WS status
         AnimatedBuilder(
           animation: _pulse,
-          builder: (_, __) => _ConnectionChip(
+          builder: (_, _) => _ConnectionChip(
             connected: _wsConnected,
             pulse: _pulse,
             label: _wsConnected
@@ -1152,7 +1157,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: accent.withOpacity(0.25), width: 1.5),
+          border: Border.all(color: accent.withValues(alpha: 0.25), width: 1.5),
         ),
         child: Stack(
           fit: StackFit.expand,
@@ -1175,10 +1180,10 @@ class _TwoWayScreenState extends State<TwoWayScreen>
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: accent.withOpacity(0.08),
+                        color: accent.withValues(alpha: 0.08),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: accent.withOpacity(0.18),
+                          color: accent.withValues(alpha: 0.18),
                           width: 1,
                         ),
                       ),
@@ -1202,7 +1207,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
             // Corner brackets overlay
             Positioned.fill(
               child: CustomPaint(
-                painter: _CornerPainter(color: accent.withOpacity(0.55)),
+                painter: _CornerPainter(color: accent.withValues(alpha: 0.55)),
               ),
             ),
 
@@ -1213,7 +1218,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
                 left: 10,
                 child: AnimatedBuilder(
                   animation: _pulse,
-                  builder: (_, __) => _DetectingBadge(pulse: _pulse),
+                  builder: (_, _) => _DetectingBadge(pulse: _pulse),
                 ),
               ),
 
@@ -1230,7 +1235,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(0.85),
+                        Colors.black.withValues(alpha: 0.85),
                         Colors.transparent,
                       ],
                     ),
@@ -1250,7 +1255,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: bg.withOpacity(0.90),
+                    color: bg.withValues(alpha: 0.90),
                     borderRadius: BorderRadius.circular(11),
                   ),
                   child: Column(
@@ -1289,10 +1294,10 @@ class _TwoWayScreenState extends State<TwoWayScreen>
       duration: const Duration(milliseconds: 220),
       padding: const EdgeInsets.symmetric(horizontal: _sp16, vertical: _sp12),
       decoration: BoxDecoration(
-        color: hasPending ? accent.withOpacity(0.08) : bg,
+        color: hasPending ? accent.withValues(alpha: 0.08) : bg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: hasPending ? accent.withOpacity(0.35) : border,
+          color: hasPending ? accent.withValues(alpha: 0.35) : border,
           width: hasPending ? 1.5 : 1.0,
         ),
       ),
@@ -1386,9 +1391,9 @@ class _TwoWayScreenState extends State<TwoWayScreen>
         Container(
           padding: const EdgeInsets.all(_sp8),
           decoration: BoxDecoration(
-            color: accent.withOpacity(0.10),
+            color: accent.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: accent.withOpacity(0.22), width: 1),
+            border: Border.all(color: accent.withValues(alpha: 0.22), width: 1),
           ),
           child: Icon(Icons.forum_rounded, color: accent, size: 16),
         ),
@@ -1438,12 +1443,12 @@ class _TwoWayScreenState extends State<TwoWayScreen>
                 height: 36,
                 decoration: BoxDecoration(
                   color: _autoSpeak
-                      ? accent.withOpacity(0.10)
+                      ? accent.withValues(alpha: 0.10)
                       : (isDark ? _dSurface2 : _lSurface2),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: _autoSpeak
-                        ? accent.withOpacity(0.30)
+                        ? accent.withValues(alpha: 0.30)
                         : (isDark ? _dBorder : _lBorder),
                     width: 1,
                   ),
@@ -1561,7 +1566,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
         ? (isDark ? _dangerDark : _danger)
         : (isDark ? _dTextSub : _lTextSub);
     final micBg = _listening
-        ? (isDark ? _dangerDark.withOpacity(0.15) : _dangerLight)
+        ? (isDark ? _dangerDark.withValues(alpha: 0.15) : _dangerLight)
         : (isDark ? _dSurface2 : _lSurface2);
 
     return Column(
@@ -1574,9 +1579,9 @@ class _TwoWayScreenState extends State<TwoWayScreen>
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: accent.withOpacity(0.10),
+                color: accent.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: accent.withOpacity(0.22), width: 1),
+                border: Border.all(color: accent.withValues(alpha: 0.22), width: 1),
               ),
               child: Icon(Icons.keyboard_rounded, color: accent, size: 14),
             ),
@@ -1603,10 +1608,10 @@ class _TwoWayScreenState extends State<TwoWayScreen>
                     vertical: _sp4,
                   ),
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.08),
+                    color: accent.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: accent.withOpacity(0.22),
+                      color: accent.withValues(alpha: 0.22),
                       width: 1,
                     ),
                   ),
@@ -1649,7 +1654,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
                       color: micBg,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: _listening ? micColor.withOpacity(0.35) : border,
+                        color: _listening ? micColor.withValues(alpha: 0.35) : border,
                         width: _listening ? 1.5 : 1.0,
                       ),
                     ),
@@ -1670,7 +1675,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
                   color: bg,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: _typeFocused ? accent.withOpacity(0.45) : border,
+                    color: _typeFocused ? accent.withValues(alpha: 0.45) : border,
                     width: _typeFocused ? 1.5 : 1.0,
                   ),
                 ),
@@ -1896,7 +1901,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
                                 width: 36,
                                 height: 36,
                                 decoration: BoxDecoration(
-                                  color: accent.withOpacity(0.10),
+                                  color: accent.withValues(alpha: 0.10),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(p.icon, color: accent, size: 18),
@@ -1947,7 +1952,7 @@ class _MessageBubble extends StatelessWidget {
     final bubbleBg = isDeaf
         ? (isDark ? Color(0xFF1E1040) : Color(0xFFEDE9FE))
         : (isDark ? Color(0xFF003D36) : Color(0xFFE0F2F1));
-    final border = accent.withOpacity(0.25);
+    final border = accent.withValues(alpha: 0.25);
     final textClr = isDark ? _dText : _lText;
     final timeClr = isDark ? _dTextMuted : _lTextMuted;
     final timeStr =
@@ -1988,7 +1993,7 @@ class _MessageBubble extends StatelessWidget {
                               ? Icons.mic_rounded
                               : Icons.keyboard_rounded),
                     size: 10,
-                    color: accent.withOpacity(0.7),
+                    color: accent.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: _sp4),
                   Text(
@@ -1997,7 +2002,7 @@ class _MessageBubble extends StatelessWidget {
                         : l.t('bridge_hearing_label'),
                     style: _label(
                       10,
-                      accent.withOpacity(0.7),
+                      accent.withValues(alpha: 0.7),
                       w: FontWeight.w600,
                     ),
                   ),
@@ -2032,7 +2037,7 @@ class _MessageBubble extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: accent.withOpacity(0.20),
+                        color: accent.withValues(alpha: 0.20),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -2065,7 +2070,7 @@ class _MessageBubble extends StatelessWidget {
                                   ? Icons.volume_up_rounded
                                   : Icons.volume_up_outlined,
                               size: 14,
-                              color: accent.withOpacity(0.7),
+                              color: accent.withValues(alpha: 0.7),
                             ),
                           ),
                         ),
@@ -2130,11 +2135,11 @@ class _LangSelector extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(
                   color: sel
-                      ? accent.withOpacity(0.12)
+                      ? accent.withValues(alpha: 0.12)
                       : (isDark ? _dSurface : _lSurface2),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: sel ? accent.withOpacity(0.30) : border,
+                    color: sel ? accent.withValues(alpha: 0.30) : border,
                     width: 1,
                   ),
                 ),
@@ -2182,7 +2187,7 @@ class _LangSelector extends StatelessWidget {
                 width: 22,
                 height: 22,
                 decoration: BoxDecoration(
-                  color: accent.withOpacity(0.10),
+                  color: accent.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Center(
@@ -2261,8 +2266,8 @@ class _MobileBridgePanelState extends State<_MobileBridgePanel> {
     final l = AppLocalizations.of(context);
     final isDark = widget.isDark;
     final bg = isDark
-        ? const Color(0xFF0D1117).withOpacity(0.96)
-        : Colors.white.withOpacity(0.97);
+        ? const Color(0xFF0D1117).withValues(alpha: 0.96)
+        : Colors.white.withValues(alpha: 0.97);
     final border = isDark ? _dBorder : _lBorder;
     final textClr = isDark ? _dText : _lText;
     final subClr = isDark ? _dTextSub : _lTextSub;
@@ -2352,12 +2357,12 @@ class _MobileBridgePanelState extends State<_MobileBridgePanel> {
                             height: 36,
                             decoration: BoxDecoration(
                               color: widget.autoSpeak
-                                  ? accent.withOpacity(0.10)
+                                  ? accent.withValues(alpha: 0.10)
                                   : (isDark ? _dSurface2 : _lSurface2),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 color: widget.autoSpeak
-                                    ? accent.withOpacity(0.30)
+                                    ? accent.withValues(alpha: 0.30)
                                     : border,
                                 width: 1,
                               ),
@@ -2459,7 +2464,7 @@ class _MobileChatTab extends StatelessWidget {
     final border = isDark ? _dBorder : _lBorder;
     final accent = isDark ? _secondaryDark : _secondary;
     final micBg = listening
-        ? (isDark ? _dangerDark.withOpacity(0.15) : _dangerLight)
+        ? (isDark ? _dangerDark.withValues(alpha: 0.15) : _dangerLight)
         : bg;
 
     return Column(
@@ -2522,7 +2527,7 @@ class _MobileChatTab extends StatelessWidget {
                             bottomRight: Radius.circular(isDeaf ? 12 : 3),
                           ),
                           border: Border.all(
-                            color: ac.withOpacity(0.25),
+                            color: ac.withValues(alpha: 0.25),
                             width: 1,
                           ),
                         ),
@@ -2537,7 +2542,7 @@ class _MobileChatTab extends StatelessWidget {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: ac.withOpacity(0.20),
+                                  color: ac.withValues(alpha: 0.20),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
@@ -2554,7 +2559,7 @@ class _MobileChatTab extends StatelessWidget {
                               ts,
                               style: _label(
                                 9,
-                                ac.withOpacity(0.5),
+                                ac.withValues(alpha: 0.5),
                                 w: FontWeight.w400,
                               ),
                             ),
@@ -2591,7 +2596,7 @@ class _MobileChatTab extends StatelessWidget {
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: listening
-                              ? micColor.withOpacity(0.35)
+                              ? micColor.withValues(alpha: 0.35)
                               : border,
                           width: listening ? 1.5 : 1.0,
                         ),
@@ -2613,7 +2618,7 @@ class _MobileChatTab extends StatelessWidget {
                     color: bg,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: typeFocused ? accent.withOpacity(0.45) : border,
+                      color: typeFocused ? accent.withValues(alpha: 0.45) : border,
                       width: typeFocused ? 1.5 : 1.0,
                     ),
                   ),
@@ -2724,7 +2729,7 @@ class _MobilePhrasesTab extends StatelessWidget {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: accent.withOpacity(0.10),
+                        color: accent.withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(p.icon, color: accent, size: 18),
@@ -2779,10 +2784,10 @@ class _MobilePanelTab extends StatelessWidget {
             vertical: _sp8,
           ),
           decoration: BoxDecoration(
-            color: active ? accent.withOpacity(0.10) : Colors.transparent,
+            color: active ? accent.withValues(alpha: 0.10) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: active ? accent.withOpacity(0.35) : Colors.transparent,
+              color: active ? accent.withValues(alpha: 0.35) : Colors.transparent,
               width: active ? 1.5 : 0,
             ),
           ),
@@ -2851,15 +2856,15 @@ class _ConnectionChip extends StatelessWidget {
         ? (dark ? _successDark : _success)
         : (dark ? _dangerDark : _danger);
     final bg = connected
-        ? (dark ? _successDark.withOpacity(0.12) : _successLight)
-        : (dark ? _dangerDark.withOpacity(0.12) : _dangerLight);
+        ? (dark ? _successDark.withValues(alpha: 0.12) : _successLight)
+        : (dark ? _dangerDark.withValues(alpha: 0.12) : _dangerLight);
     final border = connected
-        ? (dark ? _successDark.withOpacity(0.28) : _success.withOpacity(0.28))
-        : (dark ? _dangerDark.withOpacity(0.28) : _danger.withOpacity(0.28));
+        ? (dark ? _successDark.withValues(alpha: 0.28) : _success.withValues(alpha: 0.28))
+        : (dark ? _dangerDark.withValues(alpha: 0.28) : _danger.withValues(alpha: 0.28));
 
     return AnimatedBuilder(
       animation: pulse,
-      builder: (_, __) => Container(
+      builder: (_, _) => Container(
         padding: const EdgeInsets.symmetric(horizontal: _sp8, vertical: _sp4),
         decoration: BoxDecoration(
           color: bg,
@@ -2878,7 +2883,7 @@ class _ConnectionChip extends StatelessWidget {
                 boxShadow: connected
                     ? [
                         BoxShadow(
-                          color: color.withOpacity(pulse.value * 0.5),
+                          color: color.withValues(alpha: pulse.value * 0.5),
                           blurRadius: 5,
                           spreadRadius: 1,
                         ),
@@ -2914,9 +2919,9 @@ class _PendingSignChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: _sp16, vertical: _sp12),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.65),
+        color: Colors.black.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accent.withOpacity(0.40), width: 1.5),
+        border: Border.all(color: accent.withValues(alpha: 0.40), width: 1.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -2970,7 +2975,7 @@ class _PendingSignChip extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(_sp8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
@@ -2996,13 +3001,13 @@ class _DetectingBadge extends StatelessWidget {
     const accent = Color(0xFFA78BFA);
     return AnimatedBuilder(
       animation: pulse,
-      builder: (_, __) => Container(
+      builder: (_, _) => Container(
         padding: const EdgeInsets.symmetric(horizontal: _sp8, vertical: _sp4),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.55),
+          color: Colors.black.withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: accent.withOpacity(0.3 + pulse.value * 0.5),
+            color: accent.withValues(alpha: 0.3 + pulse.value * 0.5),
             width: 1,
           ),
         ),
@@ -3017,7 +3022,7 @@ class _DetectingBadge extends StatelessWidget {
                 color: accent,
                 boxShadow: [
                   BoxShadow(
-                    color: accent.withOpacity(pulse.value * 0.8),
+                    color: accent.withValues(alpha: pulse.value * 0.8),
                     blurRadius: 7,
                   ),
                 ],
@@ -3076,7 +3081,7 @@ class _MobileTopBtn extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Colors.white.withValues(alpha: 0.15),
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: Colors.white, size: 19),
@@ -3111,3 +3116,4 @@ class _CornerPainter extends CustomPainter {
   @override
   bool shouldRepaint(_CornerPainter old) => old.color != color;
 }
+

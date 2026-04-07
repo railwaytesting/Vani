@@ -746,7 +746,7 @@ class _BgPainter extends CustomPainter {
       r,
       Paint()
         ..shader = RadialGradient(
-          colors: [col.withOpacity(a), Colors.transparent],
+          colors: [col.withValues(alpha: a), Colors.transparent],
         ).createShader(Rect.fromCircle(center: c, radius: r)),
     );
 
@@ -755,13 +755,13 @@ class _BgPainter extends CustomPainter {
           c,
           r,
           Paint()
-            ..color = col.withOpacity(a)
+            ..color = col.withValues(alpha: a)
             ..strokeWidth = sw
             ..style = PaintingStyle.stroke,
         );
 
     void dot(Offset c, double r, Color col, double a) =>
-        canvas.drawCircle(c, r, Paint()..color = col.withOpacity(a));
+        canvas.drawCircle(c, r, Paint()..color = col.withValues(alpha: a));
 
     // Orbs
     orb(Offset(w * 1.08, -h * 0.05), w * 0.65, cB, d ? 0.13 : 0.09);
@@ -775,12 +775,12 @@ class _BgPainter extends CustomPainter {
 
     // Float circles
     void fc(Offset c, double r, Color col, double a) {
-      canvas.drawCircle(c, r, Paint()..color = col.withOpacity(a));
+      canvas.drawCircle(c, r, Paint()..color = col.withValues(alpha: a));
       canvas.drawCircle(
         c,
         r,
         Paint()
-          ..color = col.withOpacity(a * 0.12)
+          ..color = col.withValues(alpha: a * 0.12)
           ..strokeWidth = 0.8
           ..style = PaintingStyle.stroke,
       );
@@ -872,7 +872,7 @@ class _SignsPageState extends State<SignsPage> with TickerProviderStateMixin {
     if (kIsWeb) {
       showDialog(
         context: ctx,
-        barrierColor: Colors.black.withOpacity(d ? 0.68 : 0.48),
+        barrierColor: Colors.black.withValues(alpha: d ? 0.68 : 0.48),
         builder: (_) => Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: const EdgeInsets.symmetric(
@@ -935,7 +935,7 @@ class _SignsPageState extends State<SignsPage> with TickerProviderStateMixin {
                 Container(
                   padding: const EdgeInsets.fromLTRB(_s16, _s10, _s16, _s12),
                   decoration: BoxDecoration(
-                    color: surf.withOpacity(0.90),
+                    color: surf.withValues(alpha: 0.90),
                     border: Border(bottom: BorderSide(color: bord, width: 1)),
                   ),
                   child: Column(
@@ -1359,10 +1359,10 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: _s16, vertical: _s12),
       decoration: BoxDecoration(
-        color: highlight ? color.withOpacity(0.08) : surf,
+        color: highlight ? color.withValues(alpha: 0.08) : surf,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: highlight ? color.withOpacity(0.30) : color.withOpacity(0.22),
+          color: highlight ? color.withValues(alpha: 0.30) : color.withValues(alpha: 0.22),
           width: highlight ? 1.5 : 1,
         ),
       ),
@@ -1373,7 +1373,7 @@ class _StatCard extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 14),
@@ -1451,7 +1451,7 @@ class _WebSidebar extends StatelessWidget {
         border: Border.all(color: bord, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(d ? 0.20 : 0.04),
+            color: Colors.black.withValues(alpha: d ? 0.20 : 0.04),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -1485,10 +1485,10 @@ class _WebSidebar extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(_s16),
               decoration: BoxDecoration(
-                color: (d ? _purpleDk : _purple).withOpacity(0.08),
+                color: (d ? _purpleDk : _purple).withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: (d ? _purpleDk : _purple).withOpacity(0.20),
+                  color: (d ? _purpleDk : _purple).withValues(alpha: 0.20),
                   width: 1,
                 ),
               ),
@@ -1519,7 +1519,7 @@ class _WebSidebar extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: progress,
                       minHeight: 4,
-                      backgroundColor: (d ? _purpleDk : _purple).withOpacity(
+                      backgroundColor: (d ? _purpleDk : _purple).withValues(alpha: 
                         0.15,
                       ),
                       valueColor: AlwaysStoppedAnimation(
@@ -1529,7 +1529,7 @@ class _WebSidebar extends StatelessWidget {
                   ),
                   const SizedBox(height: _s8),
                   Text(
-                    '${l.t('signs_progress_count').replaceAll('{viewed}', '$viewed').replaceAll('{total}', '$total')}',
+                    l.t('signs_progress_count').replaceAll('{viewed}', '$viewed').replaceAll('{total}', '$total'),
                     style: _lbl(
                       11,
                       d ? _dTxtSub : _lTxtSub,
@@ -1575,10 +1575,10 @@ class _SidebarItem extends StatelessWidget {
           duration: const Duration(milliseconds: 160),
           padding: const EdgeInsets.symmetric(horizontal: _s12, vertical: _s10),
           decoration: BoxDecoration(
-            color: active ? color.withOpacity(0.10) : Colors.transparent,
+            color: active ? color.withValues(alpha: 0.10) : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: active ? color.withOpacity(0.28) : Colors.transparent,
+              color: active ? color.withValues(alpha: 0.28) : Colors.transparent,
             ),
           ),
           child: Row(
@@ -1602,7 +1602,7 @@ class _SidebarItem extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: active
-                      ? color.withOpacity(0.15)
+                      ? color.withValues(alpha: 0.15)
                       : (d ? _dSurf2 : _lSurf2),
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -1639,9 +1639,9 @@ class _ProgressBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: _s12, vertical: _s8),
       decoration: BoxDecoration(
-        color: accent.withOpacity(0.08),
+        color: accent.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: accent.withOpacity(0.22), width: 1),
+        border: Border.all(color: accent.withValues(alpha: 0.22), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1655,7 +1655,7 @@ class _ProgressBadge extends StatelessWidget {
                 CircularProgressIndicator(
                   value: progress,
                   strokeWidth: 2.5,
-                  backgroundColor: accent.withOpacity(0.15),
+                  backgroundColor: accent.withValues(alpha: 0.15),
                   valueColor: AlwaysStoppedAnimation(accent),
                 ),
                 Text(
@@ -1721,14 +1721,14 @@ class _CategoryPills extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: _s16),
         physics: const BouncingScrollPhysics(),
         itemCount: items.length,
-        separatorBuilder: (_, __) => const SizedBox(width: _s8),
+        separatorBuilder: (_, _) => const SizedBox(width: _s8),
         itemBuilder: (_, i) {
           final it = items[i];
           final active = selected == it.$1;
           final color = it.$4;
           final bg = active ? color : Colors.transparent;
           final fgTxt = active ? Colors.white : (d ? _dTxtSub : _lMuted);
-          final brdClr = active ? Colors.transparent : color.withOpacity(0.30);
+          final brdClr = active ? Colors.transparent : color.withValues(alpha: 0.30);
           return GestureDetector(
             onTap: () {
               HapticFeedback.selectionClick();
@@ -1766,8 +1766,8 @@ class _CategoryPills extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: active
-                          ? Colors.white.withOpacity(0.25)
-                          : color.withOpacity(0.12),
+                          ? Colors.white.withValues(alpha: 0.25)
+                          : color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -1838,7 +1838,7 @@ class _MobileSignsHero extends StatelessWidget {
               : [const Color(0xFFF8FBFF), const Color(0xFFEFF4FF)],
         ),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: accent.withOpacity(0.22), width: 1),
+        border: Border.all(color: accent.withValues(alpha: 0.22), width: 1),
       ),
       child: Row(
         children: [
@@ -1876,7 +1876,7 @@ class _MobileSignsHero extends StatelessWidget {
                 CircularProgressIndicator(
                   value: progress,
                   strokeWidth: 3,
-                  backgroundColor: accent.withOpacity(0.18),
+                  backgroundColor: accent.withValues(alpha: 0.18),
                   valueColor: AlwaysStoppedAnimation(accent),
                 ),
                 Text('$viewed', style: _lbl(11, accent, w: FontWeight.w800)),
@@ -1921,12 +1921,12 @@ class _WebControlDeck extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(_s16),
       decoration: BoxDecoration(
-        color: surf.withOpacity(0.90),
+        color: surf.withValues(alpha: 0.90),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: bord, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(d ? 0.18 : 0.04),
+            color: Colors.black.withValues(alpha: d ? 0.18 : 0.04),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -2004,16 +2004,16 @@ class _ResourceActionButtonState extends State<_ResourceActionButton> {
             vertical: widget.compact ? 9 : 11,
           ),
           decoration: BoxDecoration(
-            color: _hover ? accent.withOpacity(0.10) : surf,
+            color: _hover ? accent.withValues(alpha: 0.10) : surf,
             borderRadius: BorderRadius.circular(widget.compact ? 10 : 12),
             border: Border.all(
-              color: _hover ? accent.withOpacity(0.30) : bord,
+              color: _hover ? accent.withValues(alpha: 0.30) : bord,
               width: 1,
             ),
             boxShadow: _hover
                 ? [
                     BoxShadow(
-                      color: accent.withOpacity(widget.d ? 0.16 : 0.12),
+                      color: accent.withValues(alpha: widget.d ? 0.16 : 0.12),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -2058,7 +2058,7 @@ class _SearchFieldState extends State<_SearchField> {
             width: _focused ? 2 : 1,
           ),
           boxShadow: _focused
-              ? [BoxShadow(color: focus.withOpacity(0.12), blurRadius: 12)]
+              ? [BoxShadow(color: focus.withValues(alpha: 0.12), blurRadius: 12)]
               : [],
         ),
         child: TextField(
@@ -2089,7 +2089,7 @@ class _SearchFieldState extends State<_SearchField> {
                         width: 20,
                         height: 20,
                         decoration: BoxDecoration(
-                          color: sub.withOpacity(0.20),
+                          color: sub.withValues(alpha: 0.20),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(Icons.close_rounded, size: 12, color: sub),
@@ -2200,14 +2200,14 @@ class _SignTileState extends State<_SignTile>
               boxShadow: _hovered
                   ? [
                       BoxShadow(
-                        color: Colors.black.withOpacity(d ? 0.28 : 0.14),
+                        color: Colors.black.withValues(alpha: d ? 0.28 : 0.14),
                         blurRadius: widget.webMode ? 24 : 16,
                         offset: const Offset(0, 14),
                       ),
                     ]
                   : [
                       BoxShadow(
-                        color: Colors.black.withOpacity(d ? 0.20 : 0.04),
+                        color: Colors.black.withValues(alpha: d ? 0.20 : 0.04),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -2224,7 +2224,7 @@ class _SignTileState extends State<_SignTile>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
-                        colors: [accent.withOpacity(0.12), Colors.transparent],
+                        colors: [accent.withValues(alpha: 0.12), Colors.transparent],
                       ),
                     ),
                   ),
@@ -2236,7 +2236,7 @@ class _SignTileState extends State<_SignTile>
                   child: Container(
                     width: 4,
                     decoration: BoxDecoration(
-                      color: accent.withOpacity(_hovered ? 0.95 : 0.78),
+                      color: accent.withValues(alpha: _hovered ? 0.95 : 0.78),
                       borderRadius: BorderRadius.circular(99),
                     ),
                   ),
@@ -2289,10 +2289,10 @@ class _SignTileState extends State<_SignTile>
                             )
                           : EdgeInsets.zero,
                       decoration: BoxDecoration(
-                        color: accent.withOpacity(0.12),
+                        color: accent.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(
-                          color: accent.withOpacity(0.20),
+                          color: accent.withValues(alpha: 0.20),
                           width: 1,
                         ),
                       ),
@@ -2340,12 +2340,12 @@ class _SignTileState extends State<_SignTile>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    accent.withOpacity(_hovered ? 0.22 : 0.16),
-                    accent.withOpacity(_hovered ? 0.10 : 0.06),
+                    accent.withValues(alpha: _hovered ? 0.22 : 0.16),
+                    accent.withValues(alpha: _hovered ? 0.10 : 0.06),
                   ],
                 ),
                 border: Border.all(
-                  color: accent.withOpacity(_hovered ? 0.34 : 0.20),
+                  color: accent.withValues(alpha: _hovered ? 0.34 : 0.20),
                   width: 1,
                 ),
               ),
@@ -2455,12 +2455,12 @@ class _SignTileState extends State<_SignTile>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                accent.withOpacity(_hovered ? 0.22 : 0.16),
-                accent.withOpacity(_hovered ? 0.10 : 0.06),
+                accent.withValues(alpha: _hovered ? 0.22 : 0.16),
+                accent.withValues(alpha: _hovered ? 0.10 : 0.06),
               ],
             ),
             border: Border.all(
-              color: accent.withOpacity(_hovered ? 0.34 : 0.20),
+              color: accent.withValues(alpha: _hovered ? 0.34 : 0.20),
               width: 1,
             ),
           ),
@@ -2607,12 +2607,12 @@ class _SignDetailSheet extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  accent.withOpacity(d ? 0.18 : 0.10),
-                  accent.withOpacity(d ? 0.08 : 0.04),
+                  accent.withValues(alpha: d ? 0.18 : 0.10),
+                  accent.withValues(alpha: d ? 0.08 : 0.04),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: accent.withOpacity(0.25), width: 1),
+              border: Border.all(color: accent.withValues(alpha: 0.25), width: 1),
             ),
             child: Column(
               children: [
@@ -2622,9 +2622,9 @@ class _SignDetailSheet extends StatelessWidget {
                   height: 88,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: accent.withOpacity(0.15),
+                    color: accent.withValues(alpha: 0.15),
                     border: Border.all(
-                      color: accent.withOpacity(0.35),
+                      color: accent.withValues(alpha: 0.35),
                       width: 2,
                     ),
                   ),
@@ -2653,10 +2653,10 @@ class _SignDetailSheet extends StatelessWidget {
                     vertical: _s4,
                   ),
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.12),
+                    color: accent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: accent.withOpacity(0.28),
+                      color: accent.withValues(alpha: 0.28),
                       width: 1,
                     ),
                   ),
@@ -2713,10 +2713,10 @@ class _SignDetailSheet extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(_s16),
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.06),
+                    color: accent.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: accent.withOpacity(0.20),
+                      color: accent.withValues(alpha: 0.20),
                       width: 1,
                     ),
                   ),
@@ -2800,7 +2800,7 @@ class _SignDetailDialog extends StatelessWidget {
             border: Border.all(color: bord, width: 1),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(d ? 0.40 : 0.18),
+                color: Colors.black.withValues(alpha: d ? 0.40 : 0.18),
                 blurRadius: 44,
                 offset: const Offset(0, 20),
               ),
@@ -2812,7 +2812,7 @@ class _SignDetailDialog extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(_s20, _s16, _s20, _s12),
                 decoration: BoxDecoration(
-                  color: surf.withOpacity(0.78),
+                  color: surf.withValues(alpha: 0.78),
                   border: Border(bottom: BorderSide(color: bord, width: 1)),
                 ),
                 child: Row(
@@ -2821,10 +2821,10 @@ class _SignDetailDialog extends StatelessWidget {
                       width: 42,
                       height: 42,
                       decoration: BoxDecoration(
-                        color: accent.withOpacity(0.12),
+                        color: accent.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: accent.withOpacity(0.24),
+                          color: accent.withValues(alpha: 0.24),
                           width: 1,
                         ),
                       ),
@@ -2918,12 +2918,12 @@ class _SignDetailSheetContent extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  accent.withOpacity(d ? 0.20 : 0.12),
-                  accent.withOpacity(d ? 0.08 : 0.04),
+                  accent.withValues(alpha: d ? 0.20 : 0.12),
+                  accent.withValues(alpha: d ? 0.08 : 0.04),
                 ],
               ),
               borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: accent.withOpacity(0.28), width: 1),
+              border: Border.all(color: accent.withValues(alpha: 0.28), width: 1),
             ),
             child: Column(
               children: [
@@ -2932,14 +2932,14 @@ class _SignDetailSheetContent extends StatelessWidget {
                   height: 104,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: accent.withOpacity(0.16),
+                    color: accent.withValues(alpha: 0.16),
                     border: Border.all(
-                      color: accent.withOpacity(0.36),
+                      color: accent.withValues(alpha: 0.36),
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: accent.withOpacity(d ? 0.22 : 0.14),
+                        color: accent.withValues(alpha: d ? 0.22 : 0.14),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -2972,10 +2972,10 @@ class _SignDetailSheetContent extends StatelessWidget {
                     vertical: _s4,
                   ),
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.13),
+                    color: accent.withValues(alpha: 0.13),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: accent.withOpacity(0.30),
+                      color: accent.withValues(alpha: 0.30),
                       width: 1,
                     ),
                   ),
@@ -3008,9 +3008,9 @@ class _SignDetailSheetContent extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(_s16),
             decoration: BoxDecoration(
-              color: accent.withOpacity(0.08),
+              color: accent.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: accent.withOpacity(0.22), width: 1),
+              border: Border.all(color: accent.withValues(alpha: 0.22), width: 1),
             ),
             child: Row(
               children: [
@@ -3019,7 +3019,7 @@ class _SignDetailSheetContent extends StatelessWidget {
                   height: 36,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: accent.withOpacity(0.16),
+                    color: accent.withValues(alpha: 0.16),
                   ),
                   child: Icon(Icons.videocam_rounded, color: accent, size: 18),
                 ),
@@ -3092,7 +3092,7 @@ class _DetailRow extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: accent.withOpacity(0.10),
+              color: accent.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: accent, size: 13),
@@ -3137,8 +3137,8 @@ class _EmptyState extends StatelessWidget {
             height: 72,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: accent.withOpacity(0.08),
-              border: Border.all(color: accent.withOpacity(0.20), width: 1),
+              color: accent.withValues(alpha: 0.08),
+              border: Border.all(color: accent.withValues(alpha: 0.20), width: 1),
             ),
             child: Icon(Icons.search_off_rounded, color: sub, size: 28),
           ),
@@ -3162,3 +3162,4 @@ class _EmptyState extends StatelessWidget {
 const _s6 = 6.0;
 const _s10 = 10.0;
 const _s14 = 14.0;
+

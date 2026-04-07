@@ -370,7 +370,7 @@ class _EmergencySetupScreenState extends State<EmergencySetupScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withOpacity(0.40),
+      barrierColor: Colors.black.withValues(alpha: 0.40),
       builder: (_) => _ContactFormSheet(
         existing: existing,
         isDark: Theme.of(context).brightness == Brightness.dark,
@@ -428,7 +428,7 @@ void showCupertinoStyleDialog({
 
   showDialog(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.35),
+    barrierColor: Colors.black.withValues(alpha: 0.35),
     builder: (_) => Dialog(
       backgroundColor: bg,
       shape: RoundedRectangleBorder(
@@ -493,7 +493,7 @@ class _AppleNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg      = isDark ? _dSurface.withOpacity(0.94) : Colors.white.withOpacity(0.94);
+    final bg      = isDark ? _dSurface.withValues(alpha: 0.94) : Colors.white.withValues(alpha: 0.94);
     final border  = isDark ? _dBorder  : _lBorder;
     final textClr = isDark ? _dText    : _lText;
     final accent  = isDark ? _infoD    : _info;
@@ -540,9 +540,9 @@ class _PillBadge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: _sp10, vertical: _sp4),
     decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.25), width: 0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.25), width: 0.5)),
     child: Text(label, style: _caption(color, w: FontWeight.w700)),
   );
 }
@@ -607,14 +607,14 @@ class _EmptyState extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: border, width: 0.5),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(isDark ? 0.20 : 0.04),
+            BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.04),
                 blurRadius: 20, offset: const Offset(0, 4)),
           ]),
       child: Column(children: [
         Container(
             width: 60, height: 60,
             decoration: BoxDecoration(
-                color: accent.withOpacity(0.08),
+                color: accent.withValues(alpha: 0.08),
                 shape: BoxShape.circle),
             child: Icon(Icons.person_add_rounded, color: accent, size: 26)),
         const SizedBox(height: _sp16),
@@ -649,7 +649,7 @@ class _ContactList extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: border, width: 0.5),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(isDark ? 0.20 : 0.04),
+            BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.04),
                 blurRadius: 20, offset: const Offset(0, 4)),
           ]),
       child: ClipRRect(
@@ -712,7 +712,7 @@ class _ContactCellState extends State<_ContactCell> {
             Container(
               width: 46, height: 46,
               decoration: BoxDecoration(
-                  color: accent.withOpacity(0.12),
+                  color: accent.withValues(alpha: 0.12),
                   shape: BoxShape.circle),
               child: Center(child: Text(initial,
                   style: TextStyle(fontFamily: _fontFamily, fontSize: 18,
@@ -763,7 +763,7 @@ class _ContactCellState extends State<_ContactCell> {
     showModalBottomSheet(
       context: ctx,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withOpacity(0.3),
+      barrierColor: Colors.black.withValues(alpha: 0.3),
       builder: (_) => Padding(
         padding: EdgeInsets.fromLTRB(_sp16, 0, _sp16,
             MediaQuery.of(ctx).padding.bottom + _sp8),
@@ -775,7 +775,7 @@ class _ContactCellState extends State<_ContactCell> {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: border, width: 0.5),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.12),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.12),
                       blurRadius: 24, offset: const Offset(0, 8)),
                 ]),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -889,9 +889,9 @@ class _MicroChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: _sp6, vertical: 2),
     decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.20), width: 0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.20), width: 0.5)),
     child: Text(label, style: _caption(color, w: FontWeight.w600)),
   );
 }
@@ -925,7 +925,7 @@ class _AddButtonState extends State<_AddButton> {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: border, width: 0.5),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(widget.isDark ? 0.18 : 0.04),
+              BoxShadow(color: Colors.black.withValues(alpha: widget.isDark ? 0.18 : 0.04),
                   blurRadius: 16, offset: const Offset(0, 3)),
             ]),
         padding: const EdgeInsets.symmetric(horizontal: _sp16, vertical: _sp14),
@@ -1003,7 +1003,7 @@ class _CapabilitiesCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: border, width: 0.5),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(isDark ? 0.18 : 0.04),
+            BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
                 blurRadius: 16, offset: const Offset(0, 3)),
           ]),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -1026,7 +1026,7 @@ class _CapabilitiesCard extends StatelessWidget {
               Container(
                   width: 44, height: 44,
                   decoration: BoxDecoration(
-                      color: ac.withOpacity(0.08),
+                      color: ac.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12)),
                   child: Icon(cap.$2, color: ac, size: 20)),
               const SizedBox(height: _sp8),
@@ -1066,14 +1066,14 @@ class _ShakeInfoCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: border, width: 0.5),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(isDark ? 0.16 : 0.04),
+            BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.16 : 0.04),
                 blurRadius: 14, offset: const Offset(0, 3)),
           ]),
       child: Row(children: [
         Container(
             width: 44, height: 44,
             decoration: BoxDecoration(
-                color: accent.withOpacity(0.08),
+                color: accent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12)),
             child: Icon(Icons.vibration_rounded, color: accent, size: 20)),
         const SizedBox(width: _sp14),
@@ -1119,7 +1119,7 @@ class _WebPageHeader extends StatelessWidget {
         Container(
             width: 50, height: 50,
             decoration: BoxDecoration(
-                color: iconBg.withOpacity(0.08),
+                color: iconBg.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(14)),
             child: Icon(Icons.contacts_rounded, color: iconBg, size: 22)),
         const SizedBox(width: _sp14),
@@ -1208,10 +1208,10 @@ class _WebAddButtonState extends State<_WebAddButton> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: _sp14),
           decoration: BoxDecoration(
-              color: _hovered ? accent.withOpacity(0.05) : Colors.transparent,
+              color: _hovered ? accent.withValues(alpha: 0.05) : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                  color: _hovered ? accent.withOpacity(0.30) : border,
+                  color: _hovered ? accent.withValues(alpha: 0.30) : border,
                   width: _hovered ? 1.0 : 0.5)),
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Icon(Icons.add_rounded, color: accent, size: 16),
@@ -1300,7 +1300,7 @@ class _ContactFormSheetState extends State<_ContactFormSheet> {
             color: bg,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.20),
+              BoxShadow(color: Colors.black.withValues(alpha: 0.20),
                   blurRadius: 40, offset: const Offset(0, -4)),
             ],
           ),
@@ -1414,12 +1414,12 @@ class _ContactFormSheetState extends State<_ContactFormSheet> {
                                   horizontal: _sp12, vertical: _sp8),
                               decoration: BoxDecoration(
                                   color: selected
-                                      ? chipAccent.withOpacity(0.10)
+                                      ? chipAccent.withValues(alpha: 0.10)
                                       : unselBg,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                       color: selected
-                                          ? chipAccent.withOpacity(0.35)
+                                          ? chipAccent.withValues(alpha: 0.35)
                                           : unselBorder,
                                       width: selected ? 1.0 : 0.5)),
                               child: Text(_relationLabel(l, r),
@@ -1616,7 +1616,7 @@ class _FilledBtnState extends State<_FilledBtn> {
         duration: const Duration(milliseconds: 80),
         height: 50,
         decoration: BoxDecoration(
-            color: widget.color.withOpacity(_pressed ? 0.80 : 1.0),
+            color: widget.color.withValues(alpha: _pressed ? 0.80 : 1.0),
             borderRadius: BorderRadius.circular(10)),
         alignment: Alignment.center,
         child: widget.loading

@@ -664,7 +664,7 @@ class _SosDialog extends StatelessWidget {
           border: Border.all(color: t.border2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.55 : 0.12),
+              color: Colors.black.withValues(alpha: isDark ? 0.55 : 0.12),
               blurRadius: 40,
               offset: const Offset(0, 16),
             ),
@@ -694,10 +694,10 @@ class _SosDialog extends StatelessWidget {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: accentColor.withOpacity(isDark ? 0.12 : 0.08),
+                          color: accentColor.withValues(alpha: isDark ? 0.12 : 0.08),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: accentColor.withOpacity(0.22),
+                            color: accentColor.withValues(alpha: 0.22),
                           ),
                         ),
                         child: Icon(
@@ -748,14 +748,14 @@ class _SosDialog extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: a.isPrimary
                                         ? accentColor
-                                        : accentColor.withOpacity(
+                                        : accentColor.withValues(alpha: 
                                             isDark ? 0.08 : 0.06,
                                           ),
                                     borderRadius: BorderRadius.circular(11),
                                     border: Border.all(
                                       color: a.isPrimary
                                           ? accentColor
-                                          : accentColor.withOpacity(0.22),
+                                          : accentColor.withValues(alpha: 0.22),
                                     ),
                                   ),
                                   child: Center(
@@ -831,7 +831,7 @@ class _DesktopSOSDialogState extends State<_DesktopSOSDialog> {
           border: Border.all(color: t.border2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(widget.isDark ? 0.55 : 0.12),
+              color: Colors.black.withValues(alpha: widget.isDark ? 0.55 : 0.12),
               blurRadius: 40,
               offset: const Offset(0, 16),
             ),
@@ -861,12 +861,12 @@ class _DesktopSOSDialogState extends State<_DesktopSOSDialog> {
                         width: 38,
                         height: 38,
                         decoration: BoxDecoration(
-                          color: _DT.crimson.withOpacity(
+                          color: _DT.crimson.withValues(alpha: 
                             widget.isDark ? 0.10 : 0.07,
                           ),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: _DT.crimson.withOpacity(0.2),
+                            color: _DT.crimson.withValues(alpha: 0.2),
                           ),
                         ),
                         child: const Icon(
@@ -975,17 +975,17 @@ class _DesktopSOSDialogState extends State<_DesktopSOSDialog> {
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
                               color: _copied
-                                  ? _DT.green.withOpacity(
+                                  ? _DT.green.withValues(alpha: 
                                       widget.isDark ? 0.12 : 0.08,
                                     )
-                                  : _DT.violet.withOpacity(
+                                  : _DT.violet.withValues(alpha: 
                                       widget.isDark ? 0.10 : 0.07,
                                     ),
                               borderRadius: BorderRadius.circular(11),
                               border: Border.all(
                                 color: _copied
-                                    ? _DT.green.withOpacity(0.3)
-                                    : _DT.violet.withOpacity(0.25),
+                                    ? _DT.green.withValues(alpha: 0.3)
+                                    : _DT.violet.withValues(alpha: 0.25),
                               ),
                             ),
                             child: Row(
@@ -1116,7 +1116,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
           border: Border.all(color: t.border2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.6 : 0.14),
+              color: Colors.black.withValues(alpha: isDark ? 0.6 : 0.14),
               blurRadius: 48,
               offset: const Offset(0, 20),
             ),
@@ -1147,12 +1147,12 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: _DT.crimson.withOpacity(
+                            color: _DT.crimson.withValues(alpha: 
                               isDark ? 0.10 : 0.07,
                             ),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: _DT.crimson.withOpacity(0.22),
+                              color: _DT.crimson.withValues(alpha: 0.22),
                             ),
                           ),
                           child: const Icon(
@@ -1199,14 +1199,14 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                             (widget.location.isAvailable
                                     ? _DT.green
                                     : _DT.amber)
-                                .withOpacity(isDark ? 0.08 : 0.06),
+                                .withValues(alpha: isDark ? 0.08 : 0.06),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color:
                               (widget.location.isAvailable
                                       ? _DT.green
                                       : _DT.amber)
-                                  .withOpacity(0.22),
+                                  .withValues(alpha: 0.22),
                         ),
                       ),
                       child: Row(
@@ -1259,7 +1259,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
                             color: contact.isPrimary
-                                ? _DT.crimson.withOpacity(0.28)
+                                ? _DT.crimson.withValues(alpha: 0.28)
                                 : t.border,
                           ),
                         ),
@@ -1290,7 +1290,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                                               vertical: 2,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: _DT.violet.withOpacity(
+                                              color: _DT.violet.withValues(alpha: 
                                                 isDark ? 0.10 : 0.07,
                                               ),
                                               borderRadius:
@@ -1314,7 +1314,7 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                                                     vertical: 2,
                                                   ),
                                               decoration: BoxDecoration(
-                                                color: _DT.crimson.withOpacity(
+                                                color: _DT.crimson.withValues(alpha: 
                                                   isDark ? 0.10 : 0.07,
                                                 ),
                                                 borderRadius:
@@ -1383,12 +1383,12 @@ class _WebSOSModalState extends State<_WebSOSModal> {
                         padding: const EdgeInsets.symmetric(vertical: 13),
                         decoration: BoxDecoration(
                           color: _messageCopied
-                              ? _DT.green.withOpacity(isDark ? 0.10 : 0.07)
+                              ? _DT.green.withValues(alpha: isDark ? 0.10 : 0.07)
                               : t.card,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: _messageCopied
-                                ? _DT.green.withOpacity(0.3)
+                                ? _DT.green.withValues(alpha: 0.3)
                                 : t.border2,
                           ),
                         ),
@@ -1472,9 +1472,9 @@ class _ContactActionBtn extends StatelessWidget {
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.28)),
+        border: Border.all(color: color.withValues(alpha: 0.28)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1494,3 +1494,4 @@ class _ContactActionBtn extends StatelessWidget {
     ),
   );
 }
+

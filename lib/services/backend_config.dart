@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 class BackendConfig {
+  static const String defaultWebsocketHost = 'isl-production-57d4.up.railway.app';
+
   static const bool websocketEnabled = bool.fromEnvironment(
     'ISL_WS_ENABLED',
     defaultValue: true,
@@ -18,7 +20,7 @@ class BackendConfig {
 
   static const String _websocketHost = String.fromEnvironment(
     'ISL_WS_HOST',
-    defaultValue: 'isl-production-57d4.up.railway.app',
+    defaultValue: defaultWebsocketHost,
   );
 
   static const String _websocketPath = String.fromEnvironment(
@@ -30,18 +32,26 @@ class BackendConfig {
     final rawUrl = _websocketUrlOverride.isNotEmpty
         ? _websocketUrlOverride
         : '$_websocketScheme://$_websocketHost$_websocketPath';
-    return _normalizeWebsocketUrl(rawUrl);
+    return resolveWebsocketUrl(rawUrl);
   }
 
   // Convenience URL used for preflight diagnostics.
   static String get healthUrl {
-    final ws = Uri.parse(websocketUrl);
-    final httpScheme = ws.scheme == 'wss' ? 'https' : 'http';
-    return ws.replace(scheme: httpScheme, path: '/health').toString();
+    try {
+      final ws = Uri.parse(websocketUrl);
+      final httpScheme = ws.scheme == 'wss' ? 'https' : 'http';
+      return ws.replace(scheme: httpScheme, path: '/health').toString();
+    } catch (_) {
+      return 'https://$defaultWebsocketHost/health';
+    }
   }
 
-  static String _normalizeWebsocketUrl(String rawUrl) {
-    if (kIsWeb) return rawUrl;
+  static String resolveWebsocketUrl(
+    String rawUrl, {
+    bool? isWeb,
+    TargetPlatform? platform,
+  }) {
+    if (isWeb ?? kIsWeb) return rawUrl;
 
     Uri parsed;
     try {
@@ -54,7 +64,8 @@ class BackendConfig {
     final isLoopback = host == '127.0.0.1' || host == 'localhost';
 
     // Android emulators must reach the host machine via 10.0.2.2.
-    if (isLoopback && defaultTargetPlatform == TargetPlatform.android) {
+    final resolvedPlatform = platform ?? defaultTargetPlatform;
+    if (isLoopback && resolvedPlatform == TargetPlatform.android) {
       return parsed.replace(host: '10.0.2.2').toString();
     }
 

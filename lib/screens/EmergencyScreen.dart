@@ -521,7 +521,7 @@ class _MobileTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l       = AppLocalizations.of(context);
-    final bg      = isDark ? _dSurface.withOpacity(0.94) : Colors.white.withOpacity(0.94);
+    final bg      = isDark ? _dSurface.withValues(alpha: 0.94) : Colors.white.withValues(alpha: 0.94);
     final border  = isDark ? _dBorder : _lBorder;
     final textClr = isDark ? _dText   : _lText;
     final subClr  = isDark ? _dTextSub : _lTextSub;
@@ -560,7 +560,7 @@ class _MobileTopBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle, color: accent,
                   boxShadow: [BoxShadow(
-                      color: accent.withOpacity(pulseAnim.value * 0.6),
+                      color: accent.withValues(alpha: pulseAnim.value * 0.6),
                       blurRadius: 8, spreadRadius: 1)],
                 ),
               )),
@@ -659,14 +659,14 @@ class _ScenarioCardState extends State<_ScenarioCard> {
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
                     color: isActive
-                        ? accent.withOpacity(0.35)
+                        ? accent.withValues(alpha: 0.35)
                         : border,
                     width: isActive ? 1.0 : 0.5),
                 boxShadow: [
                   BoxShadow(
                     color: isActive
-                        ? accent.withOpacity(isDark ? 0.15 : 0.08)
-                        : Colors.black.withOpacity(isDark ? 0.20 : 0.05),
+                        ? accent.withValues(alpha: isDark ? 0.15 : 0.08)
+                        : Colors.black.withValues(alpha: isDark ? 0.20 : 0.05),
                     blurRadius: isActive ? 20 : 12,
                     offset: const Offset(0, 4),
                   ),
@@ -684,7 +684,7 @@ class _ScenarioCardState extends State<_ScenarioCard> {
                       Container(
                         width: 42, height: 42,
                         decoration: BoxDecoration(
-                          color: accent.withOpacity(0.10),
+                          color: accent.withValues(alpha: 0.10),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -700,7 +700,7 @@ class _ScenarioCardState extends State<_ScenarioCard> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: _sp8, vertical: _sp4),
                         decoration: BoxDecoration(
-                          color: accent.withOpacity(0.08),
+                          color: accent.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(s.helpline,
@@ -775,9 +775,9 @@ class _WebHero extends StatelessWidget {
         builder: (_, __) => Container(
           padding: const EdgeInsets.symmetric(horizontal: _sp12, vertical: _sp6),
           decoration: BoxDecoration(
-            color: accent.withOpacity(isDark ? 0.10 : 0.07),
+            color: accent.withValues(alpha: isDark ? 0.10 : 0.07),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: accent.withOpacity(0.20), width: 0.5),
+            border: Border.all(color: accent.withValues(alpha: 0.20), width: 0.5),
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Container(
@@ -785,7 +785,7 @@ class _WebHero extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle, color: accent,
                 boxShadow: [BoxShadow(
-                    color: accent.withOpacity(pulseAnim.value * 0.50),
+                    color: accent.withValues(alpha: pulseAnim.value * 0.50),
                     blurRadius: 6, spreadRadius: 1)],
               ),
             ),
@@ -855,7 +855,7 @@ class _HelplinesCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: border, width: 0.5),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(isDark ? 0.18 : 0.04),
+            BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
                 blurRadius: 16, offset: const Offset(0, 3)),
           ]),
       child: ClipRRect(
@@ -911,9 +911,9 @@ class _AutoDetectCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: accent.withOpacity(0.30), width: 1.0),
+          border: Border.all(color: accent.withValues(alpha: 0.30), width: 1.0),
           boxShadow: [
-            BoxShadow(color: accent.withOpacity(isDark ? 0.10 : 0.06),
+            BoxShadow(color: accent.withValues(alpha: isDark ? 0.10 : 0.06),
                 blurRadius: 16, offset: const Offset(0, 4)),
           ],
         ),
@@ -921,7 +921,7 @@ class _AutoDetectCard extends StatelessWidget {
           Container(
               width: 42, height: 42,
               decoration: BoxDecoration(
-                  color: accent.withOpacity(0.10),
+                  color: accent.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(12)),
               child: Icon(scenario.icon, color: accent, size: 20)),
           const SizedBox(width: _sp12),
@@ -952,9 +952,9 @@ class _StatusBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final color  = ok ? (isDark ? _successD : _success) : (isDark ? _dangerD : _danger);
     final bgClr  = ok
-        ? (isDark ? _successD.withOpacity(0.10) : _successSoft)
-        : (isDark ? _dangerD.withOpacity(0.10)  : _dangerSoft);
-    final borderC = color.withOpacity(0.25);
+        ? (isDark ? _successD.withValues(alpha: 0.10) : _successSoft)
+        : (isDark ? _dangerD.withValues(alpha: 0.10)  : _dangerSoft);
+    final borderC = color.withValues(alpha: 0.25);
     final icon   = ok ? Icons.check_circle_rounded : Icons.error_outline_rounded;
 
     return TweenAnimationBuilder<double>(
@@ -993,8 +993,8 @@ class _NoContactsBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final l      = AppLocalizations.of(context);
     final amber  = isDark ? _warningD : _warning;
-    final bgClr  = isDark ? _warningD.withOpacity(0.08) : _warningSoft;
-    final border = amber.withOpacity(0.20);
+    final bgClr  = isDark ? _warningD.withValues(alpha: 0.08) : _warningSoft;
+    final border = amber.withValues(alpha: 0.20);
 
     return GestureDetector(
       onTap: onTap,
@@ -1043,14 +1043,14 @@ class _ShakeCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: border, width: 0.5),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(isDark ? 0.18 : 0.04),
+            BoxShadow(color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
                 blurRadius: 14, offset: const Offset(0, 3)),
           ]),
       child: Row(children: [
         Container(
             width: 42, height: 42,
             decoration: BoxDecoration(
-                color: accent.withOpacity(0.08),
+                color: accent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12)),
             child: Icon(Icons.vibration_rounded, color: accent, size: 20)),
         const SizedBox(width: _sp14),
@@ -1107,7 +1107,7 @@ class _ContactsButtonState extends State<_ContactsButton> {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
                 color: (_hovered || _pressed)
-                    ? accent.withOpacity(0.25) : border,
+                    ? accent.withValues(alpha: 0.25) : border,
                 width: 0.5),
           ),
           child: Row(children: [

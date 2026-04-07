@@ -128,7 +128,7 @@ class _SOSFloatingButtonState extends State<SOSFloatingButton>
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFFDC2626)
-                          .withOpacity(_expanded ? 0.25 : 0.45),
+                          .withValues(alpha: _expanded ? 0.25 : 0.45),
                       blurRadius: _expanded ? 14 : 22,
                       offset: const Offset(0, 5),
                     ),
@@ -265,17 +265,17 @@ class _QuickBtnState extends State<_QuickBtn> {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: widget.isDark
-                ? const Color(0xFF0D0D1A).withOpacity(0.92)
-                : Colors.white.withOpacity(0.96),
+                ? const Color(0xFF0D0D1A).withValues(alpha: 0.92)
+                : Colors.white.withValues(alpha: 0.96),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: widget.color.withOpacity(widget.isDark ? 0.28 : 0.22)),
+              color: widget.color.withValues(alpha: widget.isDark ? 0.28 : 0.22)),
             boxShadow: [
               BoxShadow(
-                color: widget.color.withOpacity(widget.isDark ? 0.14 : 0.08),
+                color: widget.color.withValues(alpha: widget.isDark ? 0.14 : 0.08),
                 blurRadius: 16, offset: const Offset(0, 4)),
               BoxShadow(
-                color: Colors.black.withOpacity(widget.isDark ? 0.40 : 0.08),
+                color: Colors.black.withValues(alpha: widget.isDark ? 0.40 : 0.08),
                 blurRadius: 12, offset: const Offset(0, 3)),
             ],
           ),
@@ -283,10 +283,10 @@ class _QuickBtnState extends State<_QuickBtn> {
             Container(
               width: 28, height: 28,
               decoration: BoxDecoration(
-                color: widget.color.withOpacity(widget.isDark ? 0.12 : 0.08),
+                color: widget.color.withValues(alpha: widget.isDark ? 0.12 : 0.08),
                 borderRadius: BorderRadius.circular(7),
                 border: Border.all(
-                  color: widget.color.withOpacity(0.22))),
+                  color: widget.color.withValues(alpha: 0.22))),
               child: Icon(widget.icon, color: widget.color, size: 14)),
             const SizedBox(width: 10),
             Text(

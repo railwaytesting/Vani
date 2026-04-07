@@ -169,7 +169,7 @@ class _VaniAppState extends State<VaniApp> {
         scaffoldBackgroundColor: _lBg,
         cardColor: _lSurface,
         canvasColor: _lBg,
-        dividerColor: _lSeparator.withOpacity(0.36),
+        dividerColor: _lSeparator.withValues(alpha: 0.36),
         splashFactory: NoSplash.splashFactory,
         highlightColor: Colors.transparent,
         colorScheme: const ColorScheme.light(
@@ -199,8 +199,8 @@ class _VaniAppState extends State<VaniApp> {
           iconTheme: IconThemeData(color: _kAppleBlue, size: 22),
         ),
         navigationBarTheme: NavigationBarThemeData(
-          backgroundColor: _lSurface.withOpacity(0.92),
-          indicatorColor: _kAppleBlue.withOpacity(0.12),
+          backgroundColor: _lSurface.withValues(alpha: 0.92),
+          indicatorColor: _kAppleBlue.withValues(alpha: 0.12),
           labelTextStyle: WidgetStateProperty.all(
             const TextStyle(
               fontFamily: appFont,
@@ -258,8 +258,8 @@ class _VaniAppState extends State<VaniApp> {
           iconTheme: IconThemeData(color: _kAppleBlueDark, size: 22),
         ),
         navigationBarTheme: NavigationBarThemeData(
-          backgroundColor: _dSurface.withOpacity(0.92),
-          indicatorColor: _kAppleBlueDark.withOpacity(0.18),
+          backgroundColor: _dSurface.withValues(alpha: 0.92),
+          indicatorColor: _kAppleBlueDark.withValues(alpha: 0.18),
           labelTextStyle: WidgetStateProperty.all(
             const TextStyle(
               fontFamily: appFont,
@@ -288,8 +288,8 @@ class _VaniAppState extends State<VaniApp> {
   TextTheme _buildTextTheme(Brightness b, String font) {
     final base = b == Brightness.dark ? _dLabel : _lLabel;
     final muted = b == Brightness.dark
-        ? _dLabel2.withOpacity(0.60)
-        : _lLabel2.withOpacity(0.60);
+        ? _dLabel2.withValues(alpha: 0.60)
+        : _lLabel2.withValues(alpha: 0.60);
     return TextTheme(
       // Large Title — 34pt, regular
       displayLarge: TextStyle(
@@ -515,3 +515,4 @@ class _RootShellState extends State<RootShell> {
     );
   }
 }
+

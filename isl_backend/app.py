@@ -8,7 +8,7 @@ import os
 import time
 import logging
 from collections import deque
-import gdown
+from urllib.request import urlopen
 from ultralytics import YOLO
 
 # ─────────────────────────────────────────────
@@ -26,9 +26,22 @@ log = logging.getLogger("vani")
 # ─────────────────────────────────────────────
 app = FastAPI(title="VANI ISL Backend", version="2.2.0")
 
+
+def _parse_csv_env(name: str) -> list[str]:
+    raw = os.getenv(name, "")
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
+cors_origins = _parse_csv_env("VANI_CORS_ORIGINS")
+cors_origin_regex = os.getenv(
+    "VANI_CORS_ORIGIN_REGEX",
+    r"^(https?://(localhost|127\.0\.0\.1)(:\d+)?|https://.*\.up\.railway\.app)$",
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
+    allow_origin_regex=None if cors_origins else cors_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,6 +55,15 @@ MODEL_PATH = os.path.join("model", "isl_best.pt")
 # Direct ID from your link
 FILE_ID = "1TcCNyM1MtbixlN3wZgFttOlvuJutTPqB"
 
+
+def _download_model(url: str, destination: str) -> None:
+    with urlopen(url) as response, open(destination, "wb") as target:
+        while True:
+            chunk = response.read(1024 * 1024)
+            if not chunk:
+                break
+            target.write(chunk)
+
 def initialize_model():
     """Downloads model if missing/corrupt and loads into memory."""
     # 1. Clean up old/failed downloads (HTML error pages are usually < 1MB)
@@ -54,7 +76,7 @@ def initialize_model():
         try:
             log.info(f"📥 Downloading model ID: {FILE_ID}")
             url = f"https://drive.google.com/uc?id={FILE_ID}"
-            gdown.download(url, MODEL_PATH, quiet=False)
+            _download_model(url, MODEL_PATH)
             log.info("✅ Download complete!")
         except Exception as e:
             log.error(f"❌ Download failed: {e}")
@@ -65,7 +87,7 @@ def initialize_model():
         # Note: 'ultralytics>=8.3.0' is required for YOLOv11 (C3k2 layer)
         loaded_model = YOLO(MODEL_PATH)
         loaded_model.to("cpu")
-        loaded_model.fuse() 
+        loaded_model.fuse()
         log.info(f"✅ YOLO Model loaded successfully from {MODEL_PATH}")
         return loaded_model
     except Exception as e:
@@ -146,7 +168,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     continue
 
                 # Run Inference in thread pool to keep loop responsive
-                loop = asyncio.get_event_loop()
+                loop = asyncio.get_running_loop()
                 results = await loop.run_in_executor(None, lambda: model.predict(
                     frame, 
                     device="cpu", 

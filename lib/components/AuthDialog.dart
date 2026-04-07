@@ -56,7 +56,7 @@ const _kCardBorder  = Color(0xB0C8D2F0);
 void showAuthDialog(BuildContext context) {
   showDialog(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.40),
+    barrierColor: Colors.black.withValues(alpha: 0.40),
     builder: (_) => const _VaniAuthDialog(),
   );
 }
@@ -142,7 +142,7 @@ class _VaniBlobBackground extends StatelessWidget {
               left: -s * 0.48,
               child: _Orb(
                 size: s * 1.62,
-                color: _kBrandBlue.withOpacity(0.18),
+                color: _kBrandBlue.withValues(alpha: 0.18),
               ),
             ),
             Positioned(
@@ -150,7 +150,7 @@ class _VaniBlobBackground extends StatelessWidget {
               right: -s * 0.42,
               child: _Orb(
                 size: s * 1.34,
-                color: _kViolet.withOpacity(0.14),
+                color: _kViolet.withValues(alpha: 0.14),
               ),
             ),
             Positioned(
@@ -158,7 +158,7 @@ class _VaniBlobBackground extends StatelessWidget {
               left: w * 0.24,
               child: _Orb(
                 size: s * 1.08,
-                color: _kCyan.withOpacity(0.12),
+                color: _kCyan.withValues(alpha: 0.12),
               ),
             ),
             Positioned(
@@ -187,9 +187,9 @@ class _VaniBlobBackground extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        _kBrandBlue.withOpacity(0.06),
+                        _kBrandBlue.withValues(alpha: 0.06),
                         Colors.transparent,
-                        _kCyan.withOpacity(0.04),
+                        _kCyan.withValues(alpha: 0.04),
                       ],
                     ),
                   ),
@@ -199,7 +199,7 @@ class _VaniBlobBackground extends StatelessWidget {
             Positioned.fill(
               child: CustomPaint(
                 painter: _DotGridPainter(
-                  color: _kBrandBlue.withOpacity(0.060),
+                  color: _kBrandBlue.withValues(alpha: 0.060),
                 ),
               ),
             ),
@@ -281,12 +281,12 @@ class _BorderCircle extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: color.withOpacity(0.22),
+          color: color.withValues(alpha: 0.22),
           width: stroke,
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.07),
+            color: color.withValues(alpha: 0.07),
             blurRadius: 14,
             spreadRadius: 0.5,
           ),
@@ -320,13 +320,13 @@ class _AmbientBeam extends StatelessWidget {
             end: Alignment.centerRight,
             colors: [
               Colors.transparent,
-              color.withOpacity(0.08),
+              color.withValues(alpha: 0.08),
               Colors.transparent,
             ],
           ),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.08),
+              color: color.withValues(alpha: 0.08),
               blurRadius: 28,
               spreadRadius: 2,
             ),
@@ -372,7 +372,7 @@ class _ArcPainter extends CustomPainter {
   void paint(Canvas canvas, Size s) {
     void arc(double r, double op) {
       final glow = Paint()
-        ..color = color.withOpacity(op * 0.052)
+        ..color = color.withValues(alpha: op * 0.052)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.0
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.2);
@@ -385,7 +385,7 @@ class _ArcPainter extends CustomPainter {
       );
 
       final p = Paint()
-        ..color = color.withOpacity(op * 0.40)
+        ..color = color.withValues(alpha: op * 0.40)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 0.95;
       canvas.drawArc(
@@ -634,7 +634,7 @@ class _VaniAuthCardState extends State<VaniAuthCard>
 
                   const SizedBox(height: 4),
                   Text(l.t('auth_footer_tagline'),
-                      style: _body(11.5, textMuted.withOpacity(0.75))),
+                      style: _body(11.5, textMuted.withValues(alpha: 0.75))),
                   const SizedBox(height: _sp20),
 
                   // ── Segment tabs ─────────────────────────────────────
@@ -667,8 +667,9 @@ class _VaniAuthCardState extends State<VaniAuthCard>
                     prefix: Icons.alternate_email_rounded,
                     errorColor: errorC,
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty)
+                      if (v == null || v.trim().isEmpty) {
                         return l.t('auth_username_required');
+                      }
                       if (v.trim().length < 3) return l.t('auth_min_3_chars');
                       return null;
                     },
@@ -695,8 +696,9 @@ class _VaniAuthCardState extends State<VaniAuthCard>
                       keyboardType: TextInputType.phone,
                       errorColor: errorC,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty)
+                        if (v == null || v.trim().isEmpty) {
                           return l.t('auth_phone_required');
+                        }
                         if (v.trim().length < 7) return l.t('auth_phone_invalid');
                         return null;
                       },
@@ -725,8 +727,9 @@ class _VaniAuthCardState extends State<VaniAuthCard>
                     ),
                     validator: (v) {
                       if (v == null || v.isEmpty) return l.t('auth_required');
-                      if (!_isLogin && v.length < 6)
+                      if (!_isLogin && v.length < 6) {
                         return l.t('auth_min_6_chars');
+                      }
                       return null;
                     },
                   ),
@@ -763,7 +766,7 @@ class _VaniAuthCardState extends State<VaniAuthCard>
                             backgroundColor: _kBrandBlue,
                             foregroundColor: Colors.white,
                             disabledBackgroundColor:
-                                _kBrandBlue.withOpacity(0.55),
+                                _kBrandBlue.withValues(alpha: 0.55),
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10))),
@@ -792,17 +795,17 @@ class _VaniAuthCardState extends State<VaniAuthCard>
                       Container(
                           width: 5, height: 5,
                           decoration: BoxDecoration(
-                              color: _kBrandBlue.withOpacity(0.25),
+                              color: _kBrandBlue.withValues(alpha: 0.25),
                               shape: BoxShape.circle)),
                       const SizedBox(width: 8),
                         Text(
                           l.t('auth_footer_community'),
-                          style: _body(10, textMuted.withOpacity(0.60))),
+                          style: _body(10, textMuted.withValues(alpha: 0.60))),
                       const SizedBox(width: 8),
                       Container(
                           width: 5, height: 5,
                           decoration: BoxDecoration(
-                              color: _kBrandBlue.withOpacity(0.25),
+                              color: _kBrandBlue.withValues(alpha: 0.25),
                               shape: BoxShape.circle)),
                     ],
                   ),
@@ -908,7 +911,7 @@ class _AuthField extends StatelessWidget {
         style: _body(14, textPri),
         decoration: InputDecoration(
           hintText:   hint,
-          hintStyle:  _body(14, textMuted.withOpacity(0.45)),
+          hintStyle:  _body(14, textMuted.withValues(alpha: 0.45)),
           prefixIcon: Icon(prefix, color: textMuted, size: 17),
           suffixIcon: suffix,
           filled:     true,

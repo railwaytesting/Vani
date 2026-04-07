@@ -218,6 +218,14 @@ WebSocket settings are read from `--dart-define` values or the `.env.*` files:
 - `ISL_WS_URL`
 - `ISL_WS_SCHEME`
 - `ISL_WS_HOST`
+- `VANI_CORS_ORIGINS` for backend CORS allow-list, comma-separated
+- `VANI_CORS_ORIGIN_REGEX` as a fallback allow pattern for local dev and Railway web deploys
+
+## Validation
+
+- Flutter analyzer and tests are covered by CI in `.github/workflows/ci.yml`
+- WebSocket URL routing is centralized in `lib/services/backend_config.dart`
+- Backend CORS is no longer wide open by default; production origins should be supplied through environment variables
 - `ISL_WS_PATH`
 
 Recommended files:

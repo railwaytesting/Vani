@@ -298,7 +298,7 @@ class _AppIconPainter extends CustomPainter {
           Rect.fromLTWH(0, 3, w, h),
           Radius.circular(iconRadius)),
       Paint()
-        ..color = Colors.black.withOpacity(0.08)
+        ..color = Colors.black.withValues(alpha: 0.08)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16),
     );
 
@@ -309,7 +309,7 @@ class _AppIconPainter extends CustomPainter {
     // Subtle border
     canvas.drawRRect(iconRRect,
         Paint()
-          ..color = Colors.black.withOpacity(0.06)
+          ..color = Colors.black.withValues(alpha: 0.06)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 0.5);
 
@@ -321,7 +321,7 @@ class _AppIconPainter extends CustomPainter {
       // Track (ghost ring)
       canvas.drawCircle(Offset(cx, cy), arcR,
           Paint()
-            ..color = _blue.withOpacity(0.07)
+            ..color = _blue.withValues(alpha: 0.07)
             ..strokeWidth = 3.0
             ..style = PaintingStyle.stroke);
 
@@ -361,7 +361,7 @@ class _AppIconPainter extends CustomPainter {
       canvas.scale(handScale * 0.52);
       canvas.translate(-cx, -cy);
 
-      final handColor = _blue.withOpacity(handOpacity * 0.90);
+      final handColor = _blue.withValues(alpha: handOpacity * 0.90);
 
       // Palm
       canvas.drawRRect(
@@ -387,7 +387,7 @@ class _AppIconPainter extends CustomPainter {
           RRect.fromRectAndRadius(
               Rect.fromLTWH(cx + f.$1 - 3.5, cy - fH - 1, 7, fH + 1),
               const Radius.circular(3.5)),
-          Paint()..color = _blue.withOpacity(handOpacity * fp * 0.90),
+          Paint()..color = _blue.withValues(alpha: handOpacity * fp * 0.90),
         );
       }
 

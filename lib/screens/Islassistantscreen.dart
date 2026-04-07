@@ -577,11 +577,11 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
     final accent = isDark ? _purpleDark : _purple;
     final navBlue = isDark ? Color(0xFF4A8EFF) : _info;
     final topCard = isDark
-        ? _dSurface.withOpacity(0.86)
-        : _lSurface.withOpacity(0.94);
+        ? _dSurface.withValues(alpha: 0.86)
+        : _lSurface.withValues(alpha: 0.94);
     final topShadow = isDark
-        ? Colors.black.withOpacity(0.22)
-        : Colors.black.withOpacity(0.05);
+        ? Colors.black.withValues(alpha: 0.22)
+        : Colors.black.withValues(alpha: 0.05);
 
     return Scaffold(
       backgroundColor: bg,
@@ -593,7 +593,7 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
               top: -120,
               right: -70,
               child: _AssistantOrb(
-                color: accent.withOpacity(isDark ? 0.16 : 0.10),
+                color: accent.withValues(alpha: isDark ? 0.16 : 0.10),
                 size: 280,
               ),
             ),
@@ -601,7 +601,7 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
               top: 160,
               left: -90,
               child: _AssistantOrb(
-                color: _primary.withOpacity(isDark ? 0.14 : 0.09),
+                color: _primary.withValues(alpha: isDark ? 0.14 : 0.09),
                 size: 240,
               ),
             ),
@@ -614,12 +614,12 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
                       end: Alignment.bottomCenter,
                       colors: isDark
                           ? [
-                              Colors.white.withOpacity(0.02),
+                              Colors.white.withValues(alpha: 0.02),
                               Colors.transparent,
                               Colors.transparent,
                             ]
                           : [
-                              _primary.withOpacity(0.04),
+                              _primary.withValues(alpha: 0.04),
                               Colors.transparent,
                               Colors.transparent,
                             ],
@@ -669,12 +669,12 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
                                   _sp6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: accent.withOpacity(
+                                  color: accent.withValues(alpha: 
                                     isDark ? 0.15 : 0.09,
                                   ),
                                   borderRadius: BorderRadius.circular(18),
                                   border: Border.all(
-                                    color: accent.withOpacity(0.22),
+                                    color: accent.withValues(alpha: 0.22),
                                     width: 1,
                                   ),
                                 ),
@@ -688,7 +688,7 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
                                         gradient: LinearGradient(
                                           colors: [
                                             accent,
-                                            accent.withOpacity(0.72),
+                                            accent.withValues(alpha: 0.72),
                                           ],
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
@@ -696,7 +696,7 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: accent.withOpacity(0.24),
+                                            color: accent.withValues(alpha: 0.24),
                                             blurRadius: 8,
                                             offset: const Offset(0, 2),
                                           ),
@@ -718,7 +718,7 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
                                           l.t('app_title_short'),
                                           style: _label(
                                             9.5,
-                                            textClr.withOpacity(0.72),
+                                            textClr.withValues(alpha: 0.72),
                                             w: FontWeight.w700,
                                           ),
                                         ),
@@ -751,10 +751,10 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
                                         vertical: _sp8,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: navBlue.withOpacity(0.08),
+                                        color: navBlue.withValues(alpha: 0.08),
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
-                                          color: navBlue.withOpacity(0.2),
+                                          color: navBlue.withValues(alpha: 0.2),
                                           width: 1,
                                         ),
                                       ),
@@ -800,14 +800,14 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
                                       height: 38,
                                       decoration: BoxDecoration(
                                         color: _ttsEnabled
-                                            ? accent.withOpacity(0.12)
+                                            ? accent.withValues(alpha: 0.12)
                                             : (isDark
                                                   ? _dSurface2
                                                   : _lSurface2),
                                         borderRadius: BorderRadius.circular(11),
                                         border: Border.all(
                                           color: _ttsEnabled
-                                              ? accent.withOpacity(0.3)
+                                              ? accent.withValues(alpha: 0.3)
                                               : border,
                                           width: 1,
                                         ),
@@ -923,7 +923,7 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
             top: -220,
             left: -180,
             child: _AssistantOrb(
-              color: _primary.withOpacity(isDark ? 0.15 : 0.10),
+              color: _primary.withValues(alpha: isDark ? 0.15 : 0.10),
               size: 760,
             ),
           ),
@@ -931,7 +931,7 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
             top: 220,
             right: -160,
             child: _AssistantOrb(
-              color: _purple.withOpacity(isDark ? 0.14 : 0.09),
+              color: _purple.withValues(alpha: isDark ? 0.14 : 0.09),
               size: 620,
             ),
           ),
@@ -939,7 +939,7 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
             bottom: 110,
             left: w * 0.28,
             child: _AssistantOrb(
-              color: _secondary.withOpacity(isDark ? 0.12 : 0.08),
+              color: _secondary.withValues(alpha: isDark ? 0.12 : 0.08),
               size: 500,
             ),
           ),
@@ -972,14 +972,14 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
                     end: Alignment.bottomCenter,
                     colors: isDark
                         ? [
-                            Colors.white.withOpacity(0.018),
+                            Colors.white.withValues(alpha: 0.018),
                             Colors.transparent,
-                            _primary.withOpacity(0.024),
+                            _primary.withValues(alpha: 0.024),
                           ]
                         : [
-                            _primary.withOpacity(0.04),
+                            _primary.withValues(alpha: 0.04),
                             Colors.transparent,
-                            _secondary.withOpacity(0.02),
+                            _secondary.withValues(alpha: 0.02),
                           ],
                   ),
                 ),
@@ -1037,12 +1037,12 @@ class _ISLAssistantScreenState extends State<ISLAssistantScreen>
                     end: Alignment.bottomRight,
                     colors: isDark
                         ? [
-                            Colors.white.withOpacity(0.020),
-                            _primary.withOpacity(0.030),
+                            Colors.white.withValues(alpha: 0.020),
+                            _primary.withValues(alpha: 0.030),
                           ]
                         : [
-                            Colors.white.withOpacity(0.46),
-                            _primary.withOpacity(0.055),
+                            Colors.white.withValues(alpha: 0.46),
+                            _primary.withValues(alpha: 0.055),
                           ],
                   ),
                 ),
@@ -1195,7 +1195,7 @@ class _AssistantArcPainter extends CustomPainter {
   void paint(Canvas canvas, Size s) {
     void arc(double r, double op) {
       final glow = Paint()
-        ..color = color.withOpacity(dark ? op * 0.05 : op * 0.035)
+        ..color = color.withValues(alpha: dark ? op * 0.05 : op * 0.035)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.0
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.2);
@@ -1208,7 +1208,7 @@ class _AssistantArcPainter extends CustomPainter {
       );
 
       final p = Paint()
-        ..color = color.withOpacity(dark ? op * 0.40 : op * 0.30)
+        ..color = color.withValues(alpha: dark ? op * 0.40 : op * 0.30)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.0;
       canvas.drawArc(
@@ -1247,7 +1247,7 @@ class _AssistantRing extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: color.withOpacity(dark ? 0.42 : 0.34),
+          color: color.withValues(alpha: dark ? 0.42 : 0.34),
           width: 1.5,
         ),
         color: Colors.transparent,
@@ -1280,7 +1280,7 @@ class _LangPillRow extends StatelessWidget {
     return Container(
       height: 50,
       decoration: BoxDecoration(
-        color: bg.withOpacity(isDark ? 0.84 : 0.90),
+        color: bg.withValues(alpha: isDark ? 0.84 : 0.90),
         border: Border.all(color: border, width: 1.0),
         borderRadius: BorderRadius.circular(14),
       ),
@@ -1331,7 +1331,7 @@ class _LangPillRow extends StatelessWidget {
                         decoration: BoxDecoration(
                           gradient: active
                               ? LinearGradient(
-                                  colors: [accent, accent.withOpacity(0.76)],
+                                  colors: [accent, accent.withValues(alpha: 0.76)],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 )
@@ -1342,14 +1342,14 @@ class _LangPillRow extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                             color: active
-                                ? accent.withOpacity(0.35)
-                                : border.withOpacity(0.85),
+                                ? accent.withValues(alpha: 0.35)
+                                : border.withValues(alpha: 0.85),
                             width: 1,
                           ),
                           boxShadow: active
                               ? [
                                   BoxShadow(
-                                    color: accent.withOpacity(0.28),
+                                    color: accent.withValues(alpha: 0.28),
                                     blurRadius: 10,
                                     offset: const Offset(0, 2),
                                   ),
@@ -1439,14 +1439,14 @@ class _MsgBubble extends StatelessWidget {
                       height: 24,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [accent, accent.withOpacity(0.7)],
+                          colors: [accent, accent.withValues(alpha: 0.7)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(7),
                         boxShadow: [
                           BoxShadow(
-                            color: accent.withOpacity(0.25),
+                            color: accent.withValues(alpha: 0.25),
                             blurRadius: 6,
                             offset: const Offset(0, 2),
                           ),
@@ -1502,7 +1502,7 @@ class _MsgBubble extends StatelessWidget {
                               : null),
                     color: isError
                         ? (isDark
-                              ? _dangerDark.withOpacity(0.12)
+                              ? _dangerDark.withValues(alpha: 0.12)
                               : _dangerLight)
                         : (_isUser ? null : aiBg),
                     borderRadius: BorderRadius.only(
@@ -1513,7 +1513,7 @@ class _MsgBubble extends StatelessWidget {
                     ),
                     border: isError
                         ? Border.all(
-                            color: (isDark ? _dangerDark : _danger).withOpacity(
+                            color: (isDark ? _dangerDark : _danger).withValues(alpha: 
                               0.35,
                             ),
                             width: 1,
@@ -1524,14 +1524,14 @@ class _MsgBubble extends StatelessWidget {
                     boxShadow: _isUser
                         ? [
                             BoxShadow(
-                              color: _primary.withOpacity(0.20),
+                              color: _primary.withValues(alpha: 0.20),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
                           ]
                         : [
                             BoxShadow(
-                              color: Colors.black.withOpacity(
+                              color: Colors.black.withValues(alpha: 
                                 isDark ? 0.15 : 0.04,
                               ),
                               blurRadius: 8,
@@ -1572,10 +1572,10 @@ class _MsgBubble extends StatelessWidget {
                               vertical: _sp4,
                             ),
                             decoration: BoxDecoration(
-                              color: signAccent.withOpacity(0.10),
+                              color: signAccent.withValues(alpha: 0.10),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: signAccent.withOpacity(0.30),
+                                color: signAccent.withValues(alpha: 0.30),
                                 width: 1,
                               ),
                             ),
@@ -1652,7 +1652,7 @@ class _TypingIndicator extends StatelessWidget {
               height: 24,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [accent, accent.withOpacity(0.7)],
+                  colors: [accent, accent.withValues(alpha: 0.7)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -1696,7 +1696,7 @@ class _TypingIndicator extends StatelessWidget {
                           height: 6,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: accent.withOpacity(0.3 + 0.7 * scale),
+                            color: accent.withValues(alpha: 0.3 + 0.7 * scale),
                           ),
                         ),
                       ),
@@ -1765,12 +1765,12 @@ class _InputBarState extends State<_InputBar> {
         ? (widget.isDark ? _dangerDark : _danger)
         : subClr;
     final micBg = widget.isListening
-        ? (widget.isDark ? _dangerDark.withOpacity(0.15) : _dangerLight)
+        ? (widget.isDark ? _dangerDark.withValues(alpha: 0.15) : _dangerLight)
         : fill;
 
     return Container(
       decoration: BoxDecoration(
-        color: bg.withOpacity(compact ? 0.95 : 1.0),
+        color: bg.withValues(alpha: compact ? 0.95 : 1.0),
         border: Border(
           top: BorderSide(color: border, width: compact ? 0.8 : 1.0),
         ),
@@ -1778,8 +1778,8 @@ class _InputBarState extends State<_InputBar> {
             ? [
                 BoxShadow(
                   color: widget.isDark
-                      ? Colors.black.withOpacity(0.24)
-                      : Colors.black.withOpacity(0.06),
+                      ? Colors.black.withValues(alpha: 0.24)
+                      : Colors.black.withValues(alpha: 0.06),
                   blurRadius: 18,
                   offset: const Offset(0, -4),
                 ),
@@ -1816,14 +1816,14 @@ class _InputBarState extends State<_InputBar> {
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: widget.isListening
-                            ? micColor.withOpacity(0.40)
+                            ? micColor.withValues(alpha: 0.40)
                             : border,
                         width: widget.isListening ? 1.5 : 1.0,
                       ),
                       boxShadow: widget.isListening
                           ? [
                               BoxShadow(
-                                color: micColor.withOpacity(0.25),
+                                color: micColor.withValues(alpha: 0.25),
                                 blurRadius: 10,
                                 spreadRadius: 2,
                               ),
@@ -1913,7 +1913,7 @@ class _InputBarState extends State<_InputBar> {
                           decoration: BoxDecoration(
                             gradient: _hasText
                                 ? LinearGradient(
-                                    colors: [accent, accent.withOpacity(0.75)],
+                                    colors: [accent, accent.withValues(alpha: 0.75)],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                   )
@@ -1929,7 +1929,7 @@ class _InputBarState extends State<_InputBar> {
                             boxShadow: _hasText
                                 ? [
                                     BoxShadow(
-                                      color: accent.withOpacity(0.30),
+                                      color: accent.withValues(alpha: 0.30),
                                       blurRadius: 10,
                                       offset: const Offset(0, 3),
                                     ),
@@ -1973,7 +1973,7 @@ class _QuickPromptsRow extends StatelessWidget {
     return Container(
       height: 58,
       decoration: BoxDecoration(
-        color: bg.withOpacity(0.96),
+        color: bg.withValues(alpha: 0.96),
         border: Border(top: BorderSide(color: border, width: 0.8)),
       ),
       child: ListView.builder(
@@ -1996,15 +1996,15 @@ class _QuickPromptsRow extends StatelessWidget {
                     vertical: _sp6,
                   ),
                   decoration: BoxDecoration(
-                    color: accent.withOpacity(0.08),
+                    color: accent.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: accent.withOpacity(0.22),
+                      color: accent.withValues(alpha: 0.22),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: accent.withOpacity(0.08),
+                        color: accent.withValues(alpha: 0.08),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -2063,19 +2063,19 @@ class _EmptyState extends StatelessWidget {
               height: compact ? 68 : 80,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [accent, accent.withOpacity(0.7)],
+                  colors: [accent, accent.withValues(alpha: 0.7)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: accent.withOpacity(0.35),
+                    color: accent.withValues(alpha: 0.35),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),
                   BoxShadow(
-                    color: accent.withOpacity(0.15),
+                    color: accent.withValues(alpha: 0.15),
                     blurRadius: 48,
                     offset: const Offset(0, 16),
                   ),
@@ -2140,10 +2140,10 @@ class _EmptyState extends StatelessWidget {
                             vertical: _sp8,
                           ),
                           decoration: BoxDecoration(
-                            color: chipAccent.withOpacity(0.07),
+                            color: chipAccent.withValues(alpha: 0.07),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: chipAccent.withOpacity(0.20),
+                              color: chipAccent.withValues(alpha: 0.20),
                               width: 1,
                             ),
                           ),
@@ -2209,7 +2209,7 @@ class _WebSidebar extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               border: Border(
-                bottom: BorderSide(color: sep.withOpacity(0.45), width: 1),
+                bottom: BorderSide(color: sep.withValues(alpha: 0.45), width: 1),
               ),
             ),
             padding: const EdgeInsets.all(_sp20),
@@ -2220,14 +2220,14 @@ class _WebSidebar extends StatelessWidget {
                   height: 44,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [accent, accent.withOpacity(0.7)],
+                      colors: [accent, accent.withValues(alpha: 0.7)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(13),
                     boxShadow: [
                       BoxShadow(
-                        color: accent.withOpacity(0.30),
+                        color: accent.withValues(alpha: 0.30),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -2313,11 +2313,11 @@ class _WebSidebar extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: active
-                            ? accent.withOpacity(0.12)
+                            ? accent.withValues(alpha: 0.12)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: active ? accent.withOpacity(0.30) : border,
+                          color: active ? accent.withValues(alpha: 0.30) : border,
                           width: active ? 1.5 : 1,
                         ),
                       ),
@@ -2353,7 +2353,7 @@ class _WebSidebar extends StatelessWidget {
 
           Container(
             height: 1,
-            color: sep.withOpacity(0.45),
+            color: sep.withValues(alpha: 0.45),
             margin: const EdgeInsets.symmetric(
               vertical: _sp12,
               horizontal: _sp16,
@@ -2385,7 +2385,7 @@ class _WebSidebar extends StatelessWidget {
 
           Container(
             height: 1,
-            color: sep.withOpacity(0.45),
+            color: sep.withValues(alpha: 0.45),
             margin: const EdgeInsets.symmetric(
               vertical: _sp12,
               horizontal: _sp16,
@@ -2423,7 +2423,7 @@ class _WebSidebar extends StatelessWidget {
 
           Container(
             height: 1,
-            color: sep.withOpacity(0.45),
+            color: sep.withValues(alpha: 0.45),
             margin: const EdgeInsets.only(top: _sp12),
           ),
 
@@ -2444,7 +2444,7 @@ class _WebSidebar extends StatelessWidget {
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
-                        color: (isDark ? _dangerDark : _danger).withOpacity(
+                        color: (isDark ? _dangerDark : _danger).withValues(alpha: 
                           0.10,
                         ),
                         borderRadius: BorderRadius.circular(8),
@@ -2509,7 +2509,7 @@ class _SidebarToggle extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(
                   color: value
-                      ? accent.withOpacity(0.12)
+                      ? accent.withValues(alpha: 0.12)
                       : (isDark ? _dSurface2 : _lSurface2),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -2545,7 +2545,7 @@ class _SidebarToggle extends StatelessWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
+                          color: Colors.black.withValues(alpha: 0.15),
                           blurRadius: 4,
                         ),
                       ],
@@ -2601,7 +2601,7 @@ class _SidebarPromptBtnState extends State<_SidebarPromptBtn> {
             ),
             decoration: BoxDecoration(
               color: _hovered
-                  ? widget.accent.withOpacity(0.07)
+                  ? widget.accent.withValues(alpha: 0.07)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
             ),
@@ -2611,7 +2611,7 @@ class _SidebarPromptBtnState extends State<_SidebarPromptBtn> {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: widget.accent.withOpacity(_hovered ? 0.15 : 0.08),
+                    color: widget.accent.withValues(alpha: _hovered ? 0.15 : 0.08),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Icon(widget.icon, size: 12, color: widget.accent),
@@ -2834,11 +2834,11 @@ class _WebTopBar extends StatelessWidget {
                 height: 34,
                 decoration: BoxDecoration(
                   color: ttsEnabled
-                      ? accent.withOpacity(0.10)
+                      ? accent.withValues(alpha: 0.10)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: ttsEnabled ? accent.withOpacity(0.25) : border,
+                    color: ttsEnabled ? accent.withValues(alpha: 0.25) : border,
                     width: 1,
                   ),
                 ),
@@ -2920,7 +2920,7 @@ class _OptionsMenuButton extends StatelessWidget {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: redClr.withOpacity(0.10),
+                  color: redClr.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -2946,7 +2946,7 @@ class _OptionsMenuButton extends StatelessWidget {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: subClr.withOpacity(0.10),
+                  color: subClr.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -2967,3 +2967,4 @@ class _OptionsMenuButton extends StatelessWidget {
     );
   }
 }
+

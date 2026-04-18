@@ -1,16 +1,3 @@
-// lib/screens/HomeScreen.dart
-//
-// ╔══════════════════════════════════════════════════════════════════════╗
-// ║  VANI — HomeScreen  · Fintech Premium v3                          ║
-// ║                                                                    ║
-// ║  Design language: Deep navy · Electric blue · Cyan accents        ║
-// ║  • Mesh gradient backgrounds with arc/circle decorations          ║
-// ║  • Glassmorphism cards                                            ║
-// ║  • Animated stat counters                                         ║
-// ║  • Marquee feature strip                                          ║
-// ║  • Dense, filled layouts — no empty space                         ║
-// ║  • Full light + dark theme                                        ║
-// ╚══════════════════════════════════════════════════════════════════════╝
 
 import 'dart:math' as math;
 import 'dart:ui';
@@ -18,7 +5,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../components/GlobalNavbar.dart';
 import '../components/SOSFloatingButton.dart';
 import '../l10n/AppLocalizations.dart';
@@ -35,10 +21,7 @@ import 'objectives/LocalizationPage.dart';
 import 'objectives/InclusivityPage.dart';
 import 'objectives/PrivacyPage.dart';
 import 'objectives/EducationPage.dart';
-
-// ─────────────────────────────────────────────────────────────────────
 //  DESIGN TOKENS — Fintech palette
-// ─────────────────────────────────────────────────────────────────────
 const _ff = 'Plus Jakarta Sans';
 
 // Electric blue family
@@ -98,7 +81,6 @@ const _s32 = 32.0;
 const _s40 = 40.0;
 const _s48 = 48.0;
 
-// ── Typography ────────────────────────────────────────────────────────
 TextStyle _disp(double sz, Color c) => TextStyle(
   fontFamily: _ff,
   fontSize: sz,
@@ -171,7 +153,6 @@ TextStyle _wKicker(double sz, Color c, {FontWeight w = FontWeight.w700}) =>
       letterSpacing: 1.3,
     );
 
-// ── Token helpers ─────────────────────────────────────────────────────
 Color _bg(bool d) => d ? _navy1 : _lBg;
 Color _surf(bool d) => d ? _navy3 : _lSurf;
 Color _surf2(bool d) => d ? _navy4 : _lSurf2;
@@ -182,10 +163,7 @@ Color _txts(bool d) => d ? _dTextSub : _lTextSub;
 Color _txtm(bool d) => d ? _dTextMuted : _lTextMuted;
 Color _acc(bool d) => d ? _elBlueD : _elBlue;
 Color _accV(bool d) => d ? _violetD : _violet;
-
-// ══════════════════════════════════════════════════════════════════════
 //  HOME SCREEN
-// ══════════════════════════════════════════════════════════════════════
 class HomeScreen extends StatefulWidget {
   final VoidCallback toggleTheme;
   final Function(Locale) setLocale;
@@ -394,10 +372,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ? _buildWeb(context, d, w)
         : _buildMobile(context, d);
   }
-
-  // ══════════════════════════════════════════════════════════════════
   //  MOBILE
-  // ══════════════════════════════════════════════════════════════════
   Widget _buildMobile(BuildContext ctx, bool d) {
     final l = AppLocalizations.of(ctx);
     return Scaffold(
@@ -602,10 +577,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
-
-  // ══════════════════════════════════════════════════════════════════
   //  WEB
-  // ══════════════════════════════════════════════════════════════════
   Widget _buildWeb(BuildContext ctx, bool d, double w) {
     final desktop = w > 1100;
     final compactWeb = w < 700;
@@ -616,7 +588,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       backgroundColor: _bg(d),
       body: Stack(
         children: [
-          // ── Mesh background orbs ──────────────────────────────────
           Positioned(
             top: -200,
             left: -200,
@@ -670,7 +641,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
-          // ── Grid dot pattern ──────────────────────────────────────
           Positioned.fill(
             child: CustomPaint(
               painter: _DotGridPainter(
@@ -680,7 +650,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
-          // ── Arc decorations ───────────────────────────────────────
           Positioned(
             top: 0,
             left: 0,
@@ -701,7 +670,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             right: 0,
             child: _ArcDecor(size: 360, color: _violet, dark: d, flip: true),
           ),
-          // ── Border ring circles ───────────────────────────────────
           Positioned(
             top: 86,
             right: 28,
@@ -727,7 +695,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               stroke: 0.95,
             ),
           ),
-          // ── Content ───────────────────────────────────────────────
           SafeArea(
             child: SingleChildScrollView(
               controller: _scrollCtrl,
@@ -925,10 +892,7 @@ class _AssistantMiniTag extends StatelessWidget {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  BACKGROUND PAINTER HELPERS
-// ══════════════════════════════════════════════════════════════════════
 class _Orb extends StatelessWidget {
   final Color color;
   final double size;
@@ -1182,10 +1146,7 @@ class _ArcPainter extends CustomPainter {
   @override
   bool shouldRepaint(_ArcPainter old) => false;
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  WEB HERO
-// ══════════════════════════════════════════════════════════════════════
 class _WebHero extends StatelessWidget {
   final bool desktop, dark;
   final AppLocalizations l;
@@ -1343,13 +1304,13 @@ class _WebHero extends StatelessWidget {
                                 ),
                                 _HeroMetricTile(
                                   val: 'ISL',
-                                  label: 'Certified Signs',
+                                  label: l.t('home_trust_certified_signs'),
                                   color: acc,
                                   text: title,
                                 ),
                                 _HeroMetricTile(
                                   val: 'AI',
-                                  label: 'Powered',
+                                  label: l.t('home_trust_powered'),
                                   color: acc,
                                   text: title,
                                   last: true,
@@ -1620,10 +1581,7 @@ class _TrustStrip extends StatelessWidget {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  MARQUEE STRIP
-// ══════════════════════════════════════════════════════════════════════
 class _MarqueeStrip extends StatefulWidget {
   final bool dark;
   const _MarqueeStrip({required this.dark});
@@ -1714,10 +1672,7 @@ class _MarqueeStripState extends State<_MarqueeStrip>
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  WEB STATS
-// ══════════════════════════════════════════════════════════════════════
 class _WebStats extends StatelessWidget {
   final bool desktop, dark;
   final AppLocalizations l;
@@ -1918,10 +1873,7 @@ class _StatCardState extends State<_StatCard>
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  WEB FEATURES GRID
-// ══════════════════════════════════════════════════════════════════════
 class _WebFeatures extends StatelessWidget {
   final bool desktop, dark;
   final AppLocalizations l;
@@ -2345,10 +2297,7 @@ class _WebFeatCardState extends State<_WebFeatCard> {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  WEB AI BANNER
-// ══════════════════════════════════════════════════════════════════════
 class _WebAIBanner extends StatefulWidget {
   final bool desktop, dark;
   final AppLocalizations l;
@@ -2598,111 +2547,126 @@ class _AIChatMockup extends StatelessWidget {
           Divider(height: 1, thickness: 1, color: line),
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-            child: Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final body = Column(
                   children: [
-                    _AiBadge(dark: dark, label: 'U'),
-                    const SizedBox(width: 10),
-                    Expanded(
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _AiBadge(dark: dark, label: l.t('terminal_actor_user_short')),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 11,
+                            ),
+                            decoration: BoxDecoration(
+                              color: bubble,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: line, width: 1),
+                            ),
+                            child: Text(
+                              l.t('terminal_user_signs_help'),
+                              style: _wBody(12.4, txt, w: FontWeight.w500),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _AiBadge(dark: dark, label: l.t('terminal_actor_ai_short')),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 11,
+                            ),
+                            decoration: BoxDecoration(
+                              color: bubble,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: line, width: 1),
+                            ),
+                            child: Text(
+                              l.t('terminal_ai_conversion_confidence'),
+                              style: _wBody(12.4, txt, w: FontWeight.w500),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerRight,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
-                          vertical: 11,
+                          vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: bubble,
-                          borderRadius: BorderRadius.circular(14),
+                          color: dark ? _navy4 : const Color(0xFFE9EEF8),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: line, width: 1),
                         ),
                         child: Text(
-                          l.t('terminal_user_signs_help'),
-                          style: _wBody(12.4, txt, w: FontWeight.w500),
+                          l.t('terminal_hearing_reply_back'),
+                          style: _wBody(12.1, txt, w: FontWeight.w500),
                         ),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _AiBadge(dark: dark, label: 'AI'),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 11,
+                    const SizedBox(height: 10),
+                    Divider(height: 1, thickness: 1, color: line),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _FlowChip(
+                          icon: Icons.front_hand_rounded,
+                          label: l.t('sign_capture'),
                         ),
-                        decoration: BoxDecoration(
-                          color: bubble,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: line, width: 1),
+                        _FlowChip(
+                          icon: Icons.text_fields_rounded,
+                          label: l.t('text_output'),
                         ),
-                        child: Text(
-                          l.t('terminal_ai_conversion_confidence'),
-                          style: _wBody(12.4, txt, w: FontWeight.w500),
+                        _FlowChip(
+                          icon: Icons.volume_up_rounded,
+                          label: l.t('voice_output'),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        l.t('live_terminal_events'),
+                        style: _lbl(10.8, sub, w: FontWeight.w800),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: dark ? _navy4 : const Color(0xFFE9EEF8),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: line, width: 1),
-                    ),
-                    child: Text(
-                      l.t('terminal_hearing_reply_back'),
-                      style: _wBody(12.1, txt, w: FontWeight.w500),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Divider(height: 1, thickness: 1, color: line),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _FlowChip(
-                      icon: Icons.front_hand_rounded,
-                      label: l.t('sign_capture'),
-                    ),
-                    _FlowChip(
-                      icon: Icons.text_fields_rounded,
-                      label: l.t('text_output'),
-                    ),
-                    _FlowChip(
-                      icon: Icons.volume_up_rounded,
-                      label: l.t('voice_output'),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 128,
+                      child: _MockTerminalAutoScroll(dark: dark),
                     ),
                   ],
-                ),
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    l.t('live_terminal_events'),
-                    style: _lbl(10.8, sub, w: FontWeight.w800),
+                );
+
+                if (!constraints.hasBoundedHeight) {
+                  return body;
+                }
+
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                    child: body,
                   ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 128,
-                  child: _MockTerminalAutoScroll(dark: dark),
-                ),
-              ],
+                );
+              },
             ),
           ),
         ],
@@ -2785,111 +2749,126 @@ class _ISLAssistantWorkflowCard extends StatelessWidget {
           Divider(height: 1, thickness: 1, color: line),
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-            child: Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final body = Column(
                   children: [
-                    _AiBadge(dark: dark, label: 'U'),
-                    const SizedBox(width: 10),
-                    Expanded(
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _AiBadge(dark: dark, label: l.t('terminal_actor_user_short')),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 11,
+                            ),
+                            decoration: BoxDecoration(
+                              color: bubble,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: line, width: 1),
+                            ),
+                            child: Text(
+                              l.t('workflow_user_signs_emergency'),
+                              style: _wBody(12.4, txt, w: FontWeight.w500),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _AiBadge(dark: dark, label: l.t('terminal_actor_ai_short')),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 11,
+                            ),
+                            decoration: BoxDecoration(
+                              color: bubble,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: line, width: 1),
+                            ),
+                            child: Text(
+                              l.t('workflow_ai_realtime_output'),
+                              style: _wBody(12.4, txt, w: FontWeight.w500),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerRight,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
-                          vertical: 11,
+                          vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: bubble,
-                          borderRadius: BorderRadius.circular(14),
+                          color: dark ? _navy4 : const Color(0xFFE9EEF8),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: line, width: 1),
                         ),
                         child: Text(
-                          l.t('workflow_user_signs_emergency'),
-                          style: _wBody(12.4, txt, w: FontWeight.w500),
+                          l.t('workflow_response_guidance'),
+                          style: _wBody(12.1, txt, w: FontWeight.w500),
                         ),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _AiBadge(dark: dark, label: 'AI'),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 11,
+                    const SizedBox(height: 10),
+                    Divider(height: 1, thickness: 1, color: line),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _FlowChip(
+                          icon: Icons.front_hand_rounded,
+                          label: l.t('sign_input'),
                         ),
-                        decoration: BoxDecoration(
-                          color: bubble,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: line, width: 1),
+                        _FlowChip(
+                          icon: Icons.memory_rounded,
+                          label: l.t('ai_process'),
                         ),
-                        child: Text(
-                          l.t('workflow_ai_realtime_output'),
-                          style: _wBody(12.4, txt, w: FontWeight.w500),
+                        _FlowChip(
+                          icon: Icons.volume_up_rounded,
+                          label: l.t('voice_text_out'),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        l.t('workflow_events'),
+                        style: _lbl(10.8, sub, w: FontWeight.w800),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: dark ? _navy4 : const Color(0xFFE9EEF8),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: line, width: 1),
-                    ),
-                    child: Text(
-                      l.t('workflow_response_guidance'),
-                      style: _wBody(12.1, txt, w: FontWeight.w500),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Divider(height: 1, thickness: 1, color: line),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _FlowChip(
-                      icon: Icons.front_hand_rounded,
-                      label: l.t('sign_input'),
-                    ),
-                    _FlowChip(
-                      icon: Icons.memory_rounded,
-                      label: l.t('ai_process'),
-                    ),
-                    _FlowChip(
-                      icon: Icons.volume_up_rounded,
-                      label: l.t('voice_text_out'),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 128,
+                      child: _MockTerminalAutoScroll(dark: dark),
                     ),
                   ],
-                ),
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    l.t('workflow_events'),
-                    style: _lbl(10.8, sub, w: FontWeight.w800),
+                );
+
+                if (!constraints.hasBoundedHeight) {
+                  return body;
+                }
+
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                    child: body,
                   ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 128,
-                  child: _MockTerminalAutoScroll(dark: dark),
-                ),
-              ],
+                );
+              },
             ),
           ),
         ],
@@ -3317,17 +3296,25 @@ class _MockTerminalAutoScrollState extends State<_MockTerminalAutoScroll>
   @override
   Widget build(BuildContext context) {
     const loop = 186.0;
+    final tickerContent = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _MockTerminalBlock(dark: widget.dark),
+        const SizedBox(height: 12),
+        _MockTerminalBlock(dark: widget.dark),
+      ],
+    );
+
     return ClipRect(
       child: AnimatedBuilder(
         animation: _ctrl,
         builder: (_, __) => Transform.translate(
           offset: Offset(0, -_ctrl.value * loop),
-          child: Column(
-            children: [
-              _MockTerminalBlock(dark: widget.dark),
-              const SizedBox(height: 12),
-              _MockTerminalBlock(dark: widget.dark),
-            ],
+          child: OverflowBox(
+            alignment: Alignment.topCenter,
+            minHeight: 0,
+            maxHeight: double.infinity,
+            child: tickerContent,
           ),
         ),
       ),
@@ -3396,10 +3383,7 @@ class _MiniChip extends StatelessWidget {
     ),
   );
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  WEB OBJECTIVES GRID
-// ══════════════════════════════════════════════════════════════════════
 class _WebObjectives extends StatelessWidget {
   final bool desktop, dark;
   final AppLocalizations l;
@@ -3635,10 +3619,7 @@ class _WebObjCardState extends State<_WebObjCard> {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  WEB VISION
-// ══════════════════════════════════════════════════════════════════════
 class _WebVision extends StatelessWidget {
   final bool dark;
   final AppLocalizations l;
@@ -3994,10 +3975,7 @@ class _VisionChip extends StatelessWidget {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  WEB FOOTER
-// ══════════════════════════════════════════════════════════════════════
 class _WebFooter extends StatelessWidget {
   final bool dark;
   final AppLocalizations l;
@@ -4128,10 +4106,7 @@ class _FooterNavLinkState extends State<_FooterNavLink> {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  CTA BUTTONS
-// ══════════════════════════════════════════════════════════════════════
 class _GlowBtn extends StatefulWidget {
   final String label;
   final IconData icon;
@@ -4248,10 +4223,7 @@ class _OutlineBtnState extends State<_OutlineBtn> {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  MOBILE COMPONENTS
-// ══════════════════════════════════════════════════════════════════════
 class _FinTechTabBar extends StatelessWidget {
   final bool isDark;
   final int tab;
@@ -4354,7 +4326,6 @@ class _FinTechTabBar extends StatelessWidget {
   }
 }
 
-// ── Mobile Home Feed ──────────────────────────────────────────────────
 class _MobileHomeFeed extends StatelessWidget {
   final bool isDark;
   final Animation<double> fade, pulse, shim;
@@ -4785,7 +4756,6 @@ class _MobMenuBtn extends StatelessWidget {
                     final b = Hive.box<EmergencyContact>('emergency_contacts');
                     await b.clear();
                   } catch (_) {}
-                  await Supabase.instance.client.auth.signOut();
                 },
                 child: Text(
                   l.t('menu_sign_out'),
@@ -4800,7 +4770,6 @@ class _MobMenuBtn extends StatelessWidget {
   }
 }
 
-// ── Mobile Hero Card ──────────────────────────────────────────────────
 class _MobHeroCard extends StatelessWidget {
   final bool isDark;
   final AppLocalizations l;
@@ -4976,7 +4945,6 @@ class _MobHeroStat extends StatelessWidget {
   );
 }
 
-// ── Mobile Stats Strip ────────────────────────────────────────────────
 class _MobStatsStrip extends StatefulWidget {
   final bool isDark;
   final AppLocalizations l;
@@ -5093,7 +5061,6 @@ class _MobStatsStripState extends State<_MobStatsStrip>
   }
 }
 
-// ── Mobile Feature Marquee ────────────────────────────────────────────
 class _MobFeatureMarquee extends StatelessWidget {
   final bool isDark;
   const _MobFeatureMarquee({required this.isDark});
@@ -5132,7 +5099,6 @@ class _MobFeatureMarquee extends StatelessWidget {
   }
 }
 
-// ── Mobile Quick Access ───────────────────────────────────────────────
 class _MobSectionHeader extends StatelessWidget {
   final String text;
   final bool isDark;
@@ -5336,7 +5302,6 @@ class _MobQuickTileState extends State<_MobQuickTile> {
   }
 }
 
-// ── Mobile AI Card ────────────────────────────────────────────────────
 class _MobAICard extends StatefulWidget {
   final bool isDark;
   final VoidCallback toggleTheme;
@@ -5601,7 +5566,6 @@ class _MobAIChip extends StatelessWidget {
   );
 }
 
-// ── Mobile Objectives Scroll ──────────────────────────────────────────
 class _MobObjScroll extends StatelessWidget {
   final bool isDark;
   final AppLocalizations l;
@@ -5760,7 +5724,6 @@ class _MobObjCardState extends State<_MobObjCard> {
   }
 }
 
-// ── Mission Card ──────────────────────────────────────────────────────
 class _MobMissionCard extends StatelessWidget {
   final bool isDark;
   final AppLocalizations l;
@@ -5838,7 +5801,6 @@ class _MobMissionCard extends StatelessWidget {
   }
 }
 
-// ── Feature Detail (mobile tabs) ──────────────────────────────────────
 class _MobFeatureDetail extends StatelessWidget {
   final bool isDark;
   final AppLocalizations l;
@@ -6105,10 +6067,7 @@ class _MobCTABtnState extends State<_MobCTABtn> {
     ),
   );
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  OBJ CARDS DATA
-// ══════════════════════════════════════════════════════════════════════
 List<(Color, IconData, String, String, Widget)> _objCards(
   AppLocalizations l,
   VoidCallback toggleTheme,

@@ -1,9 +1,5 @@
-// lib/main.dart
-//
-// Fix: Supabase.initialize() was called TWICE (once in main() and again
-// inside AppInitializer). Calling it twice throws a StateError at runtime.
-// Solution: initialize only in main(), remove AppInitializer entirely,
-// and go straight to VaniApp.
+// App entrypoint for local-first mode.
+// Hive is initialized in AppBootstrap and the app starts without auth gates.
 
 import 'dart:async';
 
@@ -13,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'l10n/AppLocalizations.dart';
 import 'models/EmergencyContact.dart';
@@ -21,10 +16,7 @@ import 'services/EmergencyService.dart';
 import 'screens/HomeScreen.dart';
 import 'screens/SplashScreen.dart';
 import 'components/SOSFloatingButton.dart';
-import 'components/AuthDialog.dart';
 
-const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-const _supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 const _appFontFamily = 'Plus Jakarta Sans';
 
 void main() async {
@@ -64,21 +56,9 @@ class AppBootstrap {
     if (!Hive.isBoxOpen('emergency_contacts')) {
       await Hive.openBox<EmergencyContact>('emergency_contacts');
     }
-
-    if (_supabaseUrl.isEmpty || _supabaseAnonKey.isEmpty) {
-      throw StateError(
-        'Missing Supabase config. Run with --dart-define=SUPABASE_URL=... '
-        'and --dart-define=SUPABASE_ANON_KEY=...',
-      );
-    }
-
-    await Supabase.initialize(url: _supabaseUrl, anonKey: _supabaseAnonKey);
   }
 }
-
-// ─────────────────────────────────────────────
 //  APPLE DESIGN TOKENS
-// ─────────────────────────────────────────────
 
 // iOS / macOS system blue — the definitive Apple accent
 const _kAppleBlue = Color(0xFF007AFF);
@@ -157,7 +137,6 @@ class _VaniAppState extends State<VaniApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
 
-      // ── LIGHT THEME — iOS / macOS exact ──────────────────────────
       theme: ThemeData(
         brightness: Brightness.light,
         useMaterial3: true,
@@ -352,7 +331,6 @@ class _VaniAppState extends State<VaniApp> {
         ),
       ),
 
-      // ── DARK THEME — iOS / macOS dark mode exact ─────────────────
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         useMaterial3: true,
@@ -638,10 +616,7 @@ class _VaniAppState extends State<VaniApp> {
     );
   }
 }
-
-// ─────────────────────────────────────────────
 //  ROOT SHELL (used by SplashScreen after init)
-// ─────────────────────────────────────────────
 class RootShell extends StatefulWidget {
   final VoidCallback toggleTheme;
   final Function(Locale) setLocale;
@@ -665,9 +640,7 @@ class _WebEntryGate extends StatefulWidget {
 
 class _WebEntryGateState extends State<_WebEntryGate> {
   bool _ready = false;
-  bool _isLoggedIn = false;
   Object? _error;
-  StreamSubscription<AuthState>? _authSub;
 
   @override
   void initState() {
@@ -679,11 +652,6 @@ class _WebEntryGateState extends State<_WebEntryGate> {
     try {
       await AppBootstrap.ensureInitialized();
       if (!mounted) return;
-      _isLoggedIn = Supabase.instance.client.auth.currentSession != null;
-      _authSub = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-        if (!mounted) return;
-        setState(() => _isLoggedIn = data.session != null);
-      });
       setState(() => _ready = true);
     } catch (e) {
       if (!mounted) return;
@@ -696,7 +664,6 @@ class _WebEntryGateState extends State<_WebEntryGate> {
 
   @override
   void dispose() {
-    _authSub?.cancel();
     super.dispose();
   }
 
@@ -724,18 +691,9 @@ class _WebEntryGateState extends State<_WebEntryGate> {
       );
     }
 
-    if (_isLoggedIn) {
-      return RootShell(
-        toggleTheme: widget.toggleTheme,
-        setLocale: widget.setLocale,
-      );
-    }
-
-    return AuthScreen(
-      onAuthenticated: () {
-        if (!mounted) return;
-        setState(() => _isLoggedIn = true);
-      },
+    return RootShell(
+      toggleTheme: widget.toggleTheme,
+      setLocale: widget.setLocale,
     );
   }
 }

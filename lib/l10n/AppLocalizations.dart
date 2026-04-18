@@ -660,6 +660,22 @@ class AppLocalizations {
       'sos_location_attached': 'Location attached: {location}',
       'sos_location_unavailable':
           'Location unavailable - message sent without coordinates',
+      'sos_location_required_title': 'Live location is required',
+      'sos_location_required_body':
+          'To send SOS alerts, we need your current live location so every contact receives an accurate map link.',
+      'sos_location_required_reason':
+          'SOS was not sent because live location is required.',
+      'sos_location_retry_body':
+          'We could not fetch your live location yet. Error: {error}\n\nEnable GPS/location permission and retry.',
+      'sos_allow_location': 'Allow location',
+      'sos_whatsapp_open_failed': 'Could not open WhatsApp for {name}.',
+      'sos_whatsapp_required_reason':
+          'SOS was not sent. WhatsApp could not be opened for any emergency contact.',
+      'sos_dispatch_failed': 'Failed to dispatch SOS.',
+      'sos_backend_unreachable':
+          'Could not reach SOS server. Please try again.',
+      'sos_auto_dispatched_contact':
+          'Dispatched automatically via SOS backend.',
       'sos_send_to_contacts': 'Send to your emergency contacts:',
       'sos_primary_badge': 'Primary',
       'sos_whatsapp': 'WhatsApp',
@@ -1324,6 +1340,8 @@ class AppLocalizations {
       'voice_text_out': 'Voice/Text Out',
       'workflow_events': 'WORKFLOW EVENTS',
       'terminal_title': 'VANI Terminal',
+    'terminal_actor_user_short': 'U',
+    'terminal_actor_ai_short': 'AI',
       'terminal_user_signs_help': 'Deaf / mute user signs: HELP',
       'terminal_ai_conversion_confidence':
           'AI converts sign to readable text + voice for hearing people. Confidence 98.2%',
@@ -1413,6 +1431,8 @@ class AppLocalizations {
       // ── ISL Assistant (home)
       'assistant_tab_label': 'असिस्टेंट',
       'assistant_title': 'ISL असिस्टेंट',
+    'terminal_actor_user_short': 'यू',
+    'terminal_actor_ai_short': 'AI',
       'assistant_you': 'आप',
       'assistant_feature_sub':
           'बहुभाषी AI सहायता, वॉइस इनपुट/आउटपुट और चरण-दर-चरण ISL सीखना',
@@ -1950,6 +1970,22 @@ class AppLocalizations {
       'sos_location_attached': 'स्थान जुड़ा: {location}',
       'sos_location_unavailable':
           'स्थान उपलब्ध नहीं - संदेश बिना निर्देशांक भेजा गया',
+      'sos_location_required_title': 'लाइव लोकेशन आवश्यक है',
+      'sos_location_required_body':
+          'SOS भेजने के लिए आपकी वर्तमान लाइव लोकेशन आवश्यक है ताकि सभी संपर्कों को सही मैप लिंक मिले।',
+      'sos_location_required_reason':
+          'SOS नहीं भेजा गया क्योंकि लाइव लोकेशन आवश्यक है।',
+      'sos_location_retry_body':
+          'अभी लाइव लोकेशन प्राप्त नहीं हो सकी। त्रुटि: {error}\n\nकृपया GPS/लोकेशन अनुमति चालू करके पुनः प्रयास करें।',
+      'sos_allow_location': 'लोकेशन अनुमति दें',
+      'sos_whatsapp_open_failed': '{name} के लिए व्हाट्सऐप नहीं खुल सका।',
+      'sos_whatsapp_required_reason':
+          'SOS नहीं भेजा गया। किसी भी आपातकालीन संपर्क के लिए व्हाट्सऐप नहीं खुल सका।',
+      'sos_dispatch_failed': 'SOS भेजने में विफल।',
+      'sos_backend_unreachable':
+          'SOS सर्वर तक पहुंच नहीं हो सकी। कृपया पुनः प्रयास करें।',
+      'sos_auto_dispatched_contact':
+          'SOS बैकएंड के माध्यम से स्वचालित रूप से भेजा गया।',
       'sos_send_to_contacts': 'अपने आपातकालीन संपर्कों को भेजें:',
       'sos_primary_badge': 'प्राथमिक',
       'sos_whatsapp': 'व्हाट्सऐप',
@@ -2559,6 +2595,8 @@ class AppLocalizations {
       // ── ISL Assistant (home)
       'assistant_tab_label': 'असिस्टंट',
       'assistant_title': 'ISL असिस्टंट',
+    'terminal_actor_user_short': 'यू',
+    'terminal_actor_ai_short': 'AI',
       'assistant_you': 'तुम्ही',
       'assistant_feature_sub':
           'बहुभाषिक AI मदत, व्हॉइस इनपुट/आउटपुट आणि स्टेप-बाय-स्टेप ISL शिकवणी',
@@ -3089,6 +3127,22 @@ class AppLocalizations {
       'sos_location_attached': 'स्थान जोडले: {location}',
       'sos_location_unavailable':
           'स्थान उपलब्ध नाही - संदेश निर्देशांकांशिवाय पाठवला',
+      'sos_location_required_title': 'लाईव्ह लोकेशन आवश्यक आहे',
+      'sos_location_required_body':
+          'SOS पाठवण्यासाठी तुमचे सध्याचे लाईव्ह लोकेशन आवश्यक आहे, जेणेकरून प्रत्येक संपर्काला अचूक नकाशा लिंक मिळेल.',
+      'sos_location_required_reason':
+          'लाईव्ह लोकेशन आवश्यक असल्याने SOS पाठवला गेला नाही.',
+      'sos_location_retry_body':
+          'लाईव्ह लोकेशन मिळू शकले नाही. त्रुटी: {error}\n\nकृपया GPS/लोकेशन परवानगी सुरू करून पुन्हा प्रयत्न करा.',
+      'sos_allow_location': 'लोकेशन परवानगी द्या',
+      'sos_whatsapp_open_failed': '{name} साठी व्हॉट्सअॅप उघडता आले नाही.',
+      'sos_whatsapp_required_reason':
+          'SOS पाठवला गेला नाही. कोणत्याही आपत्कालीन संपर्कासाठी व्हॉट्सअॅप उघडता आले नाही.',
+      'sos_dispatch_failed': 'SOS पाठवण्यात अयशस्वी.',
+      'sos_backend_unreachable':
+          'SOS सर्व्हरशी संपर्क साधता आला नाही. कृपया पुन्हा प्रयत्न करा.',
+      'sos_auto_dispatched_contact':
+          'SOS बॅकएंडद्वारे स्वयंचलितपणे पाठवले गेले.',
       'sos_send_to_contacts': 'तुमच्या आपत्कालीन संपर्कांना पाठवा:',
       'sos_primary_badge': 'प्राथमिक',
       'sos_whatsapp': 'व्हॉट्सअॅप',

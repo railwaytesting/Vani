@@ -1,31 +1,3 @@
-// lib/screens/TwoWayScreen.dart
-//
-// ╔══════════════════════════════════════════════════════════════════════╗
-// ║  VANI — Two-Way Bridge Screen  · UX4G Redesign                    ║
-// ║  Font: Plus Jakarta Sans (UX4G standard)                                ║
-// ║                                                                    ║
-// ║  FEATURES (production-ready):                                      ║
-// ║  • ISL sign detection via WebSocket (preserved exactly)            ║
-// ║  • Voice INPUT  — speech_to_text (hearing person speaks)          ║
-// ║  • Voice OUTPUT — flutter_tts (reads detected ISL signs aloud)    ║
-// ║  • Multilingual TTS: EN / Hindi / Marathi / Gujarati / Tamil etc  ║
-// ║  • Multilingual STT: localeId per selected language               ║
-// ║  • Auto-speak toggle — TTS fires on every new message             ║
-// ║  • Language selector with flag + name                             ║
-// ║  • Quick phrases: icon + text, NO emojis                         ║
-// ║  • Real-time message thread with sender role labels               ║
-// ║  • Reconnect with exponential back-off (preserved)                ║
-// ║                                                                    ║
-// ║  UX4G Principles Applied:                                         ║
-// ║  • Plus Jakarta Sans throughout                                          ║
-// ║  • Semantic color roles: primary/secondary/success/danger/info    ║
-// ║  • WCAG AA contrast on all text/bg pairs                          ║
-// ║  • Min 48dp touch targets                                         ║
-// ║  • Semantics() on all interactive elements                        ║
-// ║  • No decorative BackdropFilter on primary content areas          ║
-// ║  • Clear visual hierarchy per UX4G information architecture       ║
-// ║  • Status chips: dot + label + semantic border                    ║
-// ╚══════════════════════════════════════════════════════════════════════╝
 
 // ignore_for_file: unused_element, unused_local_variable, unused_field
 
@@ -42,20 +14,13 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../components/GlobalNavbar.dart';
 import '../l10n/AppLocalizations.dart';
 import '../services/backend_config.dart';
-
-// ─────────────────────────────────────────────────────────────────────
 //  WEBSOCKET CONFIG
-// ─────────────────────────────────────────────────────────────────────
 const int _kFrameIntervalMs = 100;
 
 const double _kMinPredictionConfidence = 0.30;
 const int _kStableDetectionMs = 450;
 const int _kDetectionCooldownMs = 800;
 const int _kSameLabelCooldownMs = 1800;
-
-// ─────────────────────────────────────────────────────────────────────
-//  UX4G DESIGN TOKENS
-// ─────────────────────────────────────────────────────────────────────
 const _fontFamily = 'Plus Jakarta Sans';
 
 // Primary (blue) — deaf / ISL channel
@@ -115,7 +80,6 @@ const _sp24 = 24.0;
 const _sp32 = 32.0;
 const _sp48 = 48.0;
 
-// ── Type helpers ──────────────────────────────────────────────────────
 TextStyle _display(double size, Color c) => TextStyle(
   fontFamily: _fontFamily,
   fontSize: size,
@@ -153,10 +117,7 @@ TextStyle _label(double size, Color c, {FontWeight w = FontWeight.w500}) =>
       height: 1.4,
       letterSpacing: 0.1,
     );
-
-// ─────────────────────────────────────────────────────────────────────
 //  LANGUAGE CONFIG — TTS + STT locale IDs
-// ─────────────────────────────────────────────────────────────────────
 class _LangConfig {
   final String code;
   final String nameKey;
@@ -233,10 +194,7 @@ const List<_LangConfig> _kLanguages = [
 
 _LangConfig _langFor(String code) =>
     _kLanguages.firstWhere((l) => l.code == code, orElse: () => _kLanguages[0]);
-
-// ─────────────────────────────────────────────────────────────────────
 //  MESSAGE MODEL
-// ─────────────────────────────────────────────────────────────────────
 enum _Sender { deaf, hearing }
 
 class _Message {
@@ -253,10 +211,7 @@ class _Message {
     this.isVoice = false,
   });
 }
-
-// ─────────────────────────────────────────────────────────────────────
 //  QUICK PHRASES — no emojis, icon + text
-// ─────────────────────────────────────────────────────────────────────
 class _Phrase {
   final IconData icon;
   final String key;
@@ -397,10 +352,7 @@ String _phraseText(String langCode, String key, AppLocalizations l) {
   final text = _kPhraseTextByLang[langCode]?[key];
   return text ?? l.t(key);
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  TWO WAY SCREEN
-// ══════════════════════════════════════════════════════════════════════
 class TwoWayScreen extends StatefulWidget {
   final VoidCallback toggleTheme;
   final Function(Locale) setLocale;
@@ -415,7 +367,6 @@ class TwoWayScreen extends StatefulWidget {
 
 class _TwoWayScreenState extends State<TwoWayScreen>
     with TickerProviderStateMixin {
-  // ── Camera ────────────────────────────────────────────────────────
   CameraController? _cam;
   List<CameraDescription> _cameras = [];
   bool _camReady = false;
@@ -425,7 +376,6 @@ class _TwoWayScreenState extends State<TwoWayScreen>
   bool _cameraTransitioning = false;
   int _cameraSessionToken = 0;
 
-  // ── WebSocket ─────────────────────────────────────────────────────
   WebSocketChannel? _ws;
   bool _wsConnected = false;
   Timer? _frameTimer;
@@ -436,16 +386,13 @@ class _TwoWayScreenState extends State<TwoWayScreen>
   String? _backendError;
   String _lastWsTried = '';
 
-  // ── Messages ──────────────────────────────────────────────────────
   final List<_Message> _messages = [];
   final ScrollController _scroll = ScrollController();
 
-  // ── Hearing input ─────────────────────────────────────────────────
   final TextEditingController _typeCtrl = TextEditingController();
   final FocusNode _typeFocus = FocusNode();
   bool _typeFocused = false;
 
-  // ── ISL detection ─────────────────────────────────────────────────
   String _pending = '';
   bool _detecting = false;
   String _candidate = '';
@@ -453,22 +400,18 @@ class _TwoWayScreenState extends State<TwoWayScreen>
   String _lastAccepted = '';
   DateTime _lastAcceptedAt = DateTime.fromMillisecondsSinceEpoch(0);
 
-  // ── Language ──────────────────────────────────────────────────────
   String _selectedLangCode = 'en';
   _LangConfig get _lang => _langFor(_selectedLangCode);
 
-  // ── TTS ───────────────────────────────────────────────────────────
   final FlutterTts _tts = FlutterTts();
   bool _ttsReady = false;
   bool _ttsSpeaking = false;
   bool _autoSpeak = true; // auto-read every new message aloud
 
-  // ── STT ───────────────────────────────────────────────────────────
   final stt.SpeechToText _speech = stt.SpeechToText();
   bool _speechOk = false;
   bool _listening = false;
 
-  // ── Animations ────────────────────────────────────────────────────
   late AnimationController _entryCtrl;
   late AnimationController _pulseCtrl;
   late Animation<double> _entryFade;
@@ -506,7 +449,6 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     _pulse = CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut);
   }
 
-  // ── TTS ──────────────────────────────────────────────────────────
   Future<void> _initTts() async {
     await _tts.setLanguage(_lang.ttsLocale);
     await _tts.setSpeechRate(0.90);
@@ -538,7 +480,6 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     await _tts.setLanguage(_lang.ttsLocale);
   }
 
-  // ── STT ──────────────────────────────────────────────────────────
   Future<void> _initSpeech() async {
     _speechOk = await _speech.initialize(
       onStatus: (s) {
@@ -583,10 +524,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
       pauseFor: const Duration(seconds: 3),
     );
   }
-
-  // ─────────────────────────────────────────────────────────────────
   //  CAMERA
-  // ─────────────────────────────────────────────────────────────────
   Future<void> _initCamera() async {
     try {
       _cameras = await availableCameras();
@@ -697,10 +635,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     setState(() => _camActive = !_camActive);
     if (!_camActive) _clearPending();
   }
-
-  // ─────────────────────────────────────────────────────────────────
   //  WEBSOCKET
-  // ─────────────────────────────────────────────────────────────────
   Future<void> _connectWs() async {
     if (!BackendConfig.websocketEnabled) {
       if (mounted) {
@@ -860,10 +795,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     });
     _candidate = '';
   }
-
-  // ─────────────────────────────────────────────────────────────────
   //  MESSAGES
-  // ─────────────────────────────────────────────────────────────────
   void _sendHearing({bool fromVoice = false}) {
     final text = _typeCtrl.text.trim();
     if (text.isEmpty) return;
@@ -969,10 +901,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     _speech.stop();
     super.dispose();
   }
-
-  // ══════════════════════════════════════════════════════════════════
   //  BUILD
-  // ══════════════════════════════════════════════════════════════════
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -1018,10 +947,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
       ),
     );
   }
-
-  // ══════════════════════════════════════════════════════════════════
   //  DESKTOP LAYOUT
-  // ══════════════════════════════════════════════════════════════════
   Widget _desktopLayout(BuildContext ctx, bool isDark, Size size) {
     final wide = size.width > 1500;
     final hPad = wide ? 28.0 : 16.0;
@@ -1083,10 +1009,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
       ),
     );
   }
-
-  // ══════════════════════════════════════════════════════════════════
   //  TABLET LAYOUT
-  // ══════════════════════════════════════════════════════════════════
   Widget _tabletLayout(BuildContext ctx, bool isDark, Size size) {
     final compact = size.width < 860;
     return Padding(
@@ -1136,10 +1059,7 @@ class _TwoWayScreenState extends State<TwoWayScreen>
       ),
     );
   }
-
-  // ══════════════════════════════════════════════════════════════════
   //  MOBILE SHELL
-  // ══════════════════════════════════════════════════════════════════
   Widget _buildMobileShell(BuildContext ctx, bool isDark, Size size) {
     final l = AppLocalizations.of(ctx);
     return Stack(
@@ -1354,12 +1274,8 @@ class _TwoWayScreenState extends State<TwoWayScreen>
       ],
     ),
   );
-
-  // ══════════════════════════════════════════════════════════════════
   //  WEB / DESKTOP SHARED WIDGETS
-  // ══════════════════════════════════════════════════════════════════
 
-  // ── Deaf panel header ─────────────────────────────────────────────
   Widget _deafPanelHeader(bool isDark) {
     final l = AppLocalizations.of(context);
     final textClr = isDark ? _dText : _lText;
@@ -1437,7 +1353,6 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     );
   }
 
-  // ── Camera panel ──────────────────────────────────────────────────
   Widget _cameraPanel(bool isDark) {
     final l = AppLocalizations.of(context);
     final bg = isDark ? _dSurface : _lSurface;
@@ -1597,7 +1512,6 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     );
   }
 
-  // ── Sign status bar ────────────────────────────────────────────────
   Widget _signStatusBar(bool isDark) {
     final l = AppLocalizations.of(context);
     final hasPending = _pending.isNotEmpty;
@@ -1695,7 +1609,6 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     );
   }
 
-  // ── Conversation header ────────────────────────────────────────────
   Widget _conversationHeader(bool isDark) {
     final l = AppLocalizations.of(context);
     final textClr = isDark ? _dText : _lText;
@@ -1799,7 +1712,6 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     );
   }
 
-  // ── Message thread ─────────────────────────────────────────────────
   Widget _messageThread(bool isDark) {
     final bg = isDark ? _dSurface : _lSurface;
     final border = isDark ? _dBorder : _lBorder;
@@ -1868,7 +1780,6 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     );
   }
 
-  // ── Hearing input bar ──────────────────────────────────────────────
   Widget _hearingInputBar(bool isDark) {
     final l = AppLocalizations.of(context);
     final bg = isDark ? _dSurface2 : _lSurface2;
@@ -2060,7 +1971,6 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     );
   }
 
-  // ── Phrases column (desktop) ───────────────────────────────────────
   Widget _phrasesColumn(bool isDark) {
     final l = AppLocalizations.of(context);
     final accent = isDark ? _secondaryDark : _secondary;
@@ -2136,7 +2046,6 @@ class _TwoWayScreenState extends State<TwoWayScreen>
     );
   }
 
-  // ── Phrase bottom sheet (mobile + web tablet) ──────────────────────
   void _showPhraseSheet(bool isDark) {
     final l = AppLocalizations.of(context);
     final bg = isDark ? _dSurface : _lSurface;
@@ -2380,10 +2289,7 @@ class _AmbientOrb extends StatelessWidget {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  MESSAGE BUBBLE
-// ══════════════════════════════════════════════════════════════════════
 class _MessageBubble extends StatelessWidget {
   final _Message msg;
   final bool isDark, ttsSpeaking;
@@ -2540,10 +2446,7 @@ class _MessageBubble extends StatelessWidget {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  LANGUAGE SELECTOR
-// ══════════════════════════════════════════════════════════════════════
 class _LangSelector extends StatelessWidget {
   final String selectedCode;
   final bool isDark;
@@ -2667,10 +2570,7 @@ class _LangSelector extends StatelessWidget {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  MOBILE BRIDGE PANEL
-// ══════════════════════════════════════════════════════════════════════
 class _MobileBridgePanel extends StatefulWidget {
   final bool isDark, listening, ttsSpeaking, autoSpeak, speechOk;
   final List<_Message> messages;
@@ -2884,7 +2784,6 @@ class _MobileBridgePanelState extends State<_MobileBridgePanel> {
   }
 }
 
-// ── Mobile chat tab ───────────────────────────────────────────────────
 class _MobileChatTab extends StatelessWidget {
   final List<_Message> messages;
   final TextEditingController typeCtrl;
@@ -3137,7 +3036,6 @@ class _MobileChatTab extends StatelessWidget {
   }
 }
 
-// ── Mobile phrases tab ────────────────────────────────────────────────
 class _MobilePhrasesTab extends StatelessWidget {
   final bool isDark;
   final String selectedLangCode;
@@ -3206,7 +3104,6 @@ class _MobilePhrasesTab extends StatelessWidget {
   }
 }
 
-// ── Mobile panel tab ──────────────────────────────────────────────────
 class _MobilePanelTab extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -3294,10 +3191,7 @@ class _MobilePanelTab extends StatelessWidget {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  REUSABLE SMALL WIDGETS
-// ══════════════════════════════════════════════════════════════════════
 
 class _ConnectionChip extends StatelessWidget {
   final bool connected, dark;
@@ -3553,7 +3447,6 @@ class _MobileTopBtn extends StatelessWidget {
   );
 }
 
-// ── Painters ──────────────────────────────────────────────────────────
 class _CornerPainter extends CustomPainter {
   final Color color;
   const _CornerPainter({required this.color});

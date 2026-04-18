@@ -1,296 +1,296 @@
-# VANI Backend README
+# VANI Backend README (Viva Preparation)
 
-This document explains your backend architecture, code flow, and line-by-line logic for exam preparation.
+This README explains the backend in depth for viva questions:
+- what is implemented
+- why each part is needed
+- how each part works in code
 
-## 1) Backend overview
-
-Backend stack:
-
-- FastAPI for HTTP + WebSocket server
-- Uvicorn runtime
-- Ultralytics YOLO for ISL inference
-- OpenCV + NumPy for image decoding
-- gdown/urllib for model download
-
-Main backend file:
-
+It is based on the current backend file:
 - `isl_backend/app.py`
 
-Other backend files:
+---
 
-- `isl_backend/requirements.txt`
-- `isl_backend/Dockerfile`
-- `isl_backend/railway.json`
+## 1. Backend Purpose
 
-## 2) API contract
+The backend has two major responsibilities:
 
-### HTTP endpoint
+1. Real-time ISL inference over WebSocket
+- Receives camera frames from Flutter.
+- Runs YOLO model inference on CPU.
+- Returns label + confidence in near real time.
 
-- `GET /health`
-- Returns server status, model load status, engine info
+2. Emergency SOS SMS dispatch over HTTP
+- Receives SOS payload from frontend.
+- Uses Twilio API to send SMS to configured contacts.
+- Returns delivery summary.
 
-Example:
+---
 
-```json
-{
-  "status": "online",
-  "model_loaded": true,
-  "engine": "YOLOv11-CPU"
-}
+## 2. Technology Stack and Why Used
+
+- FastAPI
+  - Why: clean async APIs for both WebSocket and REST.
+  - Used for `/ws`, `/health`, and `/sos/send`.
+
+- Uvicorn
+  - Why: production-ready ASGI server for FastAPI.
+  - Used to run app in local and Railway.
+
+- Ultralytics YOLO
+  - Why: practical real-time sign detection model API.
+  - Used for inference in `/ws`.
+
+- OpenCV + NumPy
+  - Why: decode image bytes into model-ready frames.
+
+- gdown + urllib fallback
+  - Why: robust model file download from Google Drive.
+
+- Twilio Python SDK
+  - Why: reliable SMS dispatch for emergency alerts.
+
+- Pydantic models
+  - Why: strict request validation for `/sos/send` payload.
+
+---
+
+## 3. Backend Architecture Overview
+
+```mermaid
+flowchart LR
+  A[Flutter App] -->|WebSocket /ws| B[FastAPI Inference Layer]
+  B --> C[YOLO Model on CPU]
+  C --> B
+  B -->|Prediction JSON| A
+
+  A -->|POST /sos/send| D[FastAPI SOS Layer]
+  D --> E[Twilio Client]
+  E --> F[Contact 1..5 SMS]
+  D -->|Dispatch Result JSON| A
 ```
 
-### WebSocket endpoint
+Key idea:
+- Inference is streaming and stateful per socket.
+- SOS is request/response and transactional.
 
-- `WS /ws`
-- Input:
-  - Base64 frame text (with or without data URI prefix)
-  - `__PING__`
-  - `__STOP__`
-- Output:
-  - prediction payloads
-  - protocol keepalive messages
-  - error payload if model unavailable
+---
 
-## 3) High-level runtime flow
+## 4. Runtime Startup Flow
 
-```text
-Client connects to /ws
-  -> server accepts websocket
-  -> validates model availability
-  -> receives Base64 frames
-  -> decodes frame into OpenCV image
-  -> runs YOLO on CPU
-  -> smoothes prediction
-  -> sends label+confidence JSON
+```mermaid
+flowchart TD
+  A[Process Starts] --> B[Configure Logging]
+  B --> C[Create FastAPI app]
+  C --> D[Configure CORS]
+  D --> E[Initialize model path/constants]
+  E --> F[Download model if missing/corrupt]
+  F --> G[Load YOLO model on CPU]
+  G --> H[Expose endpoints: /health /ws /sos/send]
 ```
 
-## 4) Detailed code walkthrough of app.py (top to bottom)
+### Why this flow matters
+- Model is loaded once globally for lower per-request overhead.
+- If model is invalid, startup still succeeds but inference endpoint returns model-unavailable errors safely.
 
-This section explains the backend code in execution order, so you can present it as "line-by-line logic" in viva.
+---
 
-### Block A: Imports
+## 5. Environment Variables
 
-- `FastAPI`, `WebSocket`, `WebSocketDisconnect`: API server and socket handling
-- `CORSMiddleware`: CORS control for frontend origins
-- `cv2`, `numpy`, `base64`: image decode pipeline
-- `asyncio`, `time`: async control + throttling
-- `os`: env and filesystem operations
-- `logging`: structured runtime logs
-- `deque`: smoothing buffer
-- `urlopen`, `gdown`: model download sources
-- `YOLO`: model loading/inference
+### CORS
+- `VANI_CORS_ORIGINS`
+- `VANI_CORS_ORIGIN_REGEX`
 
-Why it matters: these imports directly map to each pipeline step (network, decode, infer, respond).
+### Twilio (preferred on deployment)
+- `TWILIO_ACCOUNT_SID`
+- `TWILIO_AUTH_TOKEN`
+- `TWILIO_FROM_NUMBER`
 
-### Block B: Logging setup
+### Port
+- `PORT` (set by Railway)
 
-- Configures global logging level and format.
-- Creates `log` logger named `vani`.
+### Twilio fallback from request headers
+If server env variables are empty, `/sos/send` can use:
+- `x-twilio-account-sid`
+- `x-twilio-auth-token`
+- `x-twilio-from-number`
 
-Why: production debugging becomes much easier in Railway logs.
+This fallback is useful when credentials are provided by app build-time config.
 
-### Block C: FastAPI app config
+---
 
-- Creates `app = FastAPI(title="VANI ISL Backend", version="2.2.0")`.
-- Defines helper `_parse_csv_env` to parse CSV origin allow-lists.
-- Reads env vars:
-  - `VANI_CORS_ORIGINS`
-  - `VANI_CORS_ORIGIN_REGEX`
-- Applies CORS middleware.
+## 6. Inference Pipeline (`/ws`)
 
-Why: controls who can call your backend and keeps browser requests valid.
+### Input
+- Base64 encoded frame text (with or without data URI prefix)
+- control messages: `__PING__`, `__STOP__`
 
-### Block D: Model management constants
+### Output
+- prediction JSON packets
+- keepalive `ping/pong`
+- explicit error if model unavailable
 
-- Ensures `model/` directory exists.
-- Sets model file path `model/isl_best.pt`.
-- Stores Google Drive file id.
-- Defines `MIN_MODEL_BYTES` as corruption guard.
+### Inference flow
 
-Why: backend can auto-recover model artifact and avoid loading broken files.
+```mermaid
+sequenceDiagram
+  participant App as Flutter Client
+  participant WS as FastAPI /ws
+  participant Y as YOLO CPU
 
-### Block E: Download helpers
+  App->>WS: connect
+  WS-->>App: accept
 
-- `_download_model(url, destination)`: raw chunked binary download.
-- `_download_model_from_drive(...)`: first try `gdown`, fallback to urllib.
-- `_is_model_file_valid(path)`: verifies file exists and minimum size.
-
-Why: robust startup in cloud environments where direct Drive link behavior can vary.
-
-### Block F: initialize_model()
-
-Startup logic:
-
-1. Deletes suspiciously small existing model file.
-2. Downloads model if missing.
-3. Validates downloaded file size.
-4. Loads YOLO from path.
-5. Forces CPU mode.
-6. Calls `fuse()` to optimize inference graph.
-7. Returns loaded model or `None` on failure.
-
-Global model object:
-
-- `model = initialize_model()`
-
-Why: model is initialized once at process start, reducing per-request overhead.
-
-### Block G: Inference constants
-
-- `CONF_THRESHOLD = 0.30`
-- `MAX_DET = 1`
-- `FRAME_SKIP_MS = 80`
-
-Why:
-
-- threshold filters weak detections
-- max_det simplifies one-sign prediction
-- frame skip keeps CPU stable
-
-### Block H: PredictionSmoother class
-
-Methods:
-
-- `push(label, conf)`:
-  - append current prediction into fixed-size deque
-  - compute dominant label by frequency
-  - compute average confidence for dominant class
-  - return stabilized `(label, confidence)`
-- `reset()` clears history
-
-Why: reduces flicker and improves UX sentence building.
-
-### Block I: WebSocket endpoint `/ws`
-
-Flow inside `websocket_endpoint(websocket)`:
-
-1. `accept()` connection
-2. if model unavailable:
-   - send error JSON
-   - close socket
-3. initialize per-session state:
-   - smoother
-   - inference timing
-   - frame count
-4. loop forever:
-   - receive text with timeout
-   - on timeout -> send ping and continue
-   - process protocol commands:
-     - `__PING__` -> send pong
-     - `__STOP__` -> reset smoother
-   - apply frame throttle (`FRAME_SKIP_MS`)
-   - decode Base64 frame
-   - run YOLO in thread executor (keeps event loop responsive)
-   - parse first box if exists
-   - apply smoothing
-   - send prediction JSON
-5. handle disconnect and cleanup
-
-Why run inference in executor:
-
-- model.predict is CPU-bound
-- keeps async websocket loop from freezing
-
-### Block J: Health endpoint
-
-- `@app.get("/health")`
-- returns online/model info
-
-Why: deployment health checks and quick diagnostics.
-
-### Block K: Uvicorn entrypoint
-
-- reads `PORT` env (Railway-compatible)
-- runs `uvicorn app:app --host 0.0.0.0`
-
-Why: same file works for local and cloud start.
-
-## 5) WebSocket message behavior in detail
-
-### Incoming message types
-
-1. Frame payload: base64 image string
-2. `__PING__`: client keepalive check
-3. `__STOP__`: reset temporal smoothing window
-
-### Outgoing message types
-
-1. Prediction:
-
-```json
-{
-  "type": "prediction",
-  "label": "hello",
-  "confidence": 0.87,
-  "frame": 42
-}
+  loop each frame
+    App->>WS: base64 frame
+    WS->>WS: decode base64 -> numpy -> cv2 frame
+    WS->>Y: predict(conf=0.30,max_det=1)
+    Y-->>WS: boxes
+    WS->>WS: smooth prediction window
+    WS-->>App: {type,label,confidence,frame}
+  end
 ```
 
-2. Keepalive:
+### Why `FRAME_SKIP_MS` is used
+- Prevents overloading CPU with too many frames.
+- Keeps event loop responsive for network traffic.
 
-```json
-{"type": "ping"}
-{"type": "pong"}
+### Why `run_in_executor` is used
+- YOLO predict is CPU-heavy.
+- Running predict in thread executor avoids blocking async WebSocket loop.
+
+---
+
+## 7. Prediction Smoothing Logic
+
+`PredictionSmoother` uses a deque window.
+
+- push current `(label, confidence)`
+- compute dominant label by frequency
+- compute average confidence for dominant label only
+- return stable output
+
+```mermaid
+flowchart TD
+  A[New raw prediction] --> B[Append to fixed window]
+  B --> C[Count label frequency]
+  C --> D[Pick dominant label]
+  D --> E[Average confidence for dominant label]
+  E --> F[Emit smoothed label/conf]
 ```
 
-3. Error:
+Why needed:
+- Raw frame predictions can jitter.
+- Smoothed output is better for sentence building on frontend.
 
-```json
-{"type": "error", "message": "Model not available on server"}
+---
+
+## 8. Health Endpoint (`GET /health`)
+
+Returns:
+- service status
+- model loaded boolean
+- inference engine identifier
+
+Used for:
+- deployment probes
+- frontend diagnostics
+- quick monitoring checks
+
+---
+
+## 9. SOS Endpoint (`POST /sos/send`)
+
+Purpose:
+- send emergency SMS to up to 5 contacts through Twilio.
+
+### Request Model
+- `type`: SOS type name
+- `message`: final prepared emergency message
+- `contacts`: array of `{name, phone}`
+- `location`: optional object with lat/lng/display/maps link
+- `platform`, `sent_at`: optional metadata
+
+### Response Model
+- `success`
+- `sent_count`
+- `total_contacts`
+- `errors`
+- `message`
+
+### SOS dispatch flow
+
+```mermaid
+flowchart TD
+  A[Frontend POST /sos/send] --> B[Validate payload with Pydantic]
+  B --> C[Resolve Twilio credentials]
+  C --> D[Normalize contact numbers]
+  D --> E[Loop contacts up to 5]
+  E --> F[Twilio messages.create]
+  F --> G[Collect sent count and failures]
+  G --> H[Return dispatch summary JSON]
 ```
 
-## 6) requirements.txt explained
+### Why phone normalization exists
+- Contacts can be saved in different formats.
+- Backend standardizes to E.164-compatible format before Twilio send.
 
-- `fastapi`, `uvicorn[standard]`: web server framework
-- `numpy`, `opencv-python-headless`: image decoding/processing
-- `torch`, `torchvision` CPU builds: inference backend
-- `ultralytics>=8.3.0`: YOLO framework
-- `gdown`: model fetch from Drive
-- `python-multipart`: FastAPI form/multipart support
+---
 
-Special line:
+## 10. Reliability and Safety Practices Already Implemented
 
-- `--extra-index-url https://download.pytorch.org/whl/cpu`
+- Corrupt model file detection by minimum file size.
+- Download fallback path for model retrieval.
+- Graceful inference behavior when model unavailable.
+- WebSocket timeout keepalive handling.
+- Defensive try/except per frame.
+- Contact list capped at 5 for SOS dispatch.
+- Per-contact error collection in Twilio dispatch.
 
-This ensures CPU wheels for torch are installed reliably.
+---
 
-## 7) Dockerfile explained
+## 11. File-by-File Backend Explanation
 
-1. Base image: `python:3.10-slim-bullseye`
-2. Installs system libs required by OpenCV (`libgl1`, `libglib2.0-0`)
-3. Sets workdir `/app`
-4. Copies `requirements.txt` and installs dependencies
-5. Copies full backend source
-6. Exposes `8000`
-7. Starts Uvicorn with Railway-compatible port fallback
+### `isl_backend/app.py`
+Contains:
+- app setup
+- CORS
+- model initialization
+- prediction smoother
+- `/ws`, `/health`, `/sos/send`
 
-## 8) railway.json explained
+### `isl_backend/requirements.txt`
+Dependency lock for:
+- inference stack
+- web server stack
+- Twilio SDK
 
-- Uses Dockerfile builder
-- deploys single replica
-- restart policy `ON_FAILURE` with retry budget
+### `isl_backend/Dockerfile`
+Containerized deployment with system libs required by OpenCV.
 
-This is minimal but valid production config.
+### `isl_backend/railway.json`
+Railway deployment strategy and restart policy.
 
-## 9) Backend reliability and safety features
+---
 
-- Corrupt model detection by file size
-- Download fallback path (`gdown` -> `urllib`)
-- Socket timeout keepalive
-- Per-frame exception isolation (bad frame does not crash server)
-- Graceful model-unavailable response
-- CORS restriction support via environment variables
+## 12. Important Viva Questions and Direct Answers
 
-## 10) End-to-end backend code flow for exam answer
+### Q1. Why WebSocket for inference instead of plain HTTP?
+Because camera inference is continuous streaming. WebSocket avoids repeated HTTP handshake overhead and supports low-latency bidirectional communication.
 
-You can write this summary:
+### Q2. Why CPU model deployment?
+To maximize compatibility and simplify deployment where GPU may not be available.
 
-The backend starts FastAPI, configures CORS from environment variables, validates or downloads YOLO model weights, loads the model on CPU, and exposes two endpoints: `/health` and `/ws`. The Flutter client streams Base64 camera frames to `/ws`. Each frame is decoded with NumPy/OpenCV, inferred by YOLO, smoothed with a short history buffer, and returned as JSON label-confidence output. Additional protocol messages (`__PING__`, `__STOP__`) support connection health and session reset. The service is containerized with Docker and deploy-ready for Railway.
+### Q3. How do you handle unstable predictions?
+A moving-window smoother chooses dominant labels and averages confidence values.
 
-## 11) Suggested backend improvements
+### Q4. How is SOS made automatic?
+Frontend builds final message with live location and calls backend `/sos/send`; backend loops over contacts and sends SMS via Twilio API.
 
-1. Add auth token check on WebSocket connections.
-2. Move heavy inference to worker queue when scaling users.
-3. Add structured metrics (latency, FPS, detection rate).
-4. Add explicit model version endpoint.
-5. Add request tracing IDs for debugging multi-user sessions.
+### Q5. What happens if some SMS sends fail?
+Response includes partial success with error list; successful sends are still counted.
+
+---
+
+## 13. End-to-End Backend Summary (Exam Ready)
+
+The backend is a dual-channel FastAPI service. One channel is a WebSocket inference pipeline where frames are decoded, inferred using YOLO on CPU, smoothed, and streamed back as structured prediction events. The second channel is an HTTP emergency pipeline that validates SOS payloads and dispatches SMS through Twilio to up to five contacts. The service is deployment-ready with CORS control, model auto-download, keepalive handling, and explicit health checks.

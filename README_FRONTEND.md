@@ -1,419 +1,379 @@
-# VANI Frontend README
+# VANI Frontend README (Viva Preparation)
 
-This document explains your Flutter frontend architecture and every screen/module code flow.
+This document explains the frontend in detail for viva:
+- what each module does
+- why it exists
+- how it is implemented and connected
 
-## 1) Frontend overview
-
-Frontend stack:
-
-- Flutter (cross-platform: Web, Android, iOS, Desktop)
-- Camera capture (`camera`)
-- WebSocket live inference (`web_socket_channel`)
-- TTS (`flutter_tts`), STT (`speech_to_text`)
-- Local persistence (`hive`)
-- Authentication + cloud sync (`supabase_flutter`)
-- Location (`geolocator`)
-
-Main entry:
-
+Primary frontend root:
 - `lib/main.dart`
 
-## 2) App bootstrap flow
+---
 
-`main.dart` boot sequence:
+## 1. Frontend Purpose
 
-1. `WidgetsFlutterBinding.ensureInitialized()`
-2. UI mode + system overlays configured
-3. `runApp(VaniApp())`
+Frontend responsibilities:
+1. Capture and stream visual sign input.
+2. Display real-time translated output.
+3. Enable two-way deaf-hearing conversation.
+4. Provide emergency SOS UI and contact management.
+5. Provide multilingual and accessible UX.
 
-`AppBootstrap.ensureInitialized()` performs one-time startup services:
+---
 
-- Hive initialization
-- EmergencyContact adapter registration
-- opens `emergency_contacts` box
-- validates Supabase dart-defines
-- initializes Supabase
+## 2. Frontend Tech Stack and Why Used
 
-This bootstrap is triggered from splash screen before moving to Home.
+- Flutter
+  - Why: one codebase for web, Android, iOS, desktop.
 
-## 3) Global architecture (frontend)
+- Camera package
+  - Why: direct access to live camera frames for sign detection.
 
-```text
-main.dart
-  -> SplashScreen (bootstrap + animated intro)
-  -> HomeScreen (hub)
-     -> TranslateScreen (ISL -> text)
-     -> TwoWayScreen (conversation bridge)
-     -> SignsPage (dictionary/learning)
-     -> ISLAssistantScreen (Gemini assistant)
-     -> EmergencyScreen / EmergencySetupScreen
-     -> Objective pages (6 screens)
+- WebSocket client
+  - Why: low-latency bidirectional channel for continuous inference.
+
+- Hive
+  - Why: lightweight local persistence for emergency contacts.
+
+- Geolocator
+  - Why: acquire live location for SOS payloads.
+
+- Flutter TTS + Speech-to-Text
+  - Why: accessibility for hearing and speech interaction flows.
+
+- HTTP client
+  - Why: API calls (Gemini assistant and SOS backend dispatch).
+
+---
+
+## 3. High-Level Frontend Architecture
+
+```mermaid
+flowchart TD
+  A[main.dart] --> B[SplashScreen]
+  B --> C[HomeScreen]
+
+  C --> D[TranslateScreen]
+  C --> E[TwoWayScreen]
+  C --> F[SignsPage]
+  C --> G[ISLAssistantScreen]
+  C --> H[EmergencyScreen]
+  H --> I[EmergencySetupScreen]
+  C --> J[Objectives Pages]
+
+  K[GlobalNavbar] --> C
+  L[SOSFloatingButton] --> H
+  M[AppLocalizations] --> A
+  N[BackendConfig] --> D
+  N --> E
+  O[EmergencyService] --> H
+  O --> I
 ```
 
-Cross-cutting shared layers:
+---
 
-- Components: `GlobalNavbar`, `SOSFloatingButton`, `AuthDialog`
-- Services: backend URL config, emergency orchestration, location, Supabase
-- Models: `EmergencyContact`
-- Localization: `AppLocalizations`
+## 4. App Boot Flow
 
-## 4) Services and data layer
+### File: `lib/main.dart`
 
-### `lib/services/backend_config.dart`
+Boot sequence:
+1. Flutter binding initialization.
+2. App bootstrap (Hive setup + contact adapter + contact box).
+3. Run app with theme + localization + root route.
 
-Purpose:
+Why this order:
+- Storage and service prerequisites are initialized before interactive screens.
 
-- central source of backend URLs
-- WebSocket/API URL resolution using `--dart-define`
-- platform-aware candidate fallback (especially Android emulator loopback)
+---
 
-Important members:
+## 5. Runtime Navigation Flow
 
-- `websocketUrl`
-- `websocketCandidates`
-- `apiBaseUrl`
-- `apiBaseCandidates`
-- `healthUrl`
+```mermaid
+flowchart LR
+  A[Splash] --> B[RootShell]
+  B --> C[Home]
+  C --> D[Translate]
+  C --> E[Two-Way]
+  C --> F[Signs Library]
+  C --> G[ISL Assistant]
+  C --> H[Emergency]
+  H --> I[Emergency Setup]
+```
 
-Why important:
+Implementation pattern:
+- Home acts as navigation hub.
+- Web and mobile layouts are rendered differently from the same screen classes.
 
-- avoids hardcoded endpoint logic inside each screen
-- supports local, staging, production with env flags
+---
 
-### `lib/services/EmergencyService.dart`
+## 6. Shared Core Layers
 
-Purpose:
+## 6.1 Localization Layer
 
-- singleton emergency orchestration service
+### File: `lib/l10n/AppLocalizations.dart`
 
-Main responsibilities:
+What:
+- central string table for supported locales.
+- `t(key)` lookup model used across screens.
 
-- manages emergency contacts in Hive
-- optional Supabase sync CRUD integration
-- shake detection trigger
-- location-aware SOS message creation
-- launches WhatsApp/SMS URI flows (mobile)
-- web/desktop fallback handling
+Why:
+- avoids hardcoded strings in UI.
+- keeps multilingual behavior consistent.
 
-Core types:
+How:
+- widget code calls `AppLocalizations.of(context).t('key')`.
 
-- `SOSMessageType`
-- `SOSResult`
+---
 
-Critical methods:
+## 6.2 Backend Routing Layer
 
-- `init()`, `syncFromSupabase()`, `pushLocalContactsToSupabase()`
-- `addContact()`, `updateContact()`, `deleteContact()`, `setPrimary()`
-- `triggerSOS(...)`
+### File: `lib/services/backend_config.dart`
 
-### `lib/services/LocationService.dart`
+What:
+- resolves websocket and API base URLs.
+- supports `--dart-define` envs for local/prod builds.
 
-Purpose:
+Why:
+- no hardcoded endpoint duplication in screens.
+- supports emulator/loopback differences.
 
-- unified geolocation API for mobile + web
+How:
+- candidate URL generation + platform-aware fallback.
+
+---
+
+## 6.3 Emergency Domain Layer
+
+### File: `lib/services/EmergencyService.dart`
+
+What:
+- single service for SOS lifecycle.
+- manages Hive contacts.
+- obtains mandatory live location.
+- dispatches SOS via backend Twilio endpoint.
+
+Why:
+- centralizes critical emergency logic.
+- keeps UI screens simple and consistent.
+
+How:
+- `triggerSOS(...)` orchestrates flow:
+  - validate contacts
+  - enforce location
+  - build localized message template
+  - call backend `/sos/send`
+  - return `SOSResult`
+
+---
+
+## 7. Data Model
+
+### File: `lib/models/EmergencyContact.dart`
+
+Fields used by SOS:
+- name
+- phone
+- relation
+- isPrimary
+- supabaseId (legacy persisted field)
+
+Why model exists:
+- typed contact representation for Hive + UI.
+
+### File: `lib/models/EmergencyContact.g.dart`
+
+- generated Hive adapter for binary read/write.
+
+---
+
+## 8. Feature Screen Deep Dive
+
+## 8.1 Translate Screen
+
+### File: `lib/screens/TranslateScreen.dart`
+
+What:
+- real-time sign-to-text translation terminal.
+
+Why:
+- core accessibility feature for direct sign understanding.
+
+How:
+1. initialize camera
+2. capture frames periodically
+3. send frames on WebSocket
+4. receive predictions
+5. run token acceptance logic
+6. construct sentence via rules
+7. show transcript and confidence status
 
 Flow:
 
-1. checks service availability
-2. checks/requests permission
-3. gets current position with timeout
-4. fallback to last known location
+```mermaid
+sequenceDiagram
+  participant Cam as Camera
+  participant TS as TranslateScreen
+  participant WS as Backend /ws
 
-Includes helper methods for:
+  Cam->>TS: image frames
+  TS->>WS: base64 frame
+  WS-->>TS: label + confidence
+  TS->>TS: stability/cooldown checks
+  TS->>TS: sentence builder update
+  TS-->>User: live text output
+```
 
-- google maps link generation
-- message placeholder interpolation (`{LOCATION}`, `{TIME}`)
+---
 
-### `lib/services/SupabaseService.dart`
+## 8.2 Two-Way Screen
 
-Purpose:
+### File: `lib/screens/TwoWayScreen.dart`
 
-- single source for Supabase DB operations
+What:
+- bidirectional conversation channel for deaf and hearing users.
 
-Functions:
+Why:
+- accessibility must support both directions, not only sign decoding.
 
-- user profile upsert
-- emergency contacts CRUD in cloud table
-- cloud-to-local Hive sync
+How:
+- Deaf side: signs -> backend prediction -> message thread.
+- Hearing side: typed/speech input -> text + optional TTS playback.
+- Shared chat thread keeps conversation context.
 
-### `lib/services/web_home_nav.dart`
+---
 
-Purpose:
+## 8.3 Signs Library Screen
 
-- lightweight section-navigation bus for Home web layout
-- uses `ValueNotifier<WebHomeSection?>`
+### File: `lib/screens/Signspage.dart`
 
-## 5) Components
+What:
+- educational catalog of signs with categories and search.
 
-### `lib/components/GlobalNavbar.dart`
+Why:
+- supports learning and familiarization with sign vocabulary.
 
-What it does:
+How:
+- local sign dataset rendered in responsive list/grid.
+- category filters + search pipeline on in-memory entries.
 
-- responsive top navigation for web/desktop/mobile
-- route navigation to feature screens
-- home-section jump on web
-- language dropdown
-- theme toggle
-- auth sign-in/sign-out actions
-- SOS highlighted nav action
+---
 
-### `lib/components/SOSFloatingButton.dart`
+## 8.4 ISL Assistant Screen
 
-What it does:
+### File: `lib/screens/Islassistantscreen.dart`
 
-- persistent quick SOS action button
-- expandable quick-action menu
-- long-press instant general emergency
-- can open full EmergencyScreen
+What:
+- AI assistant for ISL guidance, explanations, and phrase support.
 
-### `lib/components/AuthDialog.dart`
+Why:
+- complements detection features with interactive learning support.
 
-What it does:
+How:
+- builds prompt context
+- sends request to model endpoint
+- renders multi-language conversational response
+- supports voice input and output
 
-- login/signup UI and flow
-- Supabase auth integration
-- post-auth contact sync between Supabase and Hive
-- can render as dialog or fullscreen auth screen
+---
 
-## 6) Models
+## 8.5 Emergency Screen
 
-### `lib/models/EmergencyContact.dart`
+### File: `lib/screens/EmergencyScreen.dart`
 
-Data fields:
+What:
+- scenario-driven SOS trigger panel.
 
-- `name`, `phone`, `relation`, `isPrimary`, `supabaseId`
+Why:
+- quick emergency actions are needed under stress.
 
-Utility methods:
+How:
+- predefined scenarios map to message templates.
+- one tap calls `EmergencyService.triggerSOS`.
+- status banners show dispatch result.
 
-- phone cleaning and validation
-- WhatsApp/SMS number normalization
-- map serialization
+---
 
-### `lib/models/EmergencyContact.g.dart`
+## 8.6 Emergency Setup Screen
 
-- generated Hive adapter (read/write binary format)
-- includes `supabaseId` field persistence
+### File: `lib/screens/EmergencySetupScreen.dart`
 
-## 7) Localization system
+What:
+- CRUD for up to 5 emergency contacts.
 
-### `lib/l10n/AppLocalizations.dart`
+Why:
+- SOS delivery depends on preconfigured trusted contacts.
 
-Purpose:
-
-- central translation map and localization delegate
-- supported locales currently include: English, Hindi, Marathi
-
-Key method:
-
-- `t(key)` style lookups through localized maps
-
-This is used across all screens for UI text consistency.
-
-## 8) Screen-by-screen explanation
-
-## `lib/screens/SplashScreen.dart`
-
-Role:
-
-- premium animated launch screen
-- calls `AppBootstrap.ensureInitialized()`
-- navigates to post-splash gate (home/auth flow)
-
-Code behavior:
-
-- multiple animation controllers for icon, text, exit fade
-- timeline-based animation sequencing
-- handles bootstrap failure with fallback error screen
-
-## `lib/screens/HomeScreen.dart`
-
-Role:
-
-- central app hub
-- mobile tabbed feed + web long-scroll landing sections
-- entry point to all features
-
-Code behavior:
-
-- responsive split (`kIsWeb || width >= 700`)
-- web section reveal and scroll targeting
-- launches Translate, Signs, TwoWay, Emergency, Assistant, objective pages
-- keeps FAB SOS available in mobile mode
-
-## `lib/screens/TranslateScreen.dart`
-
-Role:
-
-- primary real-time ISL translation terminal
-
-Key logic:
-
-- camera initialization and frame capture loop
-- websocket connection to backend
-- parses prediction stream
-- sentence generation pipeline:
-  - `_kModelWords` vocabulary
-  - `SentenceBuilder` (`_solo`, `_pairs`, `_triples`)
-  - `_AutoAddEngine` stability/cooldown logic
-- optional translation/TTS utilities
-- onboarding flow and polished UI states
-
-Why this screen is core:
-
-- this is where ML output becomes meaningful language output.
-
-## `lib/screens/TwoWayScreen.dart`
-
-Role:
-
-- bridge between deaf and hearing users
-
-Key logic:
-
-- ISL capture and websocket prediction ingestion
-- message thread model (`_Message`, `_Sender`)
-- hearing-side input:
-  - typed text
-  - speech-to-text (`speech_to_text`)
-- deaf-side output:
-  - TTS readout (`flutter_tts`)
-- multilingual locale config for TTS/STT
-- reconnect and camera switching logic
-
-## `lib/screens/Signspage.dart`
-
-Role:
-
-- ISL reference and learning vault
-
-Key logic:
-
-- local sign catalog model (`_Sign`, category enum)
-- 64 sign entries (alphabet, numbers, words)
-- filter/search/category browsing
-- responsive presentation patterns for web/mobile
-
-## `lib/screens/Islassistantscreen.dart`
-
-Role:
-
-- AI conversational ISL assistant
-
-Key logic:
-
-- Gemini call via HTTP (`generateContent` API)
-- system prompt specialized for ISL teaching behavior
-- multilingual quick prompts and language profile
-- optional voice input and TTS readout
-- chat message model with assistant/user roles
-
-## `lib/screens/EmergencyScreen.dart`
-
-Role:
-
-- emergency dispatch UI for scenario-based SOS
-
-Key logic:
-
-- predefined emergency scenarios mapped to type/helpline/message template
-- auto scenario suggestion from detected sign text
-- invokes `EmergencyService.triggerSOS(...)`
-- status banners and contact readiness checks
-- web/desktop and mobile layouts
-
-## `lib/screens/EmergencySetupScreen.dart`
-
-Role:
-
-- manage emergency contacts and emergency preferences
-
-Key logic:
-
-- CRUD on local contacts through `EmergencyService`
+How:
+- add/edit/delete contact forms
+- validation for phone and required fields
 - set primary contact
-- contact validation flows
-- form and modal interactions
-- optional shake support messaging
+- Hive-backed persistence
 
-## Objective screens (`lib/screens/objectives/*`)
+---
 
-Shared engine:
+## 9. SOS End-to-End Frontend Flow
 
-- `objective_shared.dart` defines reusable objective page scaffold, hero, stats, section blocks, charts, timeline components.
+```mermaid
+flowchart TD
+  A[User taps SOS scenario] --> B[EmergencyService.triggerSOS]
+  B --> C[Require live location]
+  C -->|location available| D[Build localized emergency message]
+  D --> E[Collect valid contacts up to 5]
+  E --> F[POST /sos/send]
+  F --> G[Receive dispatch summary]
+  G --> H[Show success/failure status in UI]
+```
 
-Individual pages:
+Why this is correct for emergency UX:
+- fully automatic dispatch path
+- no manual copy/send dependency during distress
 
-- `AccessibilityPage.dart`
-- `BridgingGapsPage.dart`
-- `LocalizationPage.dart`
-- `InclusivityPage.dart`
-- `PrivacyPage.dart`
-- `EducationPage.dart`
+---
+
+## 10. Web vs Mobile Implementation Notes
+
+Mobile:
+- compact layouts
+- camera-intensive flows
+- floating SOS button integration
+- optional shake trigger path in service
+
+Web:
+- larger split sections and long-scroll home sections
+- same services, different layout composition
+
+Both share:
+- same localization keys
+- same emergency service contracts
+- same backend routing strategy
+
+---
+
+## 11. Objective Pages Architecture
+
+Directory:
+- `lib/screens/objectives/`
 
 Pattern:
+- `objective_shared.dart` provides reusable structural widgets.
+- each objective page supplies localized content and accent.
 
-- each page supplies localized content + accent + stats + sections
-- all heavy UI composition is delegated to `ObjectivePageBase`
+Why:
+- avoids UI duplication
+- keeps educational sections consistent in style and behavior
 
-## 9) Frontend user journeys
+---
 
-### Journey A: Translate flow
+## 12. Frontend Reliability Decisions
 
-1. user opens Translate screen
-2. camera starts
-3. frames sent to backend websocket
-4. prediction labels returned
-5. smoothing + auto-add + sentence builder
-6. text/transcript rendered in UI
+- Service-layer orchestration for critical flows (SOS).
+- Explicit result objects (`SOSResult`) for predictable UI handling.
+- URL candidate fallback for backend connectivity.
+- Localization-first UI rendering.
+- Responsive layouts for web and mobile breakpoints.
 
-### Journey B: Two-way communication flow
+---
 
-1. deaf user signs -> prediction -> text in chat
-2. hearing user replies via typed or voice input
-3. app can speak messages using TTS
-4. thread history maintained for both sides
+## 13. Viva Summary (Frontend)
 
-### Journey C: Emergency flow
-
-1. user configures contacts in Setup screen
-2. triggers SOS from button or shake
-3. optional location retrieval
-4. message template generated
-5. WhatsApp/SMS launch for contacts
-
-## 10) Web vs mobile behavior
-
-Mobile-focused differences:
-
-- persistent floating SOS button
-- compact nav/tabs and device camera usage
-- shake detection active on supported hardware
-
-Web-focused differences:
-
-- global navbar + section scrolling
-- larger layouts and split panes
-- no physical shake trigger
-
-## 11) Platform helper utility
-
-`lib/utils/PlatformHelper.dart` centralizes feature capability checks:
-
-- `isWeb`, `isMobile`, `isDesktop`
-- `supportsShake`, `canSendSMS`, `hasGPS`
-
-This keeps platform branching clean and avoids repeated checks across screens.
-
-## 12) Frontend architecture summary for exam
-
-You can write:
-
-The frontend is a modular Flutter application with a service-driven architecture. `main.dart` initializes local storage and Supabase once, then routes users through splash and home flows. Feature screens are separated by responsibility: `TranslateScreen` for live ISL detection output handling, `TwoWayScreen` for bidirectional communication, `Signspage` for dictionary learning, `ISLAssistantScreen` for Gemini-based guidance, and emergency screens for SOS workflows. Shared components (`GlobalNavbar`, `SOSFloatingButton`, `AuthDialog`) provide cross-app consistency, while services (`backend_config`, `EmergencyService`, `LocationService`, `SupabaseService`) isolate backend communication, state sync, and platform-specific behavior.
-
-## 13) Suggested frontend improvements
-
-1. Extract some large screens into smaller feature widgets for maintainability.
-2. Add provider/state-management layer for clearer business-state boundaries.
-3. Add widget tests for core flows: translate session, emergency trigger, auth sync.
-4. Move Gemini endpoint call behind secure backend proxy for key protection.
-5. Add analytics hooks for inference latency and error-rate monitoring.
+The frontend is a modular Flutter architecture where the Home screen routes into specialized feature screens for translation, two-way communication, learning, assistant guidance, and emergency operations. Shared services handle backend connectivity, localization, and emergency orchestration. Emergency flow is implemented as an automatic backend dispatch pipeline with mandatory live location, while translation flow runs as a low-latency WebSocket stream with frontend temporal stabilization and sentence construction.

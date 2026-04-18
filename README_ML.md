@@ -1,217 +1,258 @@
-# VANI ML README
+# VANI ML README (Viva Preparation)
 
-This file explains the machine learning part of your project in an exam-friendly way.
+This document explains the ML layer in practical viva style:
+- what the ML component does
+- why each decision exists
+- how inference is implemented end to end
 
-## 1) What ML does in this project
+Primary implementation reference:
+- `isl_backend/app.py`
 
-VANI uses a custom YOLO model to detect Indian Sign Language (ISL) signs from camera frames in real time.
+---
 
-- Input: Camera image frames from Flutter app
-- ML task: Object detection / classification of hand sign in each frame
-- Output: Predicted label + confidence score
-- Runtime path: Flutter -> WebSocket -> FastAPI -> YOLO -> WebSocket -> Flutter UI
+## 1. ML Objective in This Project
 
-The ML model is served by backend code in `isl_backend/app.py` and loaded from `isl_backend/model/isl_best.pt`.
+VANI performs real-time ISL sign recognition from camera frames.
 
-## 2) Model used
+Input:
+- image frames from frontend camera stream
 
-- Framework: Ultralytics YOLO (`ultralytics>=8.3.0`)
-- Runtime: CPU inference (`loaded_model.to("cpu")`)
-- Weights file: `isl_best.pt`
-- Inference tuning:
-	- `CONF_THRESHOLD = 0.30`
-	- `MAX_DET = 1`
-	- `FRAME_SKIP_MS = 80` (to control effective FPS on CPU)
+ML task:
+- single dominant sign detection/classification per frame
 
-### Why YOLO here
+Output:
+- predicted sign label
+- confidence score
 
-YOLO is suitable because:
+Integration path:
+- Flutter camera -> WebSocket -> FastAPI -> YOLO inference -> smoothed prediction -> Flutter UI
 
-- It is fast enough for near real-time inference
-- It can detect and classify in one pass
-- It is robust for camera-based tasks
-- Ultralytics API is easy to deploy in FastAPI
+---
 
-## 3) End-to-end ML pipeline flow
+## 2. Model and Runtime Setup
+
+Model details from code:
+- Framework: Ultralytics YOLO
+- Weights file: `model/isl_best.pt`
+- Runtime device: CPU (`to("cpu")`)
+- Model optimization: `fuse()`
+
+Inference parameters:
+- `CONF_THRESHOLD = 0.30`
+- `MAX_DET = 1`
+- `FRAME_SKIP_MS = 80`
+
+Why these values:
+- `conf=0.30`: balances recall and false positives
+- `max_det=1`: app expects one primary sign at a time
+- `frame_skip=80ms`: reduces CPU load while keeping interactive speed
+
+---
+
+## 3. ML Pipeline Overview
 
 ```mermaid
 flowchart TD
-		A[Flutter camera frame] --> B[Encode as Base64]
-		B --> C[Send frame to WebSocket /ws]
-		C --> D[FastAPI receives text payload]
-		D --> E[Decode Base64 to bytes]
-		E --> F[NumPy buffer -> OpenCV image]
-		F --> G[YOLO predict on CPU]
-		G --> H[Get top box class + confidence]
-		H --> I[PredictionSmoother window]
-		I --> J[Stable label + averaged confidence]
-		J --> K[Send JSON prediction to Flutter]
-		K --> L[Sentence builder and UI rendering]
+  A[Camera Frame] --> B[Base64 Encode]
+  B --> C[WebSocket Send]
+  C --> D[Backend Decode]
+  D --> E[NumPy Buffer]
+  E --> F[OpenCV Frame]
+  F --> G[YOLO Predict]
+  G --> H[Top Detection Parse]
+  H --> I[PredictionSmoother]
+  I --> J[Stable Label + Confidence]
+  J --> K[Frontend Sentence Builder]
 ```
 
-## 4) Startup and model loading pipeline
+---
 
-When backend starts:
+## 4. Startup ML Flow
 
-1. Creates `model/` directory if missing.
-2. Checks whether `model/isl_best.pt` exists and is valid.
-3. If missing/corrupt, downloads from Google Drive using `gdown` (fallback `urllib`).
-4. Loads model using `YOLO(MODEL_PATH)`.
-5. Moves model to CPU and runs `fuse()` for faster inference.
-6. Stores global `model` instance for all WebSocket sessions.
+```mermaid
+flowchart TD
+  A[Backend Start] --> B[Check model file exists]
+  B -->|missing or too small| C[Download from Google Drive]
+  C --> D[Validate file size]
+  D --> E[Load YOLO]
+  B -->|valid| E
+  E --> F[Move to CPU]
+  F --> G[Fuse layers]
+  G --> H[Ready for /ws inference]
+```
 
-This makes deployment simple: even if model is not bundled in image, server can fetch it at boot.
+Key reliability rule:
+- Small/corrupt model file is deleted and re-downloaded.
 
-## 5) Per-frame inference logic
+Why this is important:
+- Cloud deployments can start with partial files.
+- Startup auto-recovery prevents silent bad inference.
 
-For every message on `/ws`:
+---
 
-1. Backend receives frame text.
-2. Handles protocol commands:
-	 - `__PING__` -> returns `pong`
-	 - `__STOP__` -> resets smoother
-3. Applies throttle using `FRAME_SKIP_MS`.
-4. Decodes image to OpenCV format.
-5. Runs `model.predict(frame, conf=0.30, max_det=1, device="cpu")`.
-6. If detection exists:
-	 - take first box
-	 - extract class id -> label using `model.names`
-	 - extract confidence
-7. If no detection:
-	 - use label `No Sign`, confidence `0.0`
-8. Passes result to `PredictionSmoother`.
-9. Sends response JSON:
+## 5. Frame-Level Inference Steps
 
+For every frame payload at `/ws`:
+
+1. Receive text payload.
+2. Handle protocol control messages (`__PING__`, `__STOP__`).
+3. Apply frame-throttle guard with `FRAME_SKIP_MS`.
+4. Decode Base64 bytes.
+5. Convert bytes to OpenCV image.
+6. Run YOLO predict in executor thread.
+7. If box exists: parse class id + confidence.
+8. If no box: emit `No Sign`, confidence `0.0`.
+9. Pass output through smoother.
+10. Return prediction packet to frontend.
+
+---
+
+## 6. Why Executor Inference Is Used
+
+Model inference is CPU-bound.
+
+If inference runs directly on async event loop:
+- socket responsiveness degrades
+- keepalive and control messages lag
+
+So inference runs in `run_in_executor` to keep async loop responsive.
+
+---
+
+## 7. Prediction Smoothing: Exact Logic
+
+`PredictionSmoother(window=5)` maintains recent `(label, confidence)` entries.
+
+Algorithm:
+- append current prediction
+- dominant label = highest frequency in window
+- confidence = average confidence of dominant-label entries
+- emit dominant label and averaged confidence
+
+```mermaid
+flowchart LR
+  A[Raw predictions over time] --> B[Sliding window size 5]
+  B --> C[Dominant class vote]
+  C --> D[Confidence averaging]
+  D --> E[Smoothed stream]
+```
+
+Why used:
+- reduces jitter from frame-to-frame noise
+- improves downstream language construction
+
+---
+
+## 8. Message Protocol Between Frontend and ML Backend
+
+### Incoming types
+1. Base64 frame string
+2. `__PING__`
+3. `__STOP__`
+
+### Outgoing types
+1. Prediction packet
 ```json
 {
-	"type": "prediction",
-	"label": "hello",
-	"confidence": 0.92,
-	"frame": 118
+  "type": "prediction",
+  "label": "hello",
+  "confidence": 0.91,
+  "frame": 84
 }
 ```
 
-## 6) Stabilization strategy (very important for viva)
+2. Keepalive
+```json
+{"type": "ping"}
+{"type": "pong"}
+```
 
-Raw frame-by-frame predictions can flicker. This project uses two layers of stabilization:
+3. Error packet
+```json
+{"type": "error", "message": "Model not available on server"}
+```
 
-### Layer A: Backend smoothing (`PredictionSmoother`)
+---
 
-- Maintains a sliding window (`deque`) of recent predictions.
-- Chooses dominant label by frequency in that window.
-- Averages confidence only for dominant label.
+## 9. ML to NLP Bridge on Frontend
 
-Effect: Reduces random jitter and unstable labels.
+Backend outputs sign labels, not full sentences.
 
-### Layer B: Frontend temporal logic (in `TranslateScreen.dart`)
+Frontend logic then does:
+- temporal token acceptance (stability and cooldown)
+- phrase/sentence assembly from predefined grammar maps
 
-- `_AutoAddEngine` enforces:
-	- minimum stability duration (`_stabilityMs`)
-	- cooldown for same word
-	- cooldown for any word
+So final language quality depends on:
+- backend prediction stability
+- frontend token policy
 
-Effect: Better sentence building, fewer repeated accidental tokens.
+This separation keeps backend lightweight and inference-focused.
 
-## 7) Vocabulary scope used in model pipeline
+---
 
-In frontend sentence engine (`TranslateScreen.dart`), the recognized operational vocabulary is a 25-word set:
+## 10. Performance Reasoning for Viva
 
-- hello
-- how are you
-- i
-- please
-- today
-- time
-- what
-- name
-- quiet
-- yes
-- thankyou
-- namaste
-- bandaid
-- help
-- strong
-- mother
-- food
-- father
-- brother
-- love
-- good
-- bad
-- sorry
-- sleeping
-- water
+### Throughput
+- Frame skipping constrains inference frequency.
+- CPU stays stable for real-time interaction.
 
-These are mapped into:
+### Latency
+- Lower than request/response HTTP loops due to persistent WebSocket.
 
-- solo responses (`_solo`)
-- pair grammar rules (`_pairs`)
-- triple grammar rules (`_triples`)
+### Accuracy stability
+- Smoothed confidence and dominant voting reduce false spikes.
 
-So the ML output is not just displayed as labels; it becomes meaningful sentence-level communication.
+### Trade-off
+- Slight delay for smoother output is accepted for better usability.
 
-## 8) Theory section for exams
+---
 
-### 8.1 Problem type
+## 11. Error Handling in ML Path
 
-The core ML problem is real-time vision-based sign recognition using object detection outputs.
+Implemented protections:
+- invalid frame decode is skipped, not fatal
+- per-frame try/except in socket loop
+- model unavailable detected early and reported
+- timeout keepalive prevents dead socket sessions
 
-### 8.2 Why confidence threshold is needed
+Result:
+- one bad frame does not crash stream
+- backend remains available during noisy input
 
-Confidence threshold filters weak predictions. Here `conf=0.30` removes very low-trust detections and improves output quality.
+---
 
-### 8.3 Why frame throttling is needed
+## 12. Core ML Concepts You Can Explain in Viva
 
-CPU inference on every frame can overload server. `FRAME_SKIP_MS=80` limits inference frequency to about 12 FPS, balancing latency and stability.
+### Precision and Recall
+- Precision: quality of predicted positives
+- Recall: coverage of true positives
 
-### 8.4 Why max_det=1
-
-For this use case, one dominant sign per frame is expected. `MAX_DET=1` simplifies output and improves consistency.
-
-### 8.5 Latency vs accuracy tradeoff
-
-- Higher FPS -> more responsive but more noisy and CPU-heavy
-- Lower FPS + smoothing -> slightly delayed but cleaner predictions
-
-This project chooses practical real-time behavior over raw maximum throughput.
-
-### 8.6 Core detection metrics you can mention in exam
-
-- Precision: fraction of predicted signs that are correct
-- Recall: fraction of true signs that are detected
-- mAP: overall detection quality across classes and IoU thresholds
-- Confidence score: model probability-like output per detection
-
-You can write these in short as:
-
+Formulas:
 - $Precision = \frac{TP}{TP + FP}$
 - $Recall = \frac{TP}{TP + FN}$
 
-## 9) Deployment-oriented ML choices in this project
+### Confidence thresholding
+- Controls minimum acceptable prediction confidence.
 
-- CPU-only model execution for broad compatibility
-- Model auto-download for reproducible startup
-- Stateless per-frame inference in WebSocket loop
-- Keepalive handling (`ping/pong`) for long sessions
-- Defensive try/except around decoding and prediction
+### Temporal smoothing
+- Uses short history to stabilize predictions over time.
 
-## 10) Known limitations and future improvements
+### Real-time systems design
+- Balances accuracy, latency, and compute budget.
 
-Current limitations:
+---
 
-- Single-sign dominant assumption (`max_det=1`)
-- No explicit tracking of temporal sign sequence in backend
-- CPU inference can still be heavy under high concurrency
+## 13. Deployment Notes for ML Layer
 
-Possible improvements:
+- CPU wheels for torch are installed via extra index URL.
+- Model file auto-fetch supports reproducible deploys.
+- `/health` endpoint exposes model readiness.
 
-1. Quantized model or TensorRT/ONNX runtime for speed
-2. Batch queue or worker pool for multi-user scaling
-3. Add temporal model (LSTM/Transformer) for dynamic gestures
-4. Class-specific confidence thresholds
-5. Add active learning pipeline from misclassifications
+Why this matters:
+- Inference service can be monitored and restarted safely in production.
 
-## 11) One-page exam answer template (copy-ready)
+---
 
-VANI uses a custom YOLO-based computer vision model to recognize Indian Sign Language gestures from live camera frames. The Flutter app captures frames and sends them as Base64 through a WebSocket to a FastAPI backend. The backend decodes frames with OpenCV/NumPy and performs CPU inference using `isl_best.pt`. It applies confidence filtering (`0.30`), maximum one detection per frame, and prediction smoothing via a sliding window. The backend returns label-confidence JSON to the client, where an auto-add engine and sentence builder convert stable labels into meaningful language output. This architecture gives low-latency, real-time assistance while controlling noise through throttling, smoothing, and cooldown logic.
+## 14. Viva Summary Paragraph
 
+VANI uses a YOLO-based vision model to recognize ISL signs from streaming camera frames. The backend decodes Base64 images, runs CPU inference, applies temporal smoothing, and returns stable label-confidence events over WebSocket. Runtime safeguards include model file validation, auto-download recovery, keepalive signaling, and frame-level exception isolation. This design provides practical real-time recognition while preserving service stability under deployment constraints.

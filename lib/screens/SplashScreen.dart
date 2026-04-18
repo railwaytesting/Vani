@@ -1,37 +1,14 @@
-// lib/screens/SplashScreen.dart
-//
-// ╔══════════════════════════════════════════════════════════╗
-// ║  VANI — Splash Screen  · Apple-Inspired Premium UI     ║
-// ║  Font: Plus Jakarta Sans                               ║
-// ║                                                        ║
-// ║  PHILOSOPHY                                            ║
-// ║  Pure white canvas. Surgical timing. No noise.        ║
-// ║  Exactly how Apple does it — logo, wordmark, done.    ║
-// ║                                                        ║
-// ║  TIMELINE                                             ║
-// ║  0 ms      White canvas                               ║
-// ║  120 ms    App icon scales in (spring, iOS feel)      ║
-// ║  680 ms    "VANI" fades + slides up                   ║
-// ║  980 ms    Tagline fades in                           ║
-// ║  2000 ms   Everything fades out                       ║
-// ║  2480 ms   Navigate — zero transition                 ║
-// ╚══════════════════════════════════════════════════════════╝
 
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'HomeScreen.dart';
 import '../l10n/AppLocalizations.dart';
 import '../components/SOSFloatingButton.dart';
-import '../components/AuthDialog.dart';
 import '../services/EmergencyService.dart';
 import '../main.dart' show AppBootstrap;
-
-// ─────────────────────────────────────────────
 //  APPLE PALETTE  (splash is always light)
-// ─────────────────────────────────────────────
 const _white  = Color(0xFFFFFFFF);
 const _blue   = Color(0xFF007AFF);   // iOS system blue
 const _blue2  = Color(0xFF0055FF);   // deeper shade for gradient
@@ -43,10 +20,7 @@ TextStyle _t(double size, FontWeight w, Color c,
   TextStyle(fontFamily: 'Plus Jakarta Sans',
         fontSize: size, fontWeight: w, color: c,
         letterSpacing: ls, height: h);
-
-// ══════════════════════════════════════════════════════════
 //  SPLASH SCREEN
-// ══════════════════════════════════════════════════════════
 class SplashScreen extends StatefulWidget {
   final VoidCallback     toggleTheme;
   final Function(Locale) setLocale;
@@ -62,24 +36,20 @@ class _SplashScreenState extends State<SplashScreen>
 
   late final Future<void> _bootstrapFuture;
 
-  // ── Controllers ────────────────────────────
   late final AnimationController _iconCtrl;   // app icon entrance
   late final AnimationController _textCtrl;   // wordmark + tagline
   late final AnimationController _exitCtrl;   // full-screen fade-out
 
-  // ── Icon animations ─────────────────────────
   late final Animation<double> _iconScale;
   late final Animation<double> _iconFade;
   late final Animation<double> _arcProgress;
   late final Animation<double> _handFade;
   late final Animation<double> _handScale;
 
-  // ── Text animations ──────────────────────────
   late final Animation<double> _nameFade;
   late final Animation<Offset>  _nameSlide;
   late final Animation<double> _tagFade;
 
-  // ── Exit ─────────────────────────────────────
   late final Animation<double> _exitFade;
 
   @override
@@ -213,7 +183,6 @@ class _SplashScreenState extends State<SplashScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
 
-                  // ── App Icon ─────────────────────────
                   // Mirrors the Apple app icon: square with
                   // rounded corners, solid white bg, blue elements.
                   ScaleTransition(
@@ -235,7 +204,6 @@ class _SplashScreenState extends State<SplashScreen>
 
                   const SizedBox(height: 28),
 
-                  // ── App name ─────────────────────────
                   // Apple style: black, heavy weight, tight spacing
                   SlideTransition(
                     position: _nameSlide,
@@ -248,7 +216,6 @@ class _SplashScreenState extends State<SplashScreen>
 
                   const SizedBox(height: 8),
 
-                  // ── Tagline ───────────────────────────
                   FadeTransition(
                     opacity: _tagFade,
                     child: Text(l.t('tagline_main'),
@@ -263,12 +230,9 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════
 //  APP ICON PAINTER
 //  iOS-style rounded-square icon with system-blue elements.
 //  White background, blue arc ring, hand silhouette.
-// ══════════════════════════════════════════════════════════
 class _AppIconPainter extends CustomPainter {
   final double arcProgress;
   final double handOpacity;
@@ -286,7 +250,6 @@ class _AppIconPainter extends CustomPainter {
     final cx = w / 2;
     final cy = h / 2;
 
-    // ── Rounded-square background (iOS icon shape) ──
     final iconRadius = w * 0.225;  // iOS standard corner radius ratio
     final iconRect   = Rect.fromLTWH(0, 0, w, h);
     final iconRRect  = RRect.fromRectAndRadius(
@@ -313,7 +276,6 @@ class _AppIconPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 0.5);
 
-    // ── Blue arc ring ─────────────────────────
     if (arcProgress > 0) {
       final arcR  = w * 0.36;
       final sweep = 2 * math.pi * arcProgress;
@@ -354,7 +316,6 @@ class _AppIconPainter extends CustomPainter {
       }
     }
 
-    // ── Hand silhouette ───────────────────────
     if (handOpacity > 0) {
       canvas.save();
       canvas.translate(cx, cy);
@@ -412,10 +373,7 @@ class _AppIconPainter extends CustomPainter {
           old.handOpacity != handOpacity ||
           old.handScale   != handScale;
 }
-
-// ══════════════════════════════════════════════════════════
 //  APP SHELL  (post-splash host)
-// ══════════════════════════════════════════════════════════
 class _AppShell extends StatefulWidget {
   final VoidCallback toggleTheme;
   final Function(Locale) setLocale;
@@ -461,39 +419,16 @@ class _PostSplashGate extends StatefulWidget {
 }
 
 class _PostSplashGateState extends State<_PostSplashGate> {
-  late bool _isLoggedIn;
-  late final StreamSubscription<AuthState> _authSub;
-
   @override
   void initState() {
     super.initState();
-    _isLoggedIn = Supabase.instance.client.auth.currentSession != null;
-    _authSub = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-      if (!mounted) return;
-      setState(() => _isLoggedIn = data.session != null);
-    });
-  }
-
-  @override
-  void dispose() {
-    _authSub.cancel();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoggedIn) {
-      return _AppShell(
-        toggleTheme: widget.toggleTheme,
-        setLocale: widget.setLocale,
-      );
-    }
-
-    return AuthScreen(
-      onAuthenticated: () {
-        if (!mounted) return;
-        setState(() => _isLoggedIn = true);
-      },
+    return _AppShell(
+      toggleTheme: widget.toggleTheme,
+      setLocale: widget.setLocale,
     );
   }
 }

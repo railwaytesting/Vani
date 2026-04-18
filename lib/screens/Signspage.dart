@@ -1,18 +1,3 @@
-// lib/screens/SignsPage.dart
-//
-// ╔══════════════════════════════════════════════════════════════════════╗
-// ║  VANI — Signs Page · Complete Redesign                            ║
-// ║  "Learning Vault" — premium ISL reference & practice experience   ║
-// ║                                                                    ║
-// ║  Design language:                                                  ║
-// ║  • Atmospheric background matching home / onboarding               ║
-// ║  • Category collection headers (editorial-magazine layout)         ║
-// ║  • Sign cards: bold symbol, gradient glow on hover/tap            ║
-// ║  • Detail modal sheet: immersive full-screen sign view             ║
-// ║  • Progress pill: tracks how many signs viewed this session        ║
-// ║  • Web: 5-col masonry-feel grid, sticky sidebar filter            ║
-// ║  • Mobile: horizontal scroll category rows + vertical sign list   ║
-// ╚══════════════════════════════════════════════════════════════════════╝
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -20,10 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../components/GlobalNavbar.dart';
 import '../l10n/AppLocalizations.dart';
-
-// ─────────────────────────────────────────────────────────────────────
 //  DESIGN TOKENS
-// ─────────────────────────────────────────────────────────────────────
 const _ff = 'Plus Jakarta Sans';
 
 // Brand palette
@@ -104,10 +86,7 @@ TextStyle _lbl(double sz, Color c, {FontWeight w = FontWeight.w500}) =>
       height: 1.4,
       letterSpacing: 0.1,
     );
-
-// ─────────────────────────────────────────────────────────────────────
 //  DATA MODEL
-// ─────────────────────────────────────────────────────────────────────
 enum SignCategory { alphabet, numbers, words }
 
 class _Sign {
@@ -140,10 +119,7 @@ class _Sign {
     }
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────
 //  64 SIGN ENTRIES
-// ─────────────────────────────────────────────────────────────────────
 const List<_Sign> _kSigns = [
   // ALPHABET
   _Sign(
@@ -725,10 +701,7 @@ const List<_Sign> _kSigns = [
     darkAccent: _tealDark,
   ),
 ];
-
-// ─────────────────────────────────────────────────────────────────────
 //  ATMOSPHERIC BG PAINTER  (same language as home + onboarding)
-// ─────────────────────────────────────────────────────────────────────
 class _BgPainter extends CustomPainter {
   final bool d;
   const _BgPainter(this.d);
@@ -803,10 +776,7 @@ class _BgPainter extends CustomPainter {
   @override
   bool shouldRepaint(_BgPainter o) => o.d != d;
 }
-
-// ═════════════════════════════════════════════════════════════════════
 //  PAGE
-// ═════════════════════════════════════════════════════════════════════
 class SignsPage extends StatefulWidget {
   final VoidCallback toggleTheme;
   final Function(Locale) setLocale;
@@ -904,10 +874,7 @@ class _SignsPageState extends State<SignsPage> with TickerProviderStateMixin {
         ? _buildWeb(context, d, l, w)
         : _buildMobile(context, d, l);
   }
-
-  // ════════════════════════════════════════════════════════════════
   //  MOBILE LAYOUT
-  // ════════════════════════════════════════════════════════════════
   Widget _buildMobile(BuildContext ctx, bool d, AppLocalizations l) {
     final bg = d ? _dBg : _lBg;
     final surf = d ? _dSurf : _lSurf;
@@ -933,7 +900,6 @@ class _SignsPageState extends State<SignsPage> with TickerProviderStateMixin {
           SafeArea(
             child: Column(
               children: [
-                // ── Top bar + hero + controls ───────────────────────────
                 Container(
                   padding: const EdgeInsets.fromLTRB(_s16, _s10, _s16, _s12),
                   decoration: BoxDecoration(
@@ -1011,7 +977,6 @@ class _SignsPageState extends State<SignsPage> with TickerProviderStateMixin {
                   ),
                 ),
 
-                // ── Grid ────────────────────────────────────────────────
                 Expanded(
                   child: FadeTransition(
                     opacity: _entryFade,
@@ -1051,10 +1016,7 @@ class _SignsPageState extends State<SignsPage> with TickerProviderStateMixin {
       ),
     );
   }
-
-  // ════════════════════════════════════════════════════════════════
   //  WEB LAYOUT
-  // ════════════════════════════════════════════════════════════════
   Widget _buildWeb(BuildContext ctx, bool d, AppLocalizations l, double w) {
     final isWide = w > 1200;
     final compactWeb = w < 700;
@@ -1091,7 +1053,6 @@ class _SignsPageState extends State<SignsPage> with TickerProviderStateMixin {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // ── Sticky sidebar ─────────────────────────────────────
                             if (isWide)
                               _WebSidebar(
                                 d: d,
@@ -1106,7 +1067,6 @@ class _SignsPageState extends State<SignsPage> with TickerProviderStateMixin {
                                 }),
                               ),
 
-                            // ── Main content ──────────────────────────────────────
                             Expanded(
                               child: SingleChildScrollView(
                                 physics: const BouncingScrollPhysics(),
@@ -1228,10 +1188,7 @@ class _SignsPageState extends State<SignsPage> with TickerProviderStateMixin {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────
 //  WEB HERO HEADER
-// ─────────────────────────────────────────────────────────────────────
 class _WebHero extends StatelessWidget {
   final bool d, isWide;
   final AppLocalizations l;
@@ -1393,10 +1350,7 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────
 //  WEB SIDEBAR
-// ─────────────────────────────────────────────────────────────────────
 class _WebSidebar extends StatelessWidget {
   final bool d;
   final SignCategory? cat;
@@ -1621,10 +1575,7 @@ class _SidebarItem extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────
 //  PROGRESS BADGE (mobile top bar)
-// ─────────────────────────────────────────────────────────────────────
 class _ProgressBadge extends StatelessWidget {
   final double progress;
   final int viewed, total;
@@ -1675,10 +1626,7 @@ class _ProgressBadge extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────
 //  CATEGORY PILLS
-// ─────────────────────────────────────────────────────────────────────
 class _CategoryPills extends StatelessWidget {
   final bool d;
   final SignCategory? selected;
@@ -1791,10 +1739,7 @@ class _CategoryPills extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────
 //  SEARCH FIELD
-// ─────────────────────────────────────────────────────────────────────
 class _SearchField extends StatefulWidget {
   final bool d;
   final TextEditingController ctrl;
@@ -2108,11 +2053,8 @@ class _SearchFieldState extends State<_SearchField> {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────
 //  SIGN TILE  (replaces old flip card)
 //  Premium card: bold symbol, category pill, glow on hover
-// ─────────────────────────────────────────────────────────────────────
 class _SignTile extends StatefulWidget {
   final _Sign sign;
   final bool d, viewed;
@@ -2556,10 +2498,7 @@ class _SignTileState extends State<_SignTile>
     }
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────
 //  SIGN DETAIL BOTTOM SHEET  — immersive full detail view
-// ─────────────────────────────────────────────────────────────────────
 class _SignDetailSheet extends StatelessWidget {
   final _Sign sign;
   final bool d;
@@ -3119,10 +3058,7 @@ class _DetailRow extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────
 //  EMPTY STATE
-// ─────────────────────────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final bool d;
   const _EmptyState({required this.d});

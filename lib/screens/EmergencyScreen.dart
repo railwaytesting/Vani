@@ -1,9 +1,3 @@
-// lib/screens/EmergencyScreen.dart
-//
-// ╔══════════════════════════════════════════════════════════════════════╗
-// ║  VANI — Emergency Screen  · Apple-Minimal Redesign                 ║
-// ║  Aesthetic: iOS 17-inspired, refined minimal depth                 ║
-// ╚══════════════════════════════════════════════════════════════════════╝
 
 import 'dart:ui';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -16,10 +10,7 @@ import '../l10n/AppLocalizations.dart';
 import 'EmergencySetupScreen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/EmergencyContact.dart';
-
-// ─────────────────────────────────────────────────────────────────────
 //  DESIGN TOKENS — Apple iOS palette
-// ─────────────────────────────────────────────────────────────────────
 const _fontFamily = 'Plus Jakarta Sans';
 
 // Semantic — Apple system colors
@@ -75,7 +66,6 @@ const _sp20 = 20.0;
 const _sp24 = 24.0;
 const _sp48 = 48.0;
 
-// ── Type helpers — Apple HIG scale ───────────────────────────────────
 TextStyle _largeTitle(Color c) => TextStyle(
     fontFamily: _fontFamily, fontSize: 34, fontWeight: FontWeight.w700,
     color: c, height: 1.2, letterSpacing: 0.37);
@@ -111,10 +101,7 @@ TextStyle _caption(Color c, {FontWeight w = FontWeight.w400}) => TextStyle(
 TextStyle _caption2(Color c, {FontWeight w = FontWeight.w400}) => TextStyle(
     fontFamily: _fontFamily, fontSize: 11, fontWeight: w,
     color: c, height: 1.3, letterSpacing: 0.06);
-
-// ─────────────────────────────────────────────────────────────────────
 //  SCENARIO MODEL
-// ─────────────────────────────────────────────────────────────────────
 class _Scenario {
   final SOSMessageType type;
   final IconData icon;
@@ -168,10 +155,7 @@ const List<_Scenario> _kScenarios = [
       accentLight: _scTeal, accentDark: _scTealD,
       smsTemplateKey: 'sos_sms_child_template'),
 ];
-
-// ══════════════════════════════════════════════════════════════════════
 //  EMERGENCY SCREEN
-// ══════════════════════════════════════════════════════════════════════
 class EmergencyScreen extends StatefulWidget {
   final VoidCallback toggleTheme;
   final Function(Locale) setLocale;
@@ -288,10 +272,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
       ? _buildWeb(context, isDark, w)
       : _buildMobile(context, isDark);
   }
-
-  // ══════════════════════════════════════════════════════════════════
   //  MOBILE
-  // ══════════════════════════════════════════════════════════════════
   Widget _buildMobile(BuildContext ctx, bool isDark) {
     final l  = AppLocalizations.of(ctx);
     final bg = isDark ? _dBg : _lBg;
@@ -390,10 +371,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
       ),
     );
   }
-
-  // ══════════════════════════════════════════════════════════════════
   //  WEB
-  // ══════════════════════════════════════════════════════════════════
   Widget _buildWeb(BuildContext ctx, bool isDark, double w) {
     final isDesktop = w > 1100;
     final compactWeb = w < 700;
@@ -509,10 +487,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
     ),
   );
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  MOBILE TOP BAR
-// ══════════════════════════════════════════════════════════════════════
 class _MobileTopBar extends StatelessWidget {
   final bool isDark;
   final Animation<double> pulseAnim;
@@ -593,10 +568,7 @@ class _MobileTopBar extends StatelessWidget {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  SCENARIO CARD — Refined, tactile, Apple-style press feel
-// ══════════════════════════════════════════════════════════════════════
 class _ScenarioCard extends StatefulWidget {
   final _Scenario scenario;
   final bool isDark, isSending, isDisabled, isHighlighted;
@@ -737,10 +709,7 @@ class _ScenarioCardState extends State<_ScenarioCard> {
     );
   }
 }
-
-// ══════════════════════════════════════════════════════════════════════
 //  WEB HERO
-// ══════════════════════════════════════════════════════════════════════
 class _WebHero extends StatelessWidget {
   final bool isDark;
   final Animation<double> pulseAnim;
@@ -806,7 +775,6 @@ class _WebHero extends StatelessWidget {
   }
 }
 
-// ── Scenarios grid ────────────────────────────────────────────────────
 class _ScenariosGrid extends StatelessWidget {
   final bool isDark, isSending;
   final Animation<double> pulseAnim;
@@ -832,7 +800,6 @@ class _ScenariosGrid extends StatelessWidget {
   );
 }
 
-// ── Helplines card ────────────────────────────────────────────────────
 class _HelplinesCard extends StatelessWidget {
   final bool isDark;
   const _HelplinesCard({required this.isDark});
@@ -890,7 +857,6 @@ class _HelplinesCard extends StatelessWidget {
   }
 }
 
-// ── Auto detect card ──────────────────────────────────────────────────
 class _AutoDetectCard extends StatelessWidget {
   final _Scenario scenario;
   final bool isDark;
@@ -943,7 +909,6 @@ class _AutoDetectCard extends StatelessWidget {
   }
 }
 
-// ── Status banner ─────────────────────────────────────────────────────
 class _StatusBanner extends StatelessWidget {
   final String message;
   final bool ok, isDark;
@@ -985,7 +950,6 @@ class _StatusBanner extends StatelessWidget {
   }
 }
 
-// ── No contacts banner ────────────────────────────────────────────────
 class _NoContactsBanner extends StatelessWidget {
   final bool isDark;
   final VoidCallback onTap;
@@ -1024,7 +988,6 @@ class _NoContactsBanner extends StatelessWidget {
   }
 }
 
-// ── Shake card ────────────────────────────────────────────────────────
 class _ShakeCard extends StatelessWidget {
   final bool isDark;
   const _ShakeCard({required this.isDark});
@@ -1068,7 +1031,6 @@ class _ShakeCard extends StatelessWidget {
   }
 }
 
-// ── Contacts button ───────────────────────────────────────────────────
 class _ContactsButton extends StatefulWidget {
   final bool isDark;
   final int count;
@@ -1133,7 +1095,6 @@ class _ContactsButtonState extends State<_ContactsButton> {
   }
 }
 
-// ── Section label ─────────────────────────────────────────────────────
 class _SectionLabel extends StatelessWidget {
   final String primary, secondary;
   final bool isDark;

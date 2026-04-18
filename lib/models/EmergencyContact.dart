@@ -1,5 +1,3 @@
-// lib/models/EmergencyContact.dart
-//
 // Added: `supabaseId` field (HiveField 4) — stores the UUID row id from
 // the `emergency_contacts` Supabase table so we can update/delete remotely.
 // The Hive typeId and all existing fields are unchanged.
@@ -34,7 +32,6 @@ class EmergencyContact extends HiveObject {
     this.supabaseId,
   });
 
-  // ── Validation ─────────────────────────────
 
   bool get isValid {
     final cleaned = cleanedPhone;
@@ -72,7 +69,6 @@ class EmergencyContact extends HiveObject {
     return '+$cleaned';
   }
 
-  // ── Serialisation ──────────────────────────
 
   Map<String, dynamic> toMap() => {
     'name': name,
